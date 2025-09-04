@@ -1,0 +1,84 @@
+<div class="flex space-x-4  mt-5">
+<!--     <div class="w-56">
+        <ul>
+            <li>
+                <a routerLink="/">All</a>
+            </li>
+            @for (category of categories(); track category) {
+              <li>
+                <a routerLink="/" [queryParams]="{category_id: category.id}">{{ category.name }}</a>
+              </li>
+            }
+        </ul>
+    </div>
+     -->
+<div class="mx-auto">
+  <!-- HERO -->
+<div
+  id="Imagen_presentacion"
+  class="group relative my-10 overflow-hidden rounded-3xl h-1/4"
+>
+  <!-- Fondo: imagen si existe, si no degradado CMYK -->
+  <div
+    class="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-[1.02]"
+    role="img"
+    [attr.aria-label]="heroAlt"
+    [style.backgroundImage]="heroUrl ? 'url(' + heroUrl + ')' : ''"
+    [ngClass]="{
+      'bg-[conic-gradient(at_50%_50%,#06b6d4_0deg,#d946ef_120deg,#facc15_240deg,#06b6d4_360deg)]': !heroUrl
+    }"
+  ></div>
+
+  <!-- Oscurecedor para legibilidad -->
+  <div class="absolute inset-0 bg-black/30"></div>
+
+  <!-- Contenido centrado -->
+  <div class="relative z-10 flex min-h-[42vh] items-center justify-center px-6 py-16 sm:min-h-[52vh]">
+    <div class="text-center max-w-3xl">
+      <h1 class="text-2xl font-extrabold leading-tight text-white sm:text-4xl md:text-5xl">
+        No solo te vendemos el producto,
+        <span class="inline-block text-blue-600">te enseñamos a utilizarlo</span>
+      </h1>
+
+      <p class="mx-auto mt-3 max-w-xl text-sm text-white/80 sm:text-base">
+        Capacitación, instalación y soporte para que produzcas desde el día uno.
+      </p>
+      <!-- CTA opcional
+      <div class="mt-6 flex items-center justify-center gap-3">
+        <a class="rounded-xl bg-white px-5 py-2 text-sm font-semibold text-slate-900 hover:bg-white/90">Ver productos</a>
+        <a class="rounded-xl border border-white/60 px-5 py-2 text-sm font-semibold text-white hover:bg-white/10">Solicitar demo</a>
+      </div>
+      -->
+    </div>
+  </div>
+
+  <!-- Detalle CMYK sutil -->
+  <div class="pointer-events-none absolute inset-0 opacity-40 mix-blend-screen">
+    <div class="absolute inset-0 bg-[radial-gradient(60%_50%_at_20%_20%,rgba(6,182,212,0.35),transparent),radial-gradient(50%_45%_at_80%_25%,rgba(217,70,239,0.25),transparent),radial-gradient(45%_40%_at_50%_85%,rgba(250,204,21,0.25),transparent)]"></div>
+  </div>
+</div>
+
+
+
+ <div id="categories" class="flex items-center flex-col mb-10 space-y-10">
+    <div id="title-font">
+      <h1 class="text-7xl text-center font-semibold">NUESTRAS CATEGORÍAS</h1>
+    </div>
+    <div class="grid grid-cols-4 gap-8 w-full border-separate">
+        @for (category of categories(); track category) {
+          <a [routerLink]="['/']" [queryParams]="{category_id: category.id}" class="w-60 h-60 flex flex-col items-center space-y-2 bg-black/5 p-4 rounded-lg hover:scale-105 transition-transform">
+            <img [src]="category.image" alt="{{ category.name }}" class="h-50 w-50 object-cover rounded-full border-2 border-gray-200 shadow-lg bg-black"/>
+            <span class="text-lg font-bold  text-gray-700">{{ category.name }}</span>
+          </a>
+        }
+    </div>
+    <!-- Renderizado de productos. -->
+    <div class="grid grid-cols-4 gap-8 w-full">
+        @for (product of products(); track product) {
+          <app-product [product]="product" (addToCart)="addToCart($event)"/>
+        }
+    </div>
+  </div>
+
+
+</div>
