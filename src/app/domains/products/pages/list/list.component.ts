@@ -109,4 +109,10 @@ export default class ListComponent {
 
   // trackBy (lo sigues usando en el grid)
   trackById = (_: number, p: Product) => p.id;
+  onCatImgError(e: Event) {
+    const el = e.target as HTMLImageElement;
+    el.src = '/assets/placeholders/category.webp'; // tu placeholder
+  }
+
+  
 }

@@ -1,6 +1,9 @@
 import { Routes } from '@angular/router';
 import { LayoutComponent } from '@shared/components/layout/layout.component';
 import { NotFoundComponent } from '@info/pages/not-found/not-found.component';
+import { ServicioTecnicoComponent } from './domains/pages/servicios/servicio-tecnico/servicio-tecnico.component';
+import { EncuentranosComponent } from './domains/pages/encuentranos/encuentranos.component';
+import { CatalogoComponent } from './domains/pages/catalogo/catalogo.component';
 
 export const routes: Routes = [
     {
@@ -18,7 +21,20 @@ export const routes: Routes = [
             {
                 path: 'product/:id',
                 loadComponent: () => import('./domains/products/pages/product-detail/product-detail.component')
+            },
+            {
+                path: 'servicios',
+                component: ServicioTecnicoComponent
+            },
+            {
+                path: 'encuentranos',
+                component: EncuentranosComponent
+            },
+            {
+                path: 'catalogo',
+                component: CatalogoComponent
             }
+
         ]
     },
     {

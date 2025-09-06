@@ -8,7 +8,7 @@ import { TimeAgoPipe } from '@shared/pipes/time-ago.pipe';
 @Component({
   selector: 'app-product',
   standalone: true,
-  imports: [CommonModule, ReversePipe, TimeAgoPipe, RouterLinkWithHref],
+  imports: [CommonModule, ReversePipe, RouterLinkWithHref],
   templateUrl: './product.component.html',
   styleUrls: ['./product.component.css']
 })

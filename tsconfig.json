@@ -27,6 +27,8 @@
       "@shared/*": ["./src/app/domains/shared/*"],
       "@products/*": ["./src/app/domains/products/*"],
       "@info/*": ["./src/app/domains/info/*"],
+      "@services/*": ["./src/app/domains/pages/sercicios/*"],
+
     }
   },
   "angularCompilerOptions": {

@@ -11,11 +11,13 @@
   
 
       <!-- Menú -->
-      <ul class="flex items-center gap-6 h-14">
+      <ul class="flex items-center gap-6 h-14 font-medium text-[#0511F2]">
 
       <!-- INICIO -->
       <li>
-        <a routerLink="/" class="hover:underline hover:text-blue-900 transition block">
+        <a routerLink=""
+        routerLinkActive="text-blue-900 font-bold text-2xl"
+        class="hover:underline font-medium  hover:text-blue-900 transition block">
           Inicio
         </a>
       </li>
@@ -24,11 +26,12 @@
       <li class="relative"
           (mouseenter)="onEnter('catalogo')"
           (mouseleave)="onLeave('catalogo')">
-        <a href="#"
+        <a routerLink="catalogo"
+        routerLinkActive="text-blue-900 font-bold text-2xl"
            role="button"
            [attr.aria-expanded]="openMenu === 'catalogo'"
            (click)="toggleMenu($event, 'catalogo')"
-           class="hover:underline hover:text-blue-900 transition block">
+           class="hover:underline text-[#0511F2] hover:text-blue-900 transition block">
           Catálogo
         </a>
         <div *ngIf="openMenu === 'catalogo'"
@@ -84,7 +87,8 @@
       <li class="relative"
           (mouseenter)="onEnter('servicios')"
           (mouseleave)="onLeave('servicios')">
-        <a href="#"
+        <a routerLink="servicios"
+        routerLinkActive="text-blue-900 font-bold text-2xl"
            role="button"
            [attr.aria-expanded]="openMenu === 'servicios'"
            (click)="toggleMenu($event, 'servicios')"
@@ -107,21 +111,20 @@
       <li class="relative"
           (mouseenter)="onEnter('empresa')"
           (mouseleave)="onLeave('empresa')">
-        <a href="#"
+        <a routerLink="encuentranos"
            role="button"
            [attr.aria-expanded]="openMenu === 'empresa'"
            (click)="toggleMenu($event, 'empresa')"
            class="hover:underline hover:text-blue-900 transition block">
           Empresa
         </a>
-        <ul *ngIf="openMenu === 'empresa'"
-            class="absolute top-full left-0 mt-2 w-64 bg-white shadow-lg rounded-lg z-50 border border-gray-100 py-2">
+        <ul *ngIf="openMenu === 'empresa'" class="absolute top-full left-0 mt-2 w-64 bg-white shadow-lg rounded-lg z-50 border border-gray-100 py-2">
           <li><a routerLink="/about/sobre-nosotros" class="block px-4 py-2 hover:bg-gray-100">Sobre nosotros</a></li>
           <li><a routerLink="/about/mision-vision" class="block px-4 py-2 hover:bg-gray-100">Misión y visión</a></li>
           <li><a routerLink="/about/valores" class="block px-4 py-2 hover:bg-gray-100">Valores</a></li>
           <li><a routerLink="/about/equipo" class="block px-4 py-2 hover:bg-gray-100">Equipo</a></li>
-          <li><a routerLink="/about/certificaciones" class="block px-4 py-2 hover:bg-gray-100">Certificaciones</a></li>
           <li><a routerLink="/about/responsabilidad" class="block px-4 py-2 hover:bg-gray-100">Responsabilidad social</a></li>
+          <li><a routerLink="/casos-de-exito" class="block px-4 py-2 hover:bg-gray-100">Casos de éxito</a></li>
           <li><a routerLink="/about/carreras" class="block px-4 py-2 hover:bg-gray-100">Trabaja con nosotros</a></li>
         </ul>
       </li>
@@ -139,14 +142,13 @@
         </a>
         <ul *ngIf="openMenu === 'recursos'"
             class="absolute top-full left-0 mt-2 w-72 bg-white shadow-lg rounded-lg z-50 border border-gray-100 py-2">
-          <li><a routerLink="/blog" class="block px-4 py-2 hover:bg-gray-100">Blog / Guías</a></li>
-          <li><a routerLink="/descargas/perfiles-color" class="block px-4 py-2 hover:bg-gray-100">Perfiles de color / Descargas</a></li>
-          <li><a routerLink="/herramientas/calculadoras" class="block px-4 py-2 hover:bg-gray-100">Calculadoras (costo, ROI)</a></li>
-          <li><a routerLink="/casos-de-exito" class="block px-4 py-2 hover:bg-gray-100">Casos de éxito</a></li>
+          <li><a routerLink="/blog" class="block px-4 py-2 hover:bg-gray-100">Videos</a></li>
+          <li><a routerLink="/descargas/perfiles-color" class="block px-4 py-2 hover:bg-gray-100">Perfiles de color</a></li>
+
         </ul>
       </li>
 
-      <!-- SOPORTE -->
+      <!-- SUCURSALES -->
       <li class="relative"
           (mouseenter)="onEnter('soporte')"
           (mouseleave)="onLeave('soporte')">
@@ -157,52 +159,182 @@
            class="hover:underline hover:text-blue-900 transition block">
           Soporte
         </a>
-        <ul *ngIf="openMenu === 'soporte'"
-            class="absolute top-full left-0 mt-2 w-72 bg-white shadow-lg rounded-lg z-50 border border-gray-100 py-2">
-          <li><a routerLink="/ayuda" class="block px-4 py-2 hover:bg-gray-100">Centro de ayuda / FAQs</a></li>
-          <li><a routerLink="/politicas/envios" class="block px-4 py-2 hover:bg-gray-100">Envíos y cobertura</a></li>
-          <li><a routerLink="/politicas/devoluciones" class="block px-4 py-2 hover:bg-gray-100">Devoluciones y garantías</a></li>
-          <li><a routerLink="/contacto" class="block px-4 py-2 hover:bg-gray-100">Contacto / WhatsApp</a></li>
-          <li><a routerLink="/sucursales" class="block px-4 py-2 hover:bg-gray-100">Showroom / Sucursales</a></li>
+        <ul *ngIf="openMenu === 'soporte'" class="absolute top-full left-0 mt-2 w-72 bg-white shadow-lg rounded-lg z-50 border border-gray-100 py-2">
+          <li><a routerLink="/services/tecnico" class="block px-4 py-2 hover:bg-gray-100">Servicio técnico</a></li>
+          <li><a routerLink="/services/instalacion" class="block px-4 py-2 hover:bg-gray-100">Instalación de equipos</a></li>
+          <li><a routerLink="/services/capacitacion" class="block px-4 py-2 hover:bg-gray-100">Capacitación</a></li>
+          <li><a routerLink="/services/mantenimiento" class="block px-4 py-2 hover:bg-gray-100">Mantenimiento preventivo</a></li>
+          <li><a routerLink="/services/repuestos" class="block px-4 py-2 hover:bg-gray-100">Repuestos y consumibles</a></li>
+          <li><a routerLink="/services/soporte" class="block px-4 py-2 hover:bg-gray-100">Soporte postventa</a></li>
         </ul>
+      </li>
+      <li class="relative"
+          (mouseenter)="onEnter('sucursales')"
+          (mouseleave)="onLeave('sucursales')">
+        <a routerLink="encuentranos"
+        routerLinkActive="text-blue-900 font-bold text-2xl"
+           role="button"
+           [attr.aria-expanded]="openMenu === 'soporte'"
+           (click)="toggleMenu($event, 'soporte')"
+           class="hover:underline hover:text-blue-900 transition block">
+          Sucursales
+        </a>
       </li>
     </ul>
     </div>
 
     <!-- Carrito -->
-    <div class="flex items-center">
-      <button
-        class="relative p-2 bg-blue-100 hover:bg-blue-200 border border-blue-300 text-blue-800 rounded-full shadow transition-all duration-200"
-        (click)="toogleSideMenu()"
-      >
-        <!-- Badge -->
-        <span
-          class="absolute -top-1 -left-1 w-5 h-5 bg-blue-700 text-white text-xs font-semibold rounded-full flex items-center justify-center shadow-md animate-pulse"
-        >
-          {{ cart().length }}
-        </span>
+    <div class="flex items-center gap-2">
+  <!-- Link a iniciar sesión -->
+  <a
+    routerLink="/login"
+    class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium
+           rounded-full border border-blue-300 text-blue-800 bg-blue-50
+           hover:bg-blue-100 transition"
+    aria-label="Iniciar sesión"
+  >
+    <!-- icono usuario -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0" />
+    </svg>
+    Iniciar sesión
+  </a>
 
-        <!-- Icono -->
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="w-6 h-6"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
-          />
-        </svg>
-      </button>
-    </div>
+  <!-- Botón Carrito (tu código original) -->
+  <button
+    class="relative p-2 bg-blue-100 hover:bg-blue-200 border border-blue-300 text-blue-800 rounded-full shadow transition-all duration-200"
+    (click)="toogleSideMenu()"
+  >
+    <span
+      class="absolute -top-1 -left-1 w-5 h-5 bg-blue-700 text-white text-xs font-semibold rounded-full flex items-center justify-center shadow-md animate-pulse"
+    >
+      {{ cart().length }}
+    </span>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+         stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+      <path stroke-linecap="round" stroke-linejoin="round"
+            d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/>
+    </svg>
+  </button>
+</div>
+
   </div>
 </nav>
 
+<!-- Overlay (clic para cerrar) -->
 <div
+  class="fixed inset-0 z-40 transition-opacity"
+  [class.pointer-events-none]="hideSideMenu()"
+  [class.opacity-0]="hideSideMenu()"
+  [class.opacity-100]="!hideSideMenu()"
+  (click)="toogleSideMenu()"
+  style="background-color: rgba(0,0,0,0.4)"
+></div>
+
+<!-- Side Cart -->
+<div
+  class="fixed top-0 right-0 z-50 w-full max-w-md h-screen bg-white shadow-2xl border-l
+         transition-transform duration-300 flex flex-col"
+  [class.translate-x-full]="hideSideMenu()"
+>
+  <!-- Header -->
+  <div class="flex items-center justify-between p-4 border-b bg-white/80 backdrop-blur">
+    <div class="flex items-center gap-2">
+      <p class="text-lg font-semibold">Mi carrito</p>
+      <span class="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700 border border-blue-200">
+        {{ cart().length }}
+      </span>
+    </div>
+    <button (click)="toogleSideMenu()" class="p-2 rounded hover:bg-gray-100" aria-label="Cerrar">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none"
+           viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Lista de productos -->
+  <div class="flex-1 overflow-y-auto p-4 space-y-3">
+    
+    @if (cart().length === 0) {
+      <div class="text-center text-sm text-gray-500 py-10">
+        Tu carrito está vacío.
+      </div>
+    } @else {
+      @for (item of groupedCart(); track item.product.id || item.product.slug) {
+         <div class="flex items-center gap-3 p-3 border rounded-lg hover:shadow-sm transition">
+          <img [src]="item.product.imageUrl" [alt]="item.product.name" class="w-14 h-14 rounded object-cover border" loading="lazy">
+          <div class="flex-1 min-w-0">
+            <h3 class="text-sm font-medium truncate">{{ item.product.name }}</h3>
+            <div class="text-[17px] text-gray-500">Cant: {{ item.count }}</div>
+          </div>
+          <div class="text-right">
+            <p class="text-sm font-semibold">
+              {{ (item.unitPrice * item.count) | currency:'Bs.':'symbol-narrow':'1.2-2' }}
+            </p>
+            <button class="w-7 h-7 rounded border hover:bg-gray-50 text-gray-700" (click)="removeFromCart(item.product)">−</button>
+            <button class="w-7 h-7 rounded border hover:bg-gray-50 text-gray-700" (click)="addOne(item.product)">+</button>
+            <button class="p-1.5 rounded border border-red-200 text-red-600 hover:bg-red-50"
+                (click)="removeAllFromCart(item.product)" title="Quitar todo">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.74 9l-.35 9m-4.78 0L9.26 9M4 6h16M6 6l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M9 6V4a2 2 0 012-2h2a2 2 0 012 2v2"/>
+              </svg>
+            </button>
+          </div>
+
+         </div>
+      }
+      
+    }
+    
+  </div>
+  
+
+  <!-- Total + acciones -->
+  <div class="p-4 border-t bg-white">
+    <div class="flex items-center justify-between mb-3">
+      <span class="text-sm text-gray-600">Total</span>
+      <span class="text-lg font-semibold">
+        {{ total() | currency:'BOB':'symbol-narrow':'1.2-2' }}
+      </span>
+    </div>
+
+    <div class="space-y-2">
+      <!-- Finalizar compra -->
+      <a
+        routerLink="/checkout"
+        class="w-full inline-flex items-center justify-center rounded-lg px-4 py-3
+               bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
+        (click)="toogleSideMenu()"
+      >
+        Finalizar compra
+      </a>
+
+      <!-- WhatsApp -->
+      <a
+        [href]="waLink()"
+        target="_blank" rel="noopener"
+        class="w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-3
+               bg-green-600 text-white font-medium hover:bg-green-700 transition"
+      >
+        <!-- icono wsp -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12.04 2C6.56 2 2.1 6.46 2.1 11.94c0 2.12.62 4.09 1.7 5.76L2 22l4.43-1.74a10.02 10.02 0 0 0 5.61 1.65c5.48 0 9.94-4.46 9.94-9.94C22 6.46 17.52 2 12.04 2Zm5.87 14.16c-.25.71-1.22 1.26-2 1.43-.53.11-1.22.2-3.55-.73-2.97-1.23-4.89-4.23-5.04-4.43-.14-.2-1.2-1.6-1.2-3.06 0-1.46.77-2.17 1.05-2.47.25-.28.66-.4 1.05-.4.13 0 .25 0 .36.01.32.01.49.03.71.55.25.6.86 2.06.94 2.21.07.15.12.32.02.51-.1.2-.16.32-.32.5-.16.18-.33.4-.47.54-.15.15-.31.31-.13.6.18.3.78 1.28 1.67 2.07 1.15 1.02 2.12 1.34 2.44 1.48.31.14.5.12.69-.07.2-.2.79-.91 1-1.22.21-.31.43-.26.71-.16.29.1 1.82.86 2.13 1.02.31.16.52.24.6.37.07.12.07.72-.18 1.43Z"/>
+        </svg>
+        Pedir por WhatsApp
+      </a>
+
+      <!-- Nota chiquita -->
+      <p class="text-[15px] text-gray-500 text-center">
+        Atención Lunes-Viernes 8:30–18:30.
+      </p>
+    </div>
+  </div>
+</div>
+
+
+<!-- <div
   class="fixed border-l-4 top-0 right-0 bg-red z-40 w-72 h-screen p-4 overflow-y-auto transition-transform bg-white "
   [class.translate-x-full]="hideSideMenu()"
 >
@@ -239,4 +371,4 @@
       <p>Total: {{ total() }}</p>
     </div>
   </div>
-</div>
+</div> -->

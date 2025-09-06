@@ -71,7 +71,7 @@
             <span class="h-2 w-2 rounded-full bg-slate-900 border border-white/20"></span>
             EPSON
           </span>
-          <span class="text-[10px] text-slate-400">· {{ product.created_at | timeAgo }}</span>
+          <span class="text-[10px] text-slate-400">· {{ product.created_at | date:'short' }}</span>
         </div>
 
         <!-- Título -->

@@ -26,6 +26,6 @@ export interface Product {
   is_active: boolean;
   created_at: string;
   updated_at: string;
-  /* category: Category; */
-  category: 1;
+  category: Category;
+  /* category: 1; */
 }
