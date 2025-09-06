@@ -4,6 +4,7 @@ import { NotFoundComponent } from '@info/pages/not-found/not-found.component';
 import { ServicioTecnicoComponent } from './domains/pages/servicios/servicio-tecnico/servicio-tecnico.component';
 import { EncuentranosComponent } from './domains/pages/encuentranos/encuentranos.component';
 import { CatalogoComponent } from './domains/pages/catalogo/catalogo.component';
+import { LoginComponent } from './domains/pages/login/login.component';
 
 export const routes: Routes = [
     {
@@ -13,6 +14,10 @@ export const routes: Routes = [
             {
                 path: '',
                 loadComponent: () => import('./domains/products/pages/list/list.component')
+            },
+            {
+                path: 'login',
+                component: LoginComponent
             },
             {
                 path: 'about',

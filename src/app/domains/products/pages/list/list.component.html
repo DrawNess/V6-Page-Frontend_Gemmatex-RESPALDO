@@ -90,8 +90,7 @@
       <!-- Título responsivo -->
       <header class="text-center">
         <h2
-          class="font-extrabold tracking-tight bg-clip-text text-transparent
-                text-3xl sm:text-4xl md:text-5xl text-blue-600">
+          class="font-extrabold tracking-tight text-3xl sm:text-4xl md:text-5xl text-blue-600">
           NUESTRAS CATEGORÍAS
         </h2>
         <p class="mt-2 text-slate-600 text-sm sm:text-base">
@@ -101,9 +100,7 @@
 
       <!-- Grid responsivo -->
       <div
-        class="mt-8 sm:mt-10 grid
-              grid-cols-2 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-5
-              gap-4 sm:gap-6 lg:gap-8 place-items-center">
+        class="mt-8 sm:mt-10 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6 lg:gap-8 place-items-center">
         @for (category of categories(); track category) {
           <a
             [routerLink]="['/']"
@@ -111,7 +108,6 @@
             [attr.aria-label]="'Ver ' + category.name"
             class="group relative w-full max-w-[220px] sm:max-w-[240px] rounded-2xl border border-slate-200 bg-white/80 backdrop-blur p-4 sm:p-5 shadow-sm transition-transform duration-200 ease-out hover:-translate-y-1 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
           >
-              <!-- Avatar redondo, centrado y responsive -->
               <div
                 class="mx-auto w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28
                       rounded-full overflow-hidden ring-2 ring-white
@@ -258,6 +254,45 @@
             </a>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="destacados" class="w-full bg-white">
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:py-10">
+    <div class="mb-4 flex items-center justify-between gap-3">
+      <div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-blue-600">Descubre más productos</h2>
+      </div>
+
+      <!-- Flechas -->
+      <div class="flex items-center gap-2">
+        <button class="h-9 w-9 rounded-full border border-slate-300 bg-white hover:bg-slate-50"
+                (click)="prevSlide()" [attr.aria-label]="'Anterior'">‹</button>
+        <button class="h-9 w-9 rounded-full border border-slate-300 bg-white hover:bg-slate-50"
+                (click)="nextSlide()" [attr.aria-label]="'Siguiente'">›</button>
+      </div>
+    </div>
+
+    <!-- Track -->
+    <div class="relative">
+      <div #carouselTrack
+           class="grid auto-cols-[100%] sm:auto-cols-[50%] lg:auto-cols-[33.333%]
+                  grid-flow-col gap-4 sm:gap-5 lg:gap-6
+                  overflow-x-auto scroll-smooth snap-x snap-mandatory
+                  [-ms-overflow-style:none] [scrollbar-width:none]"
+           (mouseenter)="pauseAutoplay()" (mouseleave)="resumeAutoplay()">
+        <!-- ocultar scrollbars -->
+        <style>
+          #destacados ::-webkit-scrollbar { display: none; }
+        </style>
+
+        @for (p of randomProducts(); track p.id) {
+          <div class="snap-start slide">
+            <app-product [product]="p" (addToCart)="addToCart($event)"></app-product>
+          </div>
+        }
       </div>
     </div>
   </div>

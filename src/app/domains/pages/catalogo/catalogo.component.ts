@@ -1,8 +1,7 @@
-import { Component, Input, SimpleChanges, inject, signal, ElementRef, ViewChild } from '@angular/core';
+import { Component, Input, SimpleChanges, inject, signal, ElementRef, ViewChild , computed} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLinkWithHref } from '@angular/router';
 import { ProductComponent } from '@products/components/product/product.component';
-import { HeaderComponent } from '@shared/components/header/header.component';
 import { Product } from '@shared/models/product.model';
 import { CartService } from '@shared/services/cart.service';
 import { ProductService } from '@shared/services/product.service';
@@ -113,4 +112,67 @@ export class CatalogoComponent {
       const el = e.target as HTMLImageElement;
       el.src = '/assets/placeholders/category.webp'; // tu placeholder
     }
+
+    /* -------------------------------------- */
+    // --- búsqueda ---
+search = signal('');
+
+// categorías seleccionadas (IDs)
+selectedCats = signal<Set<number>>(new Set<number>());
+
+// productos filtrados solo por búsqueda (para calcular contadores por categoría)
+searchFilteredProducts = computed<Product[]>(() => {
+  const q = this.search().trim().toLowerCase();
+  if (!q) return this.products();
+
+  return this.products().filter(p => {
+    const haystack = [
+      p.name,
+      p.shortDescription,
+      p.description,
+      ...(p.tags ?? []),
+    ].filter(Boolean).join(' ').toLowerCase();
+
+    return haystack.includes(q);
+  });
+});
+
+// conteo por categoría (en función de la búsqueda, NO del filtro de categorías)
+categoryCounts = computed<Map<number, number>>(() => {
+  const map = new Map<number, number>();
+  for (const p of this.searchFilteredProducts()) {
+    const cid = Number((p as any).category);
+    map.set(cid, (map.get(cid) ?? 0) + 1);
+  }
+  return map;
+});
+
+// productos filtrados finales (búsqueda + categorías)
+filteredProducts = computed<Product[]>(() => {
+  const set = this.selectedCats();
+  const fromSearch = this.searchFilteredProducts();
+
+  if (!set.size) return fromSearch;
+  return fromSearch.filter(p => set.has(Number((p as any).category)));
+});
+
+// handlers
+onSearch(ev: Event) {
+  const val = (ev.target as HTMLInputElement)?.value ?? '';
+  this.search.set(val);
+}
+
+clearSearch() { this.search.set(''); }
+
+toggleCat(id: number) {
+  this.selectedCats.update(prev => {
+    const next = new Set(prev);
+    next.has(id) ? next.delete(id) : next.add(id);
+    return next;
+  });
+}
+
+clearCategories() { this.selectedCats.set(new Set()); }
+
+clearFilters() { this.clearSearch(); this.clearCategories(); }
 }

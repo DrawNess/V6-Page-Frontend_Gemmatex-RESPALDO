@@ -1,0 +1,22 @@
+/* Blob animation */
+@keyframes blob {
+  0%   { transform: translate(0px, 0px) scale(1); }
+  33%  { transform: translate(10px, -15px) scale(1.05); }
+  66%  { transform: translate(-10px, 5px) scale(0.98); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+.animate-blob { animation: blob 12s ease-in-out infinite; }
+.animation-delay-2000 { animation-delay: 2s; }
+.animation-delay-4000 { animation-delay: 4s; }
+
+/* Sutil flotación de la carita */
+@keyframes sadFloat {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-6px); }
+}
+.sad-float { animation: sadFloat 5s ease-in-out infinite; }
+
+/* Sombra interna suave para el circulito */
+.inner-shadow {
+  box-shadow: inset 0 6px 16px rgba(0,0,0,0.06);
+}
