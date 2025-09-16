@@ -1,0 +1,113 @@
+<!-- HERO -->
+<section class="relative overflow-hidden bg-gradient-to-br from-blue-700 via-indigo-600 to-sky-500 text-white">
+  <div class="absolute inset-0 opacity-10 pointer-events-none"
+       style="background:
+        radial-gradient(30% 40% at 10% 20%, #ffffff 0, transparent 60%),
+        radial-gradient(25% 35% at 85% 30%, #ffffff 0, transparent 65%),
+        radial-gradient(30% 35% at 50% 80%, #ffffff 0, transparent 65%);"></div>
+
+  <div class="mx-auto max-w-7xl px-4 py-16 sm:py-20 relative">
+    <div class="grid md:grid-cols-2 gap-8 items-center">
+      <div class="space-y-4">
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight">
+          {{ hero.titulo }}
+        </h1>
+        <p class="text-white/90 text-sm sm:text-base max-w-xl">
+          {{ hero.subtitulo }}
+        </p>
+        <div class="flex flex-wrap gap-3 pt-2">
+          <a routerLink="/ofertas"
+             class="rounded-xl bg-white text-blue-700 font-semibold px-5 py-2.5 hover:bg-white/90">
+            Ver ofertas
+          </a>
+          <a [href]="waLink()" target="_blank" rel="noopener"
+             class="rounded-xl border border-white/70 bg-white/10 px-5 py-2.5 font-semibold hover:bg-white/15">
+            Mas informacion WhatsApp
+          </a>
+        </div>
+      </div>
+
+      <div class="relative">
+        <div class="aspect-[4/3] w-full rounded-2xl overflow-hidden ring-1 ring-white/30 shadow-2xl">
+          <div class="w-full h-full bg-cover bg-center scale-105"
+               [style.backgroundImage]="hero.imagen ? 'url(' + hero.imagen + ')' : ''"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICIOS -->
+<section class="bg-white">
+  <div class="mx-auto max-w-7xl px-4 py-12 sm:py-16">
+    <header class="text-center">
+      <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900">Nuestros servicios</h2>
+      <p class="mt-2 text-slate-600">Soluciones integrales en impresión y producción.</p>
+    </header>
+
+    <div class="mt-8 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
+      @for (s of servicios; track trackById) {
+        <article class="group relative rounded-2xl border border-slate-200 bg-white overflow-hidden card-pop">
+          <div class="pointer-events-none absolute inset-0 opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-100"
+               style="background:
+                 radial-gradient(40% 35% at 50% 30%, rgba(56,189,248,.18), transparent 60%),
+                 radial-gradient(35% 30% at 60% 70%, rgba(217,70,239,.14), transparent 60%)"></div>
+
+          <div class="aspect-[4/3] bg-slate-900">
+            <img [src]="s.imagen || '/assets/placeholder.webp'" [alt]="s.titulo"
+                 class="w-full h-full object-cover group-hover:scale-[1.02] transition duration-500" loading="lazy">
+          </div>
+
+          <div class="p-4 sm:p-5">
+            <div class="mb-1">
+              <span class="rounded-full bg-blue-600/10 text-blue-700 px-2 py-0.5 text-[11px] font-semibold">
+                Servicio
+              </span>
+            </div>
+
+            <h3 class="text-lg font-bold text-slate-900">
+              {{ s.titulo }}
+            </h3>
+            <p class="mt-1 text-sm text-slate-600 min-h-[3rem]">
+              {{ s.resumen }}
+            </p>
+
+            <ul class="mt-3 space-y-1.5 text-sm text-slate-700">
+              @for (b of s.bullets; track b) {
+                <li class="pl-3 relative">
+                  <span class="absolute left-0 top-2 h-1.5 w-1.5 rounded-full bg-blue-600/80"></span>
+                  {{ b }}
+                </li>
+              }
+            </ul>
+
+            <div class="mt-4">
+              <a [routerLink]="s.href"
+                 class="inline-flex items-center rounded-xl border border-blue-300 bg-white px-4 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50">
+                Saber más
+              </a>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-600 text-white">
+  <div class="mx-auto max-w-7xl px-4 py-12 sm:py-16 text-center">
+    <h2 class="text-2xl sm:text-3xl font-extrabold">¿Listo para empezar?</h2>
+    <p class="mt-2 text-white/90">Cuéntanos tu proyecto y te asesoramos sin costo.</p>
+    <div class="mt-5 flex items-center justify-center gap-3">
+      <a [href]="waLink()" target="_blank" rel="noopener"
+         class="rounded-xl bg-white text-blue-700 font-semibold px-5 py-2.5 hover:bg-white/90">
+        Hablar por WhatsApp
+      </a>
+      <a routerLink="/encuentranos"
+         class="rounded-xl border border-white/70 bg-white/10 px-5 py-2.5 font-semibold hover:bg-white/15">
+        Ver sucursales
+      </a>
+    </div>
+  </div>
+</section>

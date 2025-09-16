@@ -82,13 +82,104 @@
   </div>
 </div>
 <!-- ----------------------------------------------------------- -->
+<!-- =========================================================== -->
+
+<!-- <section id="destacados" class="w-full bg-white">
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:py-10">
+    <div class="mb-4 flex items-center justify-between gap-3">
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-blue-600">Descubre más productos</h2>
+      <div class="flex items-center gap-2">
+        <button class="h-9 w-9 rounded-full border border-slate-300 bg-white hover:bg-slate-50"
+                (click)="prevSlide()" aria-label="Anterior">‹</button>
+        <button class="h-9 w-9 rounded-full border border-slate-300 bg-white hover:bg-slate-50"
+                (click)="nextSlide()" aria-label="Siguiente">›</button>
+      </div>
+    </div>
+
+    <div class="relative">
+      <div #carouselTrack
+           class="grid auto-cols-[100%] sm:auto-cols-[50%] lg:auto-cols-[33.333%]
+                  grid-flow-col gap-4 sm:gap-5 lg:gap-6
+                  overflow-x-auto scroll-smooth snap-x snap-mandatory
+                  [-ms-overflow-style:none] [scrollbar-width:none]"
+           (mouseenter)="pauseAutoplay()" (mouseleave)="resumeAutoplay()">
+        <style>#destacados ::-webkit-scrollbar { display: none; }</style>
+
+        @for (p of destacados(); track p.id; let i = $index) {
+          <div class="snap-start slide">
+            <app-bestseller
+              [product]="p"
+              [rank]="i + 1"
+              (addToCart)="addToCart($event)">
+            </app-bestseller>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</section> -->
 
 
+
+<!-- =========================================================== -->
+ <section id="destacados" class="w-full bg-white">
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:py-10">
+    <div class="mb-4 flex items-center justify-between gap-3">
+      <div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-blue-600">Descubre más productos</h2>
+      </div>
+
+      <!-- Flechas -->
+      <div class="flex items-center gap-2">
+        <button class="h-9 w-9 rounded-full border border-slate-300 bg-white hover:bg-slate-50"
+                (click)="prevSlide()" [attr.aria-label]="'Anterior'">‹</button>
+        <button class="h-9 w-9 rounded-full border border-slate-300 bg-white hover:bg-slate-50"
+                (click)="nextSlide()" [attr.aria-label]="'Siguiente'">›</button>
+      </div>
+    </div>
+
+    <!-- Track -->
+    <div class="relative">
+      <div #carouselTrack
+           class="grid auto-cols-[100%] sm:auto-cols-[50%] lg:auto-cols-[33.333%]
+                  grid-flow-col gap-4 sm:gap-5 lg:gap-6
+                  overflow-x-auto scroll-smooth snap-x snap-mandatory
+                  [-ms-overflow-style:none] [scrollbar-width:none]"
+           (mouseenter)="pauseAutoplay()" (mouseleave)="resumeAutoplay()">
+        <!-- ocultar scrollbars -->
+        <style>
+          #destacados ::-webkit-scrollbar { display: none; }
+        </style>
+
+        @for (p of randomProducts(); track p.id) {
+          <div class="snap-start slide">
+            <app-product [product]="p" (addToCart)="addToCart($event)"></app-product>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+  <div class="mt-8 sm:mt-10 flex justify-center">
+        <a
+          routerLink="catalogo"
+          class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white
+                px-4 py-2.5 sm:px-5 sm:py-3 text-sm sm:text-base
+                font-semibold text-slate-700 hover:bg-slate-50
+                focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300">
+          Ver todo el catálogo
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" fill="none"
+              viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+          </svg>
+        </a>
+      </div>
+</section>
+<!--  -->
 
   <section id="categories" class="relative w-full py-10 sm:py-14 bg-gradient-to-b from-white to-slate-50">
     <div class="mx-auto w-full max-w-7xl px-4">
       <!-- Título responsivo -->
-      <header class="text-center">
+      <!-- <header class="text-center">
         <h2
           class="font-extrabold tracking-tight text-3xl sm:text-4xl md:text-5xl text-blue-600">
           NUESTRAS CATEGORÍAS
@@ -96,15 +187,15 @@
         <p class="mt-2 text-slate-600 text-sm sm:text-base">
           Explora las líneas de productos y encuentra lo que necesitas.
         </p>
-      </header>
+      </header> -->
 
       <!-- Grid responsivo -->
-      <div
+     <!--  <div
         class="mt-8 sm:mt-10 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6 lg:gap-8 place-items-center">
         @for (category of categories(); track category) {
           <a
-            [routerLink]="['/']"
-            [queryParams]="{ category_id: category.id }"
+            [routerLink]="['/catalogo']"
+            
             [attr.aria-label]="'Ver ' + category.name"
             class="group relative w-full max-w-[220px] sm:max-w-[240px] rounded-2xl border border-slate-200 bg-white/80 backdrop-blur p-4 sm:p-5 shadow-sm transition-transform duration-200 ease-out hover:-translate-y-1 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
           >
@@ -126,8 +217,6 @@
                       line-clamp-2">
                 {{ category.name }}
               </h3>
-
-              <!-- Glow sutil al hover -->
               <div
                 class="pointer-events-none absolute -z-10 inset-0 rounded-2xl opacity-0 blur-md
                       transition-opacity duration-200
@@ -138,10 +227,10 @@
               </div>
             </a>
           }
-        </div>
+        </div> -->
 
       <!-- CTA inferior -->
-      <div class="mt-8 sm:mt-10 flex justify-center">
+      <!-- <div class="mt-8 sm:mt-10 flex justify-center">
         <a
           routerLink="catalogo"
           class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white
@@ -154,7 +243,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
           </svg>
         </a>
-      </div>
+      </div> -->
     </div>
   </section>
 
@@ -174,7 +263,7 @@
       <!-- CTA principal -->
       <div class="mt-6">
         <a
-          routerLink="/sucursales"
+          routerLink="/encuentranos"
           class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5
                  text-sm sm:text-base font-semibold text-white shadow
                  hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
@@ -259,44 +348,7 @@
   </div>
 </section>
 
-<section id="destacados" class="w-full bg-white">
-  <div class="mx-auto max-w-7xl px-4 py-8 sm:py-10">
-    <div class="mb-4 flex items-center justify-between gap-3">
-      <div>
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-blue-600">Descubre más productos</h2>
-      </div>
 
-      <!-- Flechas -->
-      <div class="flex items-center gap-2">
-        <button class="h-9 w-9 rounded-full border border-slate-300 bg-white hover:bg-slate-50"
-                (click)="prevSlide()" [attr.aria-label]="'Anterior'">‹</button>
-        <button class="h-9 w-9 rounded-full border border-slate-300 bg-white hover:bg-slate-50"
-                (click)="nextSlide()" [attr.aria-label]="'Siguiente'">›</button>
-      </div>
-    </div>
-
-    <!-- Track -->
-    <div class="relative">
-      <div #carouselTrack
-           class="grid auto-cols-[100%] sm:auto-cols-[50%] lg:auto-cols-[33.333%]
-                  grid-flow-col gap-4 sm:gap-5 lg:gap-6
-                  overflow-x-auto scroll-smooth snap-x snap-mandatory
-                  [-ms-overflow-style:none] [scrollbar-width:none]"
-           (mouseenter)="pauseAutoplay()" (mouseleave)="resumeAutoplay()">
-        <!-- ocultar scrollbars -->
-        <style>
-          #destacados ::-webkit-scrollbar { display: none; }
-        </style>
-
-        @for (p of randomProducts(); track p.id) {
-          <div class="snap-start slide">
-            <app-product [product]="p" (addToCart)="addToCart($event)"></app-product>
-          </div>
-        }
-      </div>
-    </div>
-  </div>
-</section>
 
 
 

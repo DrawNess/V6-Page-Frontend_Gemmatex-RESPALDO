@@ -1,0 +1,21 @@
+/* Tarjeta con vida */
+.card-pop {
+  transition: transform .25s ease, box-shadow .25s ease;
+  will-change: transform;
+}
+.card-pop:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 55px -18px rgba(15,23,42,.35);
+}
+
+/* Marco responsivo para mapas: mantiene proporción y esquinas redondeadas */
+.map-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;          /* móvil/tablet */
+  border-radius: 1rem;         /* coincide con rounded-2xl del iframe */
+  overflow: hidden;
+}
+@media (min-width: 1024px) {
+  .map-frame { aspect-ratio: auto; height: 20rem; } /* ~lg:h-80 */
+}

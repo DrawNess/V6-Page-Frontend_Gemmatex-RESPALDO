@@ -12,7 +12,7 @@ export class ProductService {
   constructor() { }
 
   getProducts(category_id?: string) {
-    const url = new URL(`http://31.97.164.171:3000/api/v1/products`);
+    const url = new URL(`https://gemmatex.store/api/v1/products`);
     if (category_id) {
       url.searchParams.set('categoryId', category_id);
     }
@@ -20,9 +20,9 @@ export class ProductService {
   }
 
   getOne(id: string) {
-    return this.http.get<Product>(`http://31.97.164.171:3000/api/v1/products/${id}`);
+    return this.http.get<Product>(`https://gemmatex.store/api/v1/products/${id}`);
   }
   getProductos() {
-    return this.http.get<Product[]>(`http://31.97.164.171:3000/api/v1/products`);
+    return this.http.get<Product[]>(`https://gemmatex.store/api/v1/products`);
   }
 }

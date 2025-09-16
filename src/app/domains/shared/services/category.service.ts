@@ -11,6 +11,6 @@ export class CategoryService {
   constructor() { }
 
   getAll() {
-    return this.http.get<Category[]>('http://31.97.164.171:3000/api/v1/categories');
+    return this.http.get<Category[]>('https://gemmatex.store/api/v1/categories');
   }
 }

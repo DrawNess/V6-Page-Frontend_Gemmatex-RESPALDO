@@ -1,226 +1,197 @@
-<nav class="sticky top-0 left-0 w-full flex items-center justify-between bg-white/90 shadow-lg z-10 p-4 transition-all duration-300 hover:bg-gray-400/90 hover:h-[95px]">
-  <div class="w-full mx-auto px-6 py-3 flex items-center justify-between">
+<nav class="sticky top-[0px] sm:top-[0px] left-0 z-[50] w-full bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70 shadow-lg transition-all">
+  <div class="mx-auto max-w-7xl px-4">
+    <div class="flex h-16 sm:h-18 items-center justify-between gap-4">
 
-    <!-- Logo y navegación -->
-    <div class="flex items-center space-x-10 h-auto">
-      <div class="w-auto">
-    <a routerLink="" routerLinkActive="active">
-      <img src="https://www.gemmatex.com.bo/img/Logo/Logo-gemmatex-azul.webp" alt="Logo_Gemmatex" class="h-14 transition-transform duration-300 hover:scale-110">
-    </a>
-    </div>
-  
+      <!-- Logo -->
+      <a routerLink="" class="shrink-0" aria-label="Inicio">
+        <img src="https://www.gemmatex.com.bo/img/Logo/Logo-gemmatex-azul.webp"
+             alt="Logo Gemmatex" class="h-12 sm:h-14 transition-transform duration-300 hover:scale-105">
+      </a>
 
-      <!-- Menú -->
-      <ul class="flex items-center gap-6 h-14 font-medium text-[#0511F2]">
 
-      <!-- INICIO -->
-      <li>
-        <a routerLink=""
-        routerLinkActive="text-blue-900 font-bold text-2xl"
-        class="hover:underline font-medium  hover:text-blue-900 transition block">
-          Inicio
-        </a>
-      </li>
+      <!-- Menú principal -->
+      <ul class="hidden lg:flex items-center gap-6 font-medium text-[#0511F2]">
 
-      <!-- CATÁLOGO (MEGA-MENÚ) -->
-      <li class="relative"
-          (mouseenter)="onEnter('catalogo')"
-          (mouseleave)="onLeave('catalogo')">
-        <a routerLink="catalogo"
-        routerLinkActive="text-blue-900 font-bold text-2xl"
-           role="button"
-           [attr.aria-expanded]="openMenu === 'catalogo'"
-           (click)="toggleMenu($event, 'catalogo')"
-           class="hover:underline text-[#0511F2] hover:text-blue-900 transition block">
-          Catálogo
-        </a>
-        <div *ngIf="openMenu === 'catalogo'"
-             class="absolute left-0 top-full mt-2 w-[900px] bg-white shadow-xl rounded-lg z-50 border border-gray-100 p-6 grid grid-cols-4 gap-6">
-          <!-- Col 1 -->
-          <div>
-            <h4 class="text-sm font-semibold mb-2">Sublimación</h4>
-            <ul class="space-y-1">
-              <li><a routerLink="/categoria/impresoras-sublimacion" class="hover:underline">Impresoras Epson</a></li>
-              <li><a routerLink="/categoria/planchas" class="hover:underline">Planchas térmicas</a></li>
-              <li><a routerLink="/categoria/calandras" class="hover:underline">Calandras</a></li>
-              <li><a routerLink="/categoria/tintas" class="hover:underline">Tintas</a></li>
-              <li><a routerLink="/categoria/papel-sublimacion" class="hover:underline">Papel de sublimación</a></li>
-            </ul>
+        <!-- INICIO -->
+        <li>
+          <a routerLink="" routerLinkActive="text-blue-900 font-bold"
+             class="hover:underline hover:text-blue-900 transition block">Inicio</a>
+        </li>
+
+        <!-- CATÁLOGO (MEGA) -->
+        <li class="relative"
+            (mouseenter)="onEnter('catalogo')" (mouseleave)="onLeave('catalogo')">
+          <a routerLink="catalogo" routerLinkActive="text-blue-900 font-bold"
+             role="button" [attr.aria-expanded]="openMenu === 'catalogo'"
+             (click)="toggleMenu($event,'catalogo')"
+             class="hover:underline hover:text-blue-900 transition block">
+            Catálogo
+          </a>
+          <!-- Mega menú (tu contenido, con mejor padding/borde) -->
+          <div *ngIf="openMenu === 'catalogo'"
+               class="absolute left-0 top-full mt-2 w-[920px] bg-white shadow-xl rounded-2xl z-50 border border-gray-100 p-6 grid grid-cols-4 gap-6">
+            <!-- Col 1 -->
+            <div>
+              <h4 class="text-sm font-semibold mb-2">Sublimación</h4>
+              <ul class="space-y-1">
+                <li><a routerLink="/categoria/impresoras-sublimacion" class="hover:underline">Impresoras Epson</a></li>
+                <li><a routerLink="/categoria/planchas" class="hover:underline">Planchas térmicas</a></li>
+                <li><a routerLink="/categoria/calandras" class="hover:underline">Calandras</a></li>
+                <li><a routerLink="/categoria/tintas" class="hover:underline">Tintas</a></li>
+                <li><a routerLink="/categoria/papel-sublimacion" class="hover:underline">Papel de sublimación</a></li>
+              </ul>
+            </div>
+            <!-- Col 2 -->
+            <div>
+              <h4 class="text-sm font-semibold mb-2">Serigrafía</h4>
+              <ul class="space-y-1">
+                <li><a routerLink="/categoria/serigrafia-maquinaria" class="hover:underline">Maquinaria</a></li>
+                <li><a routerLink="/categoria/serigrafia-tintas" class="hover:underline">Tintas</a></li>
+                <li><a routerLink="/categoria/serigrafia-auxiliares" class="hover:underline">Auxiliares</a></li>
+              </ul>
+            </div>
+            <!-- Col 3 -->
+            <div>
+              <h4 class="text-sm font-semibold mb-2">Vinil & Gran Formato</h4>
+              <ul class="space-y-1">
+                <li><a routerLink="/categoria/vinil-textil" class="hover:underline">Vinil textil</a></li>
+                <li><a routerLink="/categoria/gran-formato" class="hover:underline">Gran formato</a></li>
+                <li><a routerLink="/categoria/publicidad" class="hover:underline">Publicidad</a></li>
+                <li><a routerLink="/ofertas" class="hover:underline">Ofertas / Liquidación</a></li>
+              </ul>
+            </div>
+            <!-- Col 4 con banner -->
+            <div>
+              <h4 class="text-sm font-semibold mb-2">Por marca / uso</h4>
+              <ul class="space-y-1 mb-3">
+                <li><a routerLink="/marca/epson" class="hover:underline">EPSON</a></li>
+                <li><a routerLink="/marca/freesub" class="hover:underline">Freesub</a></li>
+                <li><a routerLink="/marca/gx" class="hover:underline">GX</a></li>
+                <li><a routerLink="/uso/emprender-desde-casa" class="hover:underline">Emprender desde casa</a></li>
+                <li><a routerLink="/uso/produccion-textil" class="hover:underline">Producción textil</a></li>
+              </ul>
+              <a routerLink="/ofertas" class="block rounded-xl overflow-hidden ring-1 ring-slate-200 hover:ring-blue-300">
+                <img src="/assets/banners/ofertas.webp" alt="Ofertas" class="w-full h-28 object-cover">
+              </a>
+            </div>
           </div>
-          <!-- Col 2 -->
-          <div>
-            <h4 class="text-sm font-semibold mb-2">Serigrafía</h4>
-            <ul class="space-y-1">
-              <li><a routerLink="/categoria/serigrafia-maquinaria" class="hover:underline">Maquinaria</a></li>
-              <li><a routerLink="/categoria/serigrafia-tintas" class="hover:underline">Tintas</a></li>
-              <li><a routerLink="/categoria/serigrafia-auxiliares" class="hover:underline">Auxiliares</a></li>
-            </ul>
-          </div>
-          <!-- Col 3 -->
-          <div>
-            <h4 class="text-sm font-semibold mb-2">Vinil & Gran Formato</h4>
-            <ul class="space-y-1">
-              <li><a routerLink="/categoria/vinil-textil" class="hover:underline">Vinil textil</a></li>
-              <li><a routerLink="/categoria/gran-formato" class="hover:underline">Gran formato</a></li>
-              <li><a routerLink="/categoria/publicidad" class="hover:underline">Publicidad</a></li>
-              <li><a routerLink="/ofertas" class="hover:underline">Ofertas / Liquidación</a></li>
-            </ul>
-          </div>
-          <!-- Col 4 (marca + banner) -->
-          <div>
-            <h4 class="text-sm font-semibold mb-2">Por marca / uso</h4>
-            <ul class="space-y-1 mb-3">
-              <li><a routerLink="/marca/epson" class="hover:underline">EPSON</a></li>
-              <li><a routerLink="/marca/freesub" class="hover:underline">Freesub</a></li>
-              <li><a routerLink="/marca/gx" class="hover:underline">GX</a></li>
-              <li><a routerLink="/uso/emprender-desde-casa" class="hover:underline">Emprender desde casa</a></li>
-              <li><a routerLink="/uso/produccion-textil" class="hover:underline">Producción textil</a></li>
-            </ul>
-            <a routerLink="/ofertas" class="block rounded-lg overflow-hidden">
-              <img src="/assets/banners/ofertas.webp" alt="Ofertas" class="w-full h-28 object-cover">
-            </a>
-          </div>
+        </li>
+
+        <!-- SERVICIOS -->
+<!--         <li class="relative" (mouseenter)="onEnter('servicios')" (mouseleave)="onLeave('servicios')">
+          <a routerLink="servicios" routerLinkActive="text-blue-900 font-bold"
+             role="button" [attr.aria-expanded]="openMenu === 'servicios'"
+             (click)="toggleMenu($event,'servicios')"
+             class="hover:underline hover:text-blue-900 transition block">
+            Servicios
+          </a>
+          <ul *ngIf="openMenu === 'servicios'"
+              class="absolute top-full left-0 mt-2 w-64 bg-white shadow-lg rounded-xl z-50 border border-gray-100 py-2">
+            <li><a routerLink="/servicio/dtf" class="block px-4 py-2 hover:bg-gray-100">Impresiones DTF</a></li>
+            <li><a routerLink="/services/instalacion" class="block px-4 py-2 hover:bg-gray-100">impresiones UV</a></li>
+            <li><a routerLink="/services/capacitacion" class="block px-4 py-2 hover:bg-gray-100">Impresiones Quemado</a></li>
+            <li><a routerLink="/services/mantenimiento" class="block px-4 py-2 hover:bg-gray-100">Revelado de mallas</a></li>
+          </ul>
+        </li> -->
+
+        <!-- EMPRESA -->
+        <li class="relative" (mouseenter)="onEnter('empresa')" (mouseleave)="onLeave('empresa')">
+          <a routerLink="encuentranos" routerLinkActive="text-blue-900 font-bold"
+             role="button" [attr.aria-expanded]="openMenu === 'empresa'"
+             (click)="toggleMenu($event,'empresa')"
+             class="hover:underline hover:text-blue-900 transition block">
+            Empresa
+          </a>
+          <ul *ngIf="openMenu === 'empresa'"
+              class="absolute top-full left-0 mt-2 w-64 bg-white shadow-lg rounded-xl z-50 border border-gray-100 py-2">
+            <li><a routerLink="empresa/sobre-nosotros" class="block px-4 py-2 hover:bg-gray-100">Sobre nosotros</a></li>
+            <li><a routerLink="empresa/sobre-nosotros" class="block px-4 py-2 hover:bg-gray-100">Misión y visión</a></li>
+            <li><a routerLink="empresa/sobre-nosotros" class="block px-4 py-2 hover:bg-gray-100">Valores</a></li>
+            <!-- <li><a routerLink="empresa/sobre-nosotros" class="block px-4 py-2 hover:bg-gray-100">Casos de éxito</a></li> -->
+          </ul>
+        </li>
+
+        <!-- RECURSOS -->
+        <li class="relative" (mouseenter)="onEnter('recursos')" (mouseleave)="onLeave('recursos')">
+          <a routerLink="recursos/perfiles-de-color" routerLinkActive="text-blue-900 font-bold"
+          role="button" [attr.aria-expanded]="openMenu === 'recursos'"
+             (click)="toggleMenu($event,'recursos')"
+             class="hover:underline hover:text-blue-900 transition block">
+            Recursos
+          </a>
+          <ul *ngIf="openMenu === 'recursos'"
+              class="absolute top-full left-0 mt-2 w-72 bg-white shadow-lg rounded-xl z-50 border border-gray-100 py-2">
+            <li><a href="https://www.youtube.com/@GemmatexTV" class="block px-4 py-2 hover:bg-gray-100">Videos</a></li>
+            <li><a routerLink="/recursos/perfiles-de-color" class="block px-4 py-2 hover:bg-gray-100">Perfiles de color</a></li>
+            <li><a routerLink="/descargas/sublimacion" class="block px-4 py-2 hover:bg-gray-100">Guías de sublimación</a></li>
+          </ul>
+        </li>
+
+        <!-- SUCURSALES -->
+        <li>
+          <a routerLink="encuentranos" routerLinkActive="text-blue-900 font-bold"
+             class="hover:underline hover:text-blue-900 transition block">
+            Sucursales
+          </a>
+        </li>
+      </ul>
+
+      <!-- Acciones derechas -->
+      <div class="flex items-center gap-2">
+        <!-- Buscador móvil -->
+        <div class="md:hidden">
+          <input #searchSm type="search" placeholder="Buscar…"
+                 class="w-36 rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
+                 (keyup.enter)="onSearch(searchSm.value)">
         </div>
-      </li>
 
-      <!-- SERVICIOS -->
-      <li class="relative"
-          (mouseenter)="onEnter('servicios')"
-          (mouseleave)="onLeave('servicios')">
-        <a routerLink="servicios"
-        routerLinkActive="text-blue-900 font-bold text-2xl"
-           role="button"
-           [attr.aria-expanded]="openMenu === 'servicios'"
-           (click)="toggleMenu($event, 'servicios')"
-           class="hover:underline hover:text-blue-900 transition block">
-          Servicios
+        <!-- Ofertas: CTA caliente -->
+        <a routerLink="/catalogo"
+           class="hidden sm:inline-flex items-center rounded-full border border-amber-400 bg-amber-100 px-3 py-1.5 text-sm font-semibold text-amber-900 hover:bg-amber-200">
+          Ofertas
         </a>
-        <ul *ngIf="openMenu === 'servicios'"
-            class="absolute top-full left-0 mt-2 w-64 bg-white shadow-lg rounded-lg z-50 border border-gray-100 py-2">
-          <li><a routerLink="/services/tecnico" class="block px-4 py-2 hover:bg-gray-100">Servicio técnico</a></li>
-          <li><a routerLink="/services/instalacion" class="block px-4 py-2 hover:bg-gray-100">Instalación de equipos</a></li>
-          <li><a routerLink="/services/capacitacion" class="block px-4 py-2 hover:bg-gray-100">Capacitación</a></li>
-          <li><a routerLink="/services/mantenimiento" class="block px-4 py-2 hover:bg-gray-100">Mantenimiento preventivo</a></li>
-          <li><a routerLink="/services/repuestos" class="block px-4 py-2 hover:bg-gray-100">Repuestos y consumibles</a></li>
-          <!-- <li><a routerLink="/services/asesoria" class="block px-4 py-2 hover:bg-gray-100">Asesoría en producción</a></li> -->
-          <li><a routerLink="/services/soporte" class="block px-4 py-2 hover:bg-gray-100">Soporte postventa</a></li>
-        </ul>
-      </li>
 
-      <!-- EMPRESA -->
-      <li class="relative"
-          (mouseenter)="onEnter('empresa')"
-          (mouseleave)="onLeave('empresa')">
-        <a routerLink="encuentranos"
-           role="button"
-           [attr.aria-expanded]="openMenu === 'empresa'"
-           (click)="toggleMenu($event, 'empresa')"
-           class="hover:underline hover:text-blue-900 transition block">
-          Empresa
+        <!-- Login -->
+        <a routerLink="/login"
+           class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium
+                  rounded-full border border-blue-300 text-blue-800 bg-blue-50 hover:bg-blue-100 transition"
+           aria-label="Iniciar sesión">
+          Iniciar sesión
         </a>
-        <ul *ngIf="openMenu === 'empresa'" class="absolute top-full left-0 mt-2 w-64 bg-white shadow-lg rounded-lg z-50 border border-gray-100 py-2">
-          <li><a routerLink="/about/sobre-nosotros" class="block px-4 py-2 hover:bg-gray-100">Sobre nosotros</a></li>
-          <li><a routerLink="/about/mision-vision" class="block px-4 py-2 hover:bg-gray-100">Misión y visión</a></li>
-          <li><a routerLink="/about/valores" class="block px-4 py-2 hover:bg-gray-100">Valores</a></li>
-          <li><a routerLink="/about/equipo" class="block px-4 py-2 hover:bg-gray-100">Equipo</a></li>
-          <li><a routerLink="/about/responsabilidad" class="block px-4 py-2 hover:bg-gray-100">Responsabilidad social</a></li>
-          <li><a routerLink="/casos-de-exito" class="block px-4 py-2 hover:bg-gray-100">Casos de éxito</a></li>
-          <li><a routerLink="/about/carreras" class="block px-4 py-2 hover:bg-gray-100">Trabaja con nosotros</a></li>
-        </ul>
-      </li>
 
-      <!-- RECURSOS -->
-      <li class="relative"
-          (mouseenter)="onEnter('recursos')"
-          (mouseleave)="onLeave('recursos')">
-        <a href="#"
-           role="button"
-           [attr.aria-expanded]="openMenu === 'recursos'"
-           (click)="toggleMenu($event, 'recursos')"
-           class="hover:underline hover:text-blue-900 transition block">
-          Recursos
-        </a>
-        <ul *ngIf="openMenu === 'recursos'"
-            class="absolute top-full left-0 mt-2 w-72 bg-white shadow-lg rounded-lg z-50 border border-gray-100 py-2">
-          <li><a routerLink="/blog" class="block px-4 py-2 hover:bg-gray-100">Videos</a></li>
-          <li><a routerLink="/descargas/perfiles-color" class="block px-4 py-2 hover:bg-gray-100">Perfiles de color</a></li>
-
-        </ul>
-      </li>
-
-      <!-- SUCURSALES -->
-      <li class="relative"
-          (mouseenter)="onEnter('soporte')"
-          (mouseleave)="onLeave('soporte')">
-        <a href="#"
-           role="button"
-           [attr.aria-expanded]="openMenu === 'soporte'"
-           (click)="toggleMenu($event, 'soporte')"
-           class="hover:underline hover:text-blue-900 transition block">
-          Soporte
-        </a>
-        <ul *ngIf="openMenu === 'soporte'" class="absolute top-full left-0 mt-2 w-72 bg-white shadow-lg rounded-lg z-50 border border-gray-100 py-2">
-          <li><a routerLink="/services/tecnico" class="block px-4 py-2 hover:bg-gray-100">Servicio técnico</a></li>
-          <li><a routerLink="/services/instalacion" class="block px-4 py-2 hover:bg-gray-100">Instalación de equipos</a></li>
-          <li><a routerLink="/services/capacitacion" class="block px-4 py-2 hover:bg-gray-100">Capacitación</a></li>
-          <li><a routerLink="/services/mantenimiento" class="block px-4 py-2 hover:bg-gray-100">Mantenimiento preventivo</a></li>
-          <li><a routerLink="/services/repuestos" class="block px-4 py-2 hover:bg-gray-100">Repuestos y consumibles</a></li>
-          <li><a routerLink="/services/soporte" class="block px-4 py-2 hover:bg-gray-100">Soporte postventa</a></li>
-        </ul>
-      </li>
-      <li class="relative"
-          (mouseenter)="onEnter('sucursales')"
-          (mouseleave)="onLeave('sucursales')">
-        <a routerLink="encuentranos"
-        routerLinkActive="text-blue-900 font-bold text-2xl"
-           role="button"
-           [attr.aria-expanded]="openMenu === 'soporte'"
-           (click)="toggleMenu($event, 'soporte')"
-           class="hover:underline hover:text-blue-900 transition block">
-          Sucursales
-        </a>
-      </li>
-    </ul>
+        <!-- Carrito -->
+        <button class="relative p-2 bg-blue-100 hover:bg-blue-200 border border-blue-300 text-blue-800 rounded-full shadow transition"
+                (click)="toogleSideMenu()" aria-label="Abrir carrito">
+          <span class="absolute -top-1 -left-1 w-5 h-5 bg-blue-700 text-white text-xs font-semibold rounded-full flex items-center justify-center shadow-md">
+            {{ cart().length }}
+          </span>
+          <!-- ícono -->
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+               stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/>
+          </svg>
+        </button>
+      </div>
     </div>
-
-    <!-- Carrito -->
-    <div class="flex items-center gap-2">
-  <!-- Link a iniciar sesión -->
-  <a
-    routerLink="/login"
-    class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium
-           rounded-full border border-blue-300 text-blue-800 bg-blue-50
-           hover:bg-blue-100 transition"
-    aria-label="Iniciar sesión"
-  >
-    <!-- icono usuario -->
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-            d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0" />
-    </svg>
-    Iniciar sesión
-  </a>
-
-  <!-- Botón Carrito (tu código original) -->
-  <button
-    class="relative p-2 bg-blue-100 hover:bg-blue-200 border border-blue-300 text-blue-800 rounded-full shadow transition-all duration-200"
-    (click)="toogleSideMenu()"
-  >
-    <span
-      class="absolute -top-1 -left-1 w-5 h-5 bg-blue-700 text-white text-xs font-semibold rounded-full flex items-center justify-center shadow-md animate-pulse"
-    >
-      {{ cart().length }}
-    </span>
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-         stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-      <path stroke-linecap="round" stroke-linejoin="round"
-            d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/>
-    </svg>
-  </button>
-</div>
-
   </div>
 </nav>
+
+<div class="sticky top-0 w-full bg-blue-700 text-white">
+  <div class="mx-auto max-w-7xl px-4">
+    <div class="flex items-center justify-between gap-3 py-1.5 text-xs sm:text-sm">
+      <div class="truncate">
+        <span class="font-semibold">HOY:</span>
+        Ofertas en la categoria <span class="font-bold tracking-wide">EPSON</span>
+        <a routerLink="/catalogo" class="ml-2 underline underline-offset-2 hover:opacity-90">Ver ofertas</a>
+      </div>
+      <a [href]="waLink()" target="_blank" rel="noopener"
+         class="inline-flex items-center rounded-full bg-white/10 px-3 py-1 font-medium hover:bg-white/20">
+        Comprar por WhatsApp
+      </a>
+    </div>
+  </div>
+</div>
 
 <!-- Overlay (clic para cerrar) -->
 <div
@@ -372,3 +343,9 @@
     </div>
   </div>
 </div> -->
+
+<!-- Barra de promo superior (convierte!) -->
+
+
+<!-- NAV principal -->
+

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Product } from '../../models/product.model';
 import { CartService } from '../../services/cart.service';
 import { RouterLinkWithHref, RouterLinkActive } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
@@ -119,6 +120,11 @@ export class HeaderComponent {
   // ---- Alternativa SIN servicio (si prefieres manipular el signal directamente) ----
   // this.cart.set([...this.cart(), p]);
 }
-  
-
+private router = inject(Router);
+  onSearch(q: string) {
+    const query = (q || '').trim();
+    if (!query) return;
+    this.router.navigate(['/catalogo'], { queryParams: { q: query } });
+    this.openMenu = null; // cierra menús si estaban abiertos
+  }
 }

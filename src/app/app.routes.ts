@@ -6,6 +6,14 @@ import { EncuentranosComponent } from './domains/pages/encuentranos/encuentranos
 import { CatalogoComponent } from './domains/pages/catalogo/catalogo.component';
 import { LoginComponent } from './domains/pages/login/login.component';
 
+import { ServiciosMainComponent } from './domains/pages/servicios-empresa/servicios-main/servicios-main.component';
+import { ImpresionDTFComponent } from './domains/pages/servicios-empresa/impresion-dtf/impresion-dtf.component';
+
+import { PerfilesDeColorComponent } from './domains/pages/recursos/perfiles-de-color/perfiles-de-color.component';
+
+import { SobreNosotrosComponent } from './domains/pages/empresa/sobre-nosotros/sobre-nosotros.component';
+
+
 export const routes: Routes = [
     {
         path: '',
@@ -29,7 +37,7 @@ export const routes: Routes = [
             },
             {
                 path: 'servicios',
-                component: ServicioTecnicoComponent
+                component: ServiciosMainComponent
             },
             {
                 path: 'encuentranos',
@@ -38,7 +46,24 @@ export const routes: Routes = [
             {
                 path: 'catalogo',
                 component: CatalogoComponent
+            },
+            {
+                path: 'servicio-tecnico',
+                component: ServicioTecnicoComponent
+            },
+            {
+                path: 'servicios/dtf',
+                component: ImpresionDTFComponent
+            },
+            {
+                path: 'recursos/perfiles-de-color',
+                component: PerfilesDeColorComponent
+            },
+            {
+                path: 'empresa/sobre-nosotros',
+                component: SobreNosotrosComponent
             }
+
 
         ]
     },

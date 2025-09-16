@@ -1,0 +1,179 @@
+<!-- HERO -->
+<section class="relative overflow-hidden bg-gradient-to-br from-blue-700 via-indigo-600 to-sky-500 text-white">
+  <div class="absolute inset-0 opacity-10 pointer-events-none"
+       style="background:
+        radial-gradient(30% 40% at 10% 20%, #ffffff 0, transparent 60%),
+        radial-gradient(25% 35% at 85% 30%, #ffffff 0, transparent 65%),
+        radial-gradient(30% 35% at 50% 80%, #ffffff 0, transparent 65%);"></div>
+
+  <div class="mx-auto max-w-7xl px-4 py-14 sm:py-18 relative">
+    <div class="grid md:grid-cols-2 gap-8 items-center">
+      <div class="space-y-4">
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight">
+          {{ hero.titulo }}
+        </h1>
+        <p class="text-white/90 text-sm sm:text-base max-w-xl">
+          {{ hero.subtitulo }}
+        </p>
+        <div class="flex flex-wrap gap-3 pt-2">
+          <a [href]="waLink('Impresión DTF — cotización')" target="_blank" rel="noopener"
+             class="rounded-xl bg-white text-blue-700 font-semibold px-5 py-2.5 hover:bg-white/90">
+            Cotizar por WhatsApp
+          </a>
+          <a routerLink="/catalogo"
+             class="rounded-xl border border-white/70 bg-white/10 px-5 py-2.5 font-semibold hover:bg-white/15">
+            Ver insumos y equipos
+          </a>
+        </div>
+      </div>
+
+      <div class="relative">
+        <div class="aspect-[4/3] w-full rounded-2xl overflow-hidden ring-1 ring-white/30 shadow-2xl">
+          <div class="w-full h-full bg-gradient-to-br from-white/30 to-white/0"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ¿QUÉ ES DTF? -->
+<section class="bg-white">
+  <div class="mx-auto max-w-7xl px-4 py-12 sm:py-14">
+    <div class="grid md:grid-cols-3 gap-6 items-start">
+      <div class="md:col-span-2">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">¿Qué es la impresión DTF?</h2>
+        <p class="mt-3 text-slate-600">
+          DTF (Direct-To-Film) imprime tu diseño sobre un film PET con tintas CMYK y una capa de blanco,
+          se aplica polvo adhesivo (TPU), se cura y luego se transfiere por calor a la prenda.
+          Permite colores intensos, excelente cobertura en algodones y poliéster, y alta resistencia al lavado.
+        </p>
+      </div>
+      <aside class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <p class="text-sm text-slate-700">
+          <span class="font-semibold">Cuándo elegir DTF:</span> tiradas cortas, personalización variada,
+          textiles oscuros o mezclas, y necesidad de detalle fino.
+        </p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- FLUJO DE TRABAJO -->
+<section class="bg-slate-50">
+  <div class="mx-auto max-w-7xl px-4 py-12 sm:py-14">
+    <header class="text-center">
+      <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900">Flujo de trabajo</h3>
+      <p class="mt-1 text-slate-600">De la idea a la prenda en 6 pasos.</p>
+    </header>
+
+    <ol class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-5">
+      @for (p of pasos; track trackByIndex; let i = $index) {
+        <li class="rounded-2xl bg-white p-5 border border-slate-200 card-pop">
+          <p class="text-xs uppercase tracking-widest text-slate-500 mb-1">Paso {{ i + 1 }}</p>
+          <h4 class="font-semibold text-slate-900">{{ p.titulo }}</h4>
+          <p class="text-sm text-slate-600 mt-1">{{ p.detalle }}</p>
+        </li>
+      }
+    </ol>
+  </div>
+</section>
+
+<!-- MATERIALES & PARÁMETROS -->
+<section class="bg-white">
+  <div class="mx-auto max-w-7xl px-4 py-12 sm:py-14">
+    <div class="grid lg:grid-cols-2 gap-6">
+      <div class="rounded-2xl border border-slate-200 bg-white p-5">
+        <h3 class="text-xl font-extrabold text-slate-900">Materiales necesarios</h3>
+        <ul class="mt-3 space-y-2">
+          @for (m of materiales; track trackByIndex) {
+            <li class="pl-3 text-sm text-slate-700 relative">
+              <span class="absolute left-0 top-2 h-1.5 w-1.5 rounded-full bg-blue-600/80"></span>
+              <span class="font-medium text-slate-900">{{ m.titulo }}:</span>
+              <span class="text-slate-700"> {{ m.detalle }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+
+      <div class="rounded-2xl border border-slate-200 bg-white p-5">
+        <h3 class="text-xl font-extrabold text-slate-900">Parámetros recomendados</h3>
+        <ul class="mt-3 space-y-2">
+          @for (p of parametros; track trackByIndex) {
+            <li class="pl-3 text-sm text-slate-700 relative">
+              <span class="absolute left-0 top-2 h-1.5 w-1.5 rounded-full bg-blue-600/80"></span>
+              <span class="font-medium text-slate-900">{{ p.titulo }}:</span>
+              <span class="text-slate-700"> {{ p.detalle }}</span>
+            </li>
+          }
+        </ul>
+        <p class="mt-3 text-xs text-slate-500">
+          *Los rangos pueden variar según tinta, film y prenda. Realiza pruebas rápidas antes de producción.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PREPARACIÓN DE ARCHIVOS & CUIDADOS -->
+<section class="bg-slate-50">
+  <div class="mx-auto max-w-7xl px-4 py-12 sm:py-14">
+    <div class="grid lg:grid-cols-2 gap-6">
+      <div class="rounded-2xl border border-slate-200 bg-white p-5">
+        <h3 class="text-xl font-extrabold text-slate-900">Preparación de archivos</h3>
+        <ul class="mt-3 space-y-2">
+          @for (a of archivos; track trackByIndex) {
+            <li class="pl-3 text-sm text-slate-700 relative">
+              <span class="absolute left-0 top-2 h-1.5 w-1.5 rounded-full bg-blue-600/80"></span>
+              <span class="font-medium text-slate-900">{{ a.titulo }}:</span>
+              <span class="text-slate-700"> {{ a.detalle }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+
+      <div class="rounded-2xl border border-slate-200 bg-white p-5">
+        <h3 class="text-xl font-extrabold text-slate-900">Cuidados y lavado</h3>
+        <ul class="mt-3 space-y-2">
+          @for (c of cuidados; track trackByIndex) {
+            <li class="pl-3 text-sm text-slate-700 relative">
+              <span class="absolute left-0 top-2 h-1.5 w-1.5 rounded-full bg-blue-600/80"></span>
+              <span class="font-medium text-slate-900">{{ c.titulo }}:</span>
+              <span class="text-slate-700"> {{ c.detalle }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="bg-white">
+  <div class="mx-auto max-w-7xl px-4 py-12 sm:py-14">
+    <header class="text-center">
+      <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900">Preguntas frecuentes</h3>
+    </header>
+
+    <div class="mt-6 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white">
+      @for (f of faqs; track trackByIndex; let i = $index) {
+        <details class="group" [attr.open]="openFaq === i ? true : null">
+          <summary (click)="$event.preventDefault(); toggleFaq(i)"
+                   class="cursor-pointer select-none w-full list-none px-4 sm:px-6 py-4 flex items-center justify-between">
+            <span class="font-semibold text-slate-900">{{ f.q }}</span>
+            <span class="text-slate-500 text-sm group-open:rotate-180 transition-transform">▼</span>
+          </summary>
+          <div class="px-4 sm:px-6 pb-4 text-slate-700 text-sm">
+            {{ f.a }}
+          </div>
+        </details>
+      }
+    </div>
+
+    <div class="mt-8 text-center">
+      <a [href]="waLink('Asesoría DTF')" target="_blank" rel="noopener"
+         class="inline-flex items-center rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">
+        Hablar con un asesor
+      </a>
+    </div>
+  </div>
+</section>
