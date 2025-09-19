@@ -1,124 +1,29 @@
-<!-- <div class="group rounded-lg border">
-    <a [routerLink]="['/product', product.id]" class="w-full overflow-hidden rounded-t-lg bg-gray-200">
-        <img [src]="product.imageUrl" [alt]="product.name" class="h-full w-full object-cover object-center group-hover:opacity-75">
-    </a>
-    <div class="flex flex-col space-y-2 p-4">
-        <h3 class="text-sm text-gray-700">{{ product.name }}</h3>
-        <p class="text-lg font-medium text-gray-900">{{product.price | currency:'Bs':'symbol':'1.0' }}</p>
-        <p class="text-sm font-medium text-gray-500">{{product.created_at | timeAgo}}</p>
-        <button class="text-black bg-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 w-full"
-            (click)="addToCartHandler()">Add to cart</button>
+<div class="product-card group">
+  <a
+    [routerLink]="['/product', product.id]"
+    class="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1E2041]/60 rounded-lg"
+    [attr.aria-label]="product.name"
+  >
+    <!-- Imagen (arriba) -->
+    <div class="thumb">
+      <img
+        [src]="product.imageUrl"
+        [alt]="product.name"
+        class="thumb-img"
+        loading="lazy"
+        (error)="onImgError($event)"
+        referrerpolicy="no-referrer"
+      />
+      <!-- Sheen sutil al hover -->
+      <span class="sheen" aria-hidden="true"></span>
     </div>
-</div>
- -->
 
-<!-- CARD CMYK FUTURISTA -->
-<div class="relative group">
-  <!-- Glow CMYK de fondo -->
-  <div
-    class="pointer-events-none absolute inset-0 -z-10 opacity-30 blur-2xl transition group-hover:opacity-60"
-    class="bg-[conic-gradient(at_50%_50%,#06b6d4_0deg,#d946ef_120deg,#facc15_240deg,#06b6d4_360deg)]">
-  </div>
-
-  <!-- Borde degradado CMYK -->
-  <div class="rounded-3xl p-[1px]  from-cyan-500 via-fuchsia-500 to-yellow-400 shadow-[0_10px_30px_-10px_rgba(6,182,212,0.35)] group-hover:shadow-[0_20px_50px_-12px_rgba(217,70,239,0.45)] transition">
-    <!-- Cuerpo (glass) -->
-    <div class="rounded-[calc(theme(borderRadius.3xl)-1px)] bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-
-      <!-- IMAGEN -->
-      <a
-        [routerLink]="['/product', product.id]"
-        class="block relative overflow-hidden rounded-t-[calc(theme(borderRadius.3xl)-1px)] bg-slate-950"
-      >
-        <img
-          [src]="product.imageUrl"
-          [alt]="product.name"
-          class="aspect-square w-full object-cover object-center transition duration-500 group-hover:scale-105 group-hover:opacity-95"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-        />
-
-        <!-- Overlay CMYK suave -->
-        <div class="pointer-events-none absolute inset-0 mix-blend-screen opacity-35">
-          <div class="absolute inset-0 bg-[radial-gradient(circle_at_15%_10%,rgba(6,182,212,0.35),transparent_35%),radial-gradient(circle_at_85%_15%,rgba(217,70,239,0.25),transparent_35%),radial-gradient(circle_at_50%_85%,rgba(250,204,21,0.25),transparent_40%)]"></div>
-        </div>
-
-        <!-- Badges (descuento / stock / fluor) -->
-        <div class="absolute left-3 top-3 flex flex-wrap gap-2">
-          <span *ngIf="product.discountPrice"
-                class="rounded-full bg-red-500/90 px-2 py-0.5 text-xs font-bold text-white shadow">-{{ ((product.price - (product.discountPrice || 0)) / product.price) * 100 | number:'1.0-0' }}%</span>
-
-          <span *ngIf="(product.stock ?? 0) > 0; else soldOut"
-                class="rounded-full bg-emerald-600/90 px-2 py-0.5 text-xs font-medium text-white shadow">En stock</span>
-          <ng-template #soldOut>
-            <span class="rounded-full bg-gray-700/90 px-2 py-0.5 text-xs font-medium text-white shadow">Agotado</span>
-          </ng-template>
-
-          <span *ngIf="product?.tags?.includes('fluor')"
-                class="rounded-full bg-yellow-400/90 px-2 py-0.5 text-[10px] font-semibold text-black shadow">FLÚOR</span>
-        </div>
-      </a>
-
-      <!-- CONTENIDO -->
-      <div class="flex flex-col gap-2 p-4">
-        <!-- Marca / categoría -->
-        <div class="flex items-center gap-2 text-[11px] uppercase tracking-widest text-slate-500">
-          <span class="inline-flex items-center gap-1 rounded-full bg-slate-900 text-white px-2 py-0.5">
-            <!-- gotas CMYK -->
-            <span class="h-2 w-2 rounded-full bg-cyan-400"></span>
-            <span class="h-2 w-2 rounded-full bg-fuchsia-500"></span>
-            <span class="h-2 w-2 rounded-full bg-yellow-400"></span>
-            <span class="h-2 w-2 rounded-full bg-slate-900 border border-white/20"></span>
-            EPSON
-          </span>
-          <span class="text-[10px] text-slate-400">· {{ product.created_at | date:'short' }}</span>
-        </div>
-
-        <!-- Título -->
-        <h3 class="line-clamp-2 min-h-[2.5rem] text-sm font-semibold tracking-tight text-slate-900">
-          {{ product.name }}
-        </h3>
-
-        <!-- Precio -->
-        <div class="mt-1 flex items-baseline gap-2">
-          <ng-container *ngIf="product?.discountPrice; else priceNormal">
-            <span class="text-xl font-bold text-slate-900">
-              {{ product.discountPrice | currency:'Bs':'symbol':'1.2-2' }}
-            </span>
-            <span class="text-sm text-slate-400 line-through">
-              {{ product.price | currency:'Bs':'symbol':'1.2-2' }}
-            </span>
-          </ng-container>
-          <ng-template #priceNormal>
-            <span class="text-xl font-bold text-slate-900">
-              {{ product.price | currency:'Bs':'symbol':'1.2-2' }}
-            </span>
-          </ng-template>
-        </div>
-
-        <!-- Botón -->
-        <button
-          class="relative mt-3 inline-flex w-full items-center justify-center overflow-hidden rounded-xl bg-gradient-to-r from-cyan-600 via-cyan-400 to-white px-4 py-2 text-sm font-semibold text-white shadow transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
-          (click)="addToCartHandler()"
-          [disabled]="!product.is_active"
-        >
-          <!-- destello -->
-          <span class="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-white/0 via-white/35 to-white/0 transition-transform duration-700 group-hover:translate-x-full"></span>
-          <!-- ícono gota -->
-          <svg class="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M12 3C9 7 6 9.5 6 13.2A6 6 0 1 0 18 13.2C18 9.5 15 7 12 3Z"/>
-          </svg>
-          {{ (!product.is_active || (product.stock) <= 0) ? 'Agotado' : 'Añadir al carrito' }}
-        </button>
-
-        <!-- Barra CMYK decorativa -->
-        <div class="mt-3 grid grid-cols-4 gap-1">
-          <span class="h-1.5 rounded-full bg-cyan-500"></span>
-          <span class="h-1.5 rounded-full bg-fuchsia-500"></span>
-          <span class="h-1.5 rounded-full bg-yellow-400"></span>
-          <span class="h-1.5 rounded-full bg-slate-900"></span>
-        </div>
+    <!-- Nombre (abajo) -->
+    <div class="meta">
+      <div class="name-wrap">
+        <h3 class="name line-clamp-2">{{ product.name }}</h3>
+        <span class="accent-bar" aria-hidden="true"></span>
       </div>
     </div>
-  </div>
+  </a>
 </div>

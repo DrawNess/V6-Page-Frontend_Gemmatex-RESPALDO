@@ -2,6 +2,7 @@ import {
   Component, Input, SimpleChanges, inject, signal,
   ElementRef, ViewChild, OnInit, OnDestroy, OnChanges
 } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
@@ -15,12 +16,13 @@ import { CategoryService } from '@shared/services/category.service';
 
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { BestsellerComponent } from "./../../components/bestseller/bestseller.component";
 
 
 @Component({
   selector: 'app-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, ProductComponent],
+  imports: [CommonModule, RouterLink, ProductComponent, BestsellerComponent],
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.css']
 })
@@ -78,6 +80,8 @@ private toProduct(x: any): Product {
     this.getCategories();
     this.loadRandom(12); // carga y arma el carrusel
     this.loadFeaturedByIds();
+    this.startHero();
+    this.resume();
   }
 
   ngOnChanges(_: SimpleChanges) {
@@ -87,7 +91,10 @@ private toProduct(x: any): Product {
 
   ngOnDestroy() {
     this.pauseAutoplay();
+    this.pauseHero();
+    this.pause()
   }
+  
 
   // --------- Data ----------
   private getProducts() {
@@ -187,6 +194,204 @@ private toProduct(x: any): Product {
       this.destacados.set([]);
     }
   }
+  // === HERO SLIDER ===
+  currentSlide = 0;
+  private heroTimer: any = null;
+  private heroIntervalMs = 6000; // cambia la velocidad aquí
+
+  slides = [
+    {
+      id: 1,
+      image: 'https://peru-crane-813567.hostingersite.com/Logos/Portada/Portada%20publi%20F6470.jpg',
+      headline: '',
+      subhead: '',
+      routerLink: ['/product', 14], // 👉 id del producto en promo
+    },
+   
+    {
+      id: 2,
+      image: 'https://peru-crane-813567.hostingersite.com/Logos/Portada/Portada%20publi%20Curso%20de%20serigrafia.jpg',
+      headline: '',
+      subhead: '.',
+      routerLink: ['/product', 13],
+    },
+    {
+      id: 3,
+      image: 'https://peru-crane-813567.hostingersite.com/Logos/Portada/Portada%20publi%20papel%20sublimaci%C3%B3n.jpg',
+      headline: '',
+      subhead: '.',
+      routerLink: '.',
+    },
+  ];
+
+
+  startHero() {
+    this.pauseHero();
+    this.heroTimer = setInterval(() => this.nextHero(), this.heroIntervalMs);
+  }
+
+  pauseHero() {
+    if (this.heroTimer) { clearInterval(this.heroTimer); this.heroTimer = null; }
+  }
+
+  resumeHero() {
+    if (!this.heroTimer) this.startHero();
+  }
+
+  nextHero() {
+    this.currentSlide = (this.currentSlide + 1) % this.slides.length;
+  }
+
+  prevHero() {
+    this.currentSlide = (this.currentSlide - 1 + this.slides.length) % this.slides.length;
+  }
+
+  goHero(i: number) {
+    this.currentSlide = i % this.slides.length;
+    // reinicia el autoplay para que no cambie inmediatamente
+    this.startHero();
+  }
+
+
+
+
+
+
+
+
   
+  // dentro de tu componente
+current = 0;
+private timer2: any = null;
+private intervalMs2 = 4800;
+
+// imágenes cuadradas (pon las tuyas)
+  slides2 = [
+    {
+      id: 1,
+      productId: 15,
+      image: 'https://peru-crane-813567.hostingersite.com/Logos/Ofertas/Epson%20f6470.jpg',
+      alt: 'Producto 11'
+    },
+    {
+      id: 2,
+      productId: 10,
+      image: 'https://peru-crane-813567.hostingersite.com/Logos/Ofertas/Epson%20f170.jpg',
+      alt: 'Producto 12'
+    },
+    {
+      id: 3,
+      productId: 13,
+      image: 'https://peru-crane-813567.hostingersite.com/Logos/Ofertas/Epson%20f570.jpg',
+      alt: 'Producto 13'
+    },
+  ];
+
+  private router = inject(Router);
+  // ===== Ciclo =====
+
+
+  next()  { this.current = (this.current + 1) % this.slides2.length; }
+  prev()  { this.current = (this.current - 1 + this.slides2.length) % this.slides2.length; }
+  go(i: number) { this.current = (i + this.slides2.length) % this.slides2.length; this.restart(); }
+
+  resume() { if (!this.timer2) this.timer2 = setInterval(() => this.next(), this.intervalMs2); }
+  pause()  { if (this.timer2) { clearInterval(this.timer2); this.timer2 = null; } }
+  private restart() { this.pause(); this.resume(); }
+
+  // ===== Estilo/posiciones (centro + laterales Apple-like) =====
+  isCenter(i: number) { return i === this.current; }
+  isLeft(i: number)   { return (i - this.current + this.slides2.length) % this.slides2.length === this.slides2.length - 1; }
+  isRight(i: number)  { return (i - this.current + this.slides2.length) % this.slides2.length === 1; }
+
+  isClickable(i: number) { return this.isCenter(i) || this.isLeft(i) || this.isRight(i); }
+
+  positionStyle(i: number): {[k: string]: any} {
+    const base = { transform: '', opacity: 1, filter: '', zIndex: 10 };
+
+    if (this.isCenter(i)) {
+      return {
+        ...base,
+        transform: 'translateX(0) scale(1)',
+        zIndex: 30,
+        filter: 'none',
+        opacity: 1
+      };
+    }
+
+    if (this.isLeft(i)) {
+      return {
+        ...base,
+        transform: 'translateX(-58%) scale(0.86)',
+
+        filter: 'grayscale(30%)',
+        opacity: 0.85
+      };
+    }
+
+    if (this.isRight(i)) {
+      return {
+        ...base,
+        transform: 'translateX(58%) scale(0.86)',
+        zIndex: 20,
+        filter: 'grayscale(30%)',
+        opacity: 0.85
+      };
+    }
+
+    // resto (fuera de escena)
+    return {
+      ...base,
+      transform: 'translateX(0) scale(0.7)',
+      opacity: 0,
+      zIndex: 5,
+
+    };
+  }
+
+
+
+
+  // ===== Swipe móvil =====
+  private startX = 0;
+  private swiping = false;
+
+  onPointerDown(e: PointerEvent) {
+    this.startX = e.clientX;
+    this.swiping = true;
+    (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+    this.pause();
+  }
+
+  onPointerUp(e: PointerEvent) {
+    if (!this.swiping) return;
+    const dx = e.clientX - this.startX;
+    this.swiping = false;
+
+    const TH = 40; // umbral px
+    if (dx > TH) this.prev();
+    else if (dx < -TH) this.next();
+
+    this.resume();
+  }
+
+  onPointerCancel() { this.swiping = false; this.resume(); }
+
+// ===== Teclado + navegación segura =====
+onKeydown(e: KeyboardEvent) {
+  if (e.key === 'ArrowLeft') { e.preventDefault(); this.prev(); }
+  if (e.key === 'ArrowRight'){ e.preventDefault(); this.next(); }
+  if (e.key === 'Enter')     { this.navigateCenter(this.current); }
+}
+
+/** Navega al producto del slide central de forma programática (por si algún overlay interfiere) */
+navigateCenter(i: number) {
+  if (!this.isCenter(i)) { this.go(i); return; }
+  const pid = this.slides2[i]?.productId;
+  if (pid != null) this.router.navigate(['/product', pid]);
+}
+
 
 }
+
+

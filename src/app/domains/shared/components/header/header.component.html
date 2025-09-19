@@ -1,81 +1,116 @@
-<nav class="sticky top-[0px] sm:top-[0px] left-0 z-[50] w-full bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70 shadow-lg transition-all">
-  <div class="mx-auto max-w-7xl px-4">
-    <div class="flex h-16 sm:h-18 items-center justify-between gap-4">
+<nav class="sticky top-[0px] sm:top-[0px] left-0 z-[50] w-full bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70 shadow-lg transition-all hover:bg-gradient-to-b">
+  <div class="mx-auto px-4 h-[90px]">
+    <div class="flex h-20  items-center justify-between gap-4">
 
       <!-- Logo -->
-      <a routerLink="" class="shrink-0" aria-label="Inicio">
-        <img src="https://www.gemmatex.com.bo/img/Logo/Logo-gemmatex-azul.webp"
-             alt="Logo Gemmatex" class="h-12 sm:h-14 transition-transform duration-300 hover:scale-105">
+      <a routerLink="" class="ml-[0px] @max-md:ml-20" aria-label="Inicio">
+        <img src="https://peru-crane-813567.hostingersite.com/Logos/Logo%20gemmatex%20azul.png"
+             alt="Logo Gemmatex" class="h-[80%] sm:h-[55px] transition-transform duration-300 hover:scale-105">
       </a>
 
 
       <!-- Menú principal -->
-      <ul class="hidden lg:flex items-center gap-6 font-medium text-[#0511F2]">
+      <ul class="hidden lg:flex items-center gap-6 font-medium text-[#0511F2] pl-[400px]">
 
         <!-- INICIO -->
+
+        <li>
+          <a routerLink="catalogo"
+          class="hover:underline hover:text-blue-900 transition block bg-red-500 text-white font-bold px-3 py-1 rounded-lg mr-[30px]">
+            Ofertas
+          </a>
+        </li>
+
         <li>
           <a routerLink="" routerLinkActive="text-blue-900 font-bold"
              class="hover:underline hover:text-blue-900 transition block">Inicio</a>
         </li>
 
         <!-- CATÁLOGO (MEGA) -->
-        <li class="relative"
-            (mouseenter)="onEnter('catalogo')" (mouseleave)="onLeave('catalogo')">
-          <a routerLink="catalogo" routerLinkActive="text-blue-900 font-bold"
-             role="button" [attr.aria-expanded]="openMenu === 'catalogo'"
-             (click)="toggleMenu($event,'catalogo')"
-             class="hover:underline hover:text-blue-900 transition block">
-            Catálogo
-          </a>
-          <!-- Mega menú (tu contenido, con mejor padding/borde) -->
-          <div *ngIf="openMenu === 'catalogo'"
-               class="absolute left-0 top-full mt-2 w-[920px] bg-white shadow-xl rounded-2xl z-50 border border-gray-100 p-6 grid grid-cols-4 gap-6">
-            <!-- Col 1 -->
-            <div>
-              <h4 class="text-sm font-semibold mb-2">Sublimación</h4>
-              <ul class="space-y-1">
-                <li><a routerLink="/categoria/impresoras-sublimacion" class="hover:underline">Impresoras Epson</a></li>
-                <li><a routerLink="/categoria/planchas" class="hover:underline">Planchas térmicas</a></li>
-                <li><a routerLink="/categoria/calandras" class="hover:underline">Calandras</a></li>
-                <li><a routerLink="/categoria/tintas" class="hover:underline">Tintas</a></li>
-                <li><a routerLink="/categoria/papel-sublimacion" class="hover:underline">Papel de sublimación</a></li>
-              </ul>
-            </div>
-            <!-- Col 2 -->
-            <div>
-              <h4 class="text-sm font-semibold mb-2">Serigrafía</h4>
-              <ul class="space-y-1">
-                <li><a routerLink="/categoria/serigrafia-maquinaria" class="hover:underline">Maquinaria</a></li>
-                <li><a routerLink="/categoria/serigrafia-tintas" class="hover:underline">Tintas</a></li>
-                <li><a routerLink="/categoria/serigrafia-auxiliares" class="hover:underline">Auxiliares</a></li>
-              </ul>
-            </div>
-            <!-- Col 3 -->
-            <div>
-              <h4 class="text-sm font-semibold mb-2">Vinil & Gran Formato</h4>
-              <ul class="space-y-1">
-                <li><a routerLink="/categoria/vinil-textil" class="hover:underline">Vinil textil</a></li>
-                <li><a routerLink="/categoria/gran-formato" class="hover:underline">Gran formato</a></li>
-                <li><a routerLink="/categoria/publicidad" class="hover:underline">Publicidad</a></li>
-                <li><a routerLink="/ofertas" class="hover:underline">Ofertas / Liquidación</a></li>
-              </ul>
-            </div>
-            <!-- Col 4 con banner -->
-            <div>
-              <h4 class="text-sm font-semibold mb-2">Por marca / uso</h4>
-              <ul class="space-y-1 mb-3">
-                <li><a routerLink="/marca/epson" class="hover:underline">EPSON</a></li>
-                <li><a routerLink="/marca/freesub" class="hover:underline">Freesub</a></li>
-                <li><a routerLink="/marca/gx" class="hover:underline">GX</a></li>
-                <li><a routerLink="/uso/emprender-desde-casa" class="hover:underline">Emprender desde casa</a></li>
-                <li><a routerLink="/uso/produccion-textil" class="hover:underline">Producción textil</a></li>
-              </ul>
-              <a routerLink="/ofertas" class="block rounded-xl overflow-hidden ring-1 ring-slate-200 hover:ring-blue-300">
-                <img src="/assets/banners/ofertas.webp" alt="Ofertas" class="w-full h-28 object-cover">
-              </a>
-            </div>
+<li class="" (document:keydown.escape)="closeMega()">
+  <!-- Trigger -->
+  <a
+    (click)="toggleMega($event)"
+    [attr.aria-expanded]="isMegaOpen"
+    role="button"
+    class="transition block hover:text-blue-400"
+  >
+    Catálogo
+  </a>
+
+  <!-- Overlay -->
+  <div
+    *ngIf="isMegaOpen"
+    class="fixed inset-0 z-40 bg-black/50"
+    (click)="closeMega()"
+  ></div>
+
+  <!-- Mega panel full-width (negro translúcido) -->
+  <div
+    *ngIf="isMegaOpen"
+    class="absolute left-1/2 -translate-x-1/2 top-full z-50 w-screen
+           bg-black/85 text-white backdrop-blur border-b border-white/10 shadow-2xl
+           animate-[fadeSlide_.22s_ease-out] bg-black"
+    (mouseenter)="panelHover = true" (mouseleave)="panelHover = false"
+  >
+    <div class="mx-auto max-w-7xl px-4 py-6">
+      <!-- Tabs de categorías (marcas primero) -->
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+        <button
+          *ngFor="let c of cats; trackBy: trackKey"
+          type="button"
+          class="px-3 py-1.5 text-2xl font-semibold transition
+                 hover:bg-white/5"
+          [class.border-blue-400]="activeCat === c.key"
+          [class.text-blue-300]="activeCat === c.key"
+          [class.border-white-15]="activeCat !== c.key"
+          [class.text-white90]="activeCat !== c.key"
+          (mouseenter)="setActive(c.key)"
+          (focus)="setActive(c.key)"
+        >
+          {{ c.label }}
+        </button>
+      </div>
+
+      <!-- Subcategorías del tab activo -->
+      <div class="flex flex-col items-start gap-1">
+        <a
+          *ngFor="let s of visibleSubs(); trackBy: trackLabel"
+          [routerLink]="s.link"
+          class="group p-4 hover:border-blue-400 transition "
+          (click)="closeMega()"
+        >
+          <!-- <div class="flex items-start justify-between gap-2">
+            <h4 class="font-semibold text-white group-hover:text-blue-300">
+              {{ s.label }}
+            </h4>
+            <span class="text-white/50 group-hover:text-blue-300 transition">›</span>
           </div>
-        </li>
+          <p *ngIf="s.desc" class="mt-1 text-sm text-white/70 line-clamp-2">
+            {{ s.desc }}
+          </p> -->
+          <div class="flex items-start justify-between gap-2">
+            <h4 class="font-semibold text-white group-hover:text-blue-300">
+              {{ s.label }}
+            </h4>
+            <span class="text-white/50 group-hover:text-blue-300 transition">›</span>
+          </div>
+          <p *ngIf="s.desc" class="mt-1 text-sm text-white/70 line-clamp-2">
+            {{ s.desc }}
+          </p>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</li>
+
+
+
+
+
+
+
 
         <!-- SERVICIOS -->
 <!--         <li class="relative" (mouseenter)="onEnter('servicios')" (mouseleave)="onLeave('servicios')">
@@ -134,64 +169,179 @@
             Sucursales
           </a>
         </li>
+         <li>
+          <a routerLink="catalogo" routerLinkActive="text-blue-900 font-bold"
+             class="hover:underline hover:text-white  block bg-red-500 text-white font-bold px-3 py-1 rounded-lg transition-transform duration-700 hover:scale-105 ">
+            outlet
+          </a>
+        </li>
       </ul>
 
       <!-- Acciones derechas -->
-      <div class="flex items-center gap-2">
-        <!-- Buscador móvil -->
-        <div class="md:hidden">
-          <input #searchSm type="search" placeholder="Buscar…"
-                 class="w-36 rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
-                 (keyup.enter)="onSearch(searchSm.value)">
-        </div>
+<div class="flex items-center gap-2">
+  <!-- Botón menú (móvil) -->
+  <button
+    class="lg:hidden inline-flex items-center justify-center h-10 w-10 rounded-xl
+           border border-slate-300 text-slate-700 bg-white hover:bg-slate-50
+           shadow-sm active:scale-95 transition"
+    (click)="openSheet()"
+    aria-label="Abrir menú móvil"
+  >
+    <svg id="Layer_1" style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><style type="text/css">
+	.st0{fill:#231F20;}
+</style><g><g><path class="st0" d="M381,190.9H131c-11,0-20-9-20-20s9-20,20-20h250c11,0,20,9,20,20S392,190.9,381,190.9z"/></g><g><path class="st0" d="M381,361.1H131c-11,0-20-9-20-20s9-20,20-20h250c11,0,20,9,20,20S392,361.1,381,361.1z"/></g><g><path class="st0" d="M381,276H131c-11,0-20-9-20-20s9-20,20-20h250c11,0,20,9,20,20S392,276,381,276z"/></g></g></svg>
+  </button>
 
-        <!-- Ofertas: CTA caliente -->
-        <a routerLink="/catalogo"
-           class="hidden sm:inline-flex items-center rounded-full border border-amber-400 bg-amber-100 px-3 py-1.5 text-sm font-semibold text-amber-900 hover:bg-amber-200">
-          Ofertas
-        </a>
+  <!-- Carrito -->
+  <button
+    class="relative p-2 bg-blue-100 hover:bg-blue-200 border border-blue-300
+           text-blue-800 rounded-full shadow transition active:scale-95"
+    (click)="toogleSideMenu()" aria-label="Abrir carrito"
+  >
+    <span
+      class="absolute -top-1 -left-1 w-5 h-5 bg-blue-700 text-white text-xs font-semibold
+             rounded-full flex items-center justify-center shadow-md"
+    >
+      {{ cart().length }}
+    </span>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+         stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+      <path stroke-linecap="round" stroke-linejoin="round"
+            d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/>
+    </svg>
+  </button>
+</div>
 
-        <!-- Login -->
-        <a routerLink="/login"
-           class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium
-                  rounded-full border border-blue-300 text-blue-800 bg-blue-50 hover:bg-blue-100 transition"
-           aria-label="Iniciar sesión">
-          Iniciar sesión
-        </a>
-
-        <!-- Carrito -->
-        <button class="relative p-2 bg-blue-100 hover:bg-blue-200 border border-blue-300 text-blue-800 rounded-full shadow transition"
-                (click)="toogleSideMenu()" aria-label="Abrir carrito">
-          <span class="absolute -top-1 -left-1 w-5 h-5 bg-blue-700 text-white text-xs font-semibold rounded-full flex items-center justify-center shadow-md">
-            {{ cart().length }}
-          </span>
-          <!-- ícono -->
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-               stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/>
-          </svg>
-        </button>
-      </div>
     </div>
   </div>
+<section class="w-full bg-[#1E2041] text-white h-12">
+  <div class="">
+    <div class="flex items-center justify-center sm:py-3">
+      <p class="font-extrabold tracking-wide text-center text-xs sm:text-sm md:text-base leading-tight">
+        <ng-container *ngFor="let ch of chars; let i = index">
+          <span
+            class="align-middle select-none
+                   opacity-0 translate-y-2
+                   transition-all ease-out
+                   will-change-transform will-change-opacity"
+            [style.transitionDuration.ms]="animate ? 600 : 0"
+            [style.transitionDelay.ms]="animate ? i * 35 : 0"
+            [ngClass]="{ 'opacity-100 translate-y-0': animate }"
+            [class.w-2]="ch === ' '"
+            [class.sm:w-3]="ch === ' '"
+          >
+            {{ ch === ' ' ? '\u00A0' : ch }}
+          </span>
+        </ng-container>
+      </p>
+    </div>
+  </div>
+</section>
+
+
+
+
 </nav>
 
-<div class="sticky top-0 w-full bg-blue-700 text-white">
-  <div class="mx-auto max-w-7xl px-4">
-    <div class="flex items-center justify-between gap-3 py-1.5 text-xs sm:text-sm">
-      <div class="truncate">
-        <span class="font-semibold">HOY:</span>
-        Ofertas en la categoria <span class="font-bold tracking-wide">EPSON</span>
-        <a routerLink="/catalogo" class="ml-2 underline underline-offset-2 hover:opacity-90">Ver ofertas</a>
+
+
+
+
+
+<!-- ===== Sheet móvil estilo Apple (full-screen + bottom sheet) ===== -->
+<!-- Overlay -->
+<div
+  *ngIf="sheetOpen"
+  class="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm animate-fadeIn"
+  (click)="closeSheet()"
+></div>
+
+<!-- Panel -->
+<section
+  *ngIf="sheetOpen"
+  class="fixed inset-x-0 bottom-0 z-[70] w-full
+         bg-black backdrop-blur-xl supports-[backdrop-filter]:bg-black
+         rounded-t-3xl shadow-2xl border-t border-slate-200
+         animate-slideUp"
+  (click)="$event.stopPropagation()"
+  role="dialog" aria-modal="true" aria-label="Menú"
+>
+  <!-- Handle -->
+  <div class="flex justify-center pt-3">
+    <span class="h-1.5 w-12 rounded-full bg-whit"></span>
+  </div>
+
+  <div class="px-4 pb-6 pt-4 bg-black">
+    <div class="grid grid-cols-2 gap-2 mb-4">
+      <a routerLink="/" (click)="closeSheet()"
+         class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-center font-semibold hover:bg-slate-50">
+        Inicio
+      </a>
+      <a routerLink="/catalogo" (click)="closeSheet()"
+         class="rounded-2xl border border-red-200 bg-red-500 text-white px-4 py-3 text-center font-semibold hover:brightness-110">
+        Ofertas
+      </a>
+    </div>
+
+    <!-- Catálogo (acordeón) -->
+    <div class="rounded-2xl border border-slate-200 bg-white overflow-hidden">
+      <button
+        class="w-full flex items-center justify-between px-4 py-3 text-left font-semibold"
+        (click)="toggleSheetCatalog()"
+        aria-controls="sheet-cat" [attr.aria-expanded]="sheetCatOpen"
+      >
+        <span>EPSON</span>
+        <span class="transition" [style.transform]="sheetCatOpen ? 'rotate(180deg)' : 'rotate(0deg)'">▾</span>
+      </button>
+
+      <div id="sheet-cat"
+           class="grid transition-[grid-template-rows] duration-300 ease-out"
+           [style.gridTemplateRows]="sheetCatOpen ? '1fr' : '0fr'">
+        <div class="overflow-hidden">
+          <!-- Marca EPSON -->
+          <div class="px-4 pb-3">
+            <!-- <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">EPSON</div> -->
+            <ul class="space-y-1">
+              <li *ngFor="let s of visibleSubsArr; trackBy: trackLabel">
+                <a [routerLink]="s.link" (click)="closeSheet()"
+                   class="block rounded-xl px-3 py-2 hover:bg-blue-50 hover:text-blue-700">
+                  {{ s.label }}
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Marcas futuras (comentado)
+          <div class="px-4 pb-3">
+            <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">FREESUB</div>
+            <ul class="space-y-1">
+              <li><a [routerLink]="['/catalogos']" class="block rounded-xl px-3 py-2 hover:bg-blue-50 hover:text-blue-700">Planchas térmicas</a></li>
+            </ul>
+          </div>
+          -->
+        </div>
       </div>
-      <a [href]="waLink()" target="_blank" rel="noopener"
-         class="inline-flex items-center rounded-full bg-white/10 px-3 py-1 font-medium hover:bg-white/20">
-        Comprar por WhatsApp
+    </div>
+
+    <!-- Resto de secciones -->
+    <div class="mt-3 grid gap-2">
+      <a routerLink="/encuentranos" (click)="closeSheet()"
+         class="rounded-2xl border border-slate-200 bg-white px-4 py-3 hover:bg-slate-50">
+        Empresa / Sucursales
+      </a>
+      <a routerLink="/recursos/perfiles-de-color" (click)="closeSheet()"
+         class="rounded-2xl border border-slate-200 bg-white px-4 py-3 hover:bg-slate-50">
+        Recursos
       </a>
     </div>
   </div>
-</div>
+</section>
+
+
+
+
+
+
 
 <!-- Overlay (clic para cerrar) -->
 <div
@@ -274,7 +424,7 @@
     <div class="space-y-2">
       <!-- Finalizar compra -->
       <a
-        routerLink="/checkout"
+        routerLink="checkout"
         class="w-full inline-flex items-center justify-center rounded-lg px-4 py-3
                bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
         (click)="toogleSideMenu()"

@@ -13,6 +13,8 @@ import { PerfilesDeColorComponent } from './domains/pages/recursos/perfiles-de-c
 
 import { SobreNosotrosComponent } from './domains/pages/empresa/sobre-nosotros/sobre-nosotros.component';
 
+import { CheckoutComponent } from './domains/pages/pay/checkout/checkout.component';
+
 
 export const routes: Routes = [
     {
@@ -62,9 +64,11 @@ export const routes: Routes = [
             {
                 path: 'empresa/sobre-nosotros',
                 component: SobreNosotrosComponent
-            }
-
-
+            },
+            {
+                path: 'checkout',
+                component: CheckoutComponent
+            },
         ]
     },
     {

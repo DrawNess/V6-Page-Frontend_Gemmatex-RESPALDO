@@ -1,0 +1,83 @@
+:host { display: block; }
+
+/* Paleta corporativa */
+:root {
+  --c-border: #202adfee;
+  --c-text:  #12509B;
+}
+
+/* Card cuadrada con marco */
+.product-card{
+  border: 1px solid #202adfee;
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+  transition: transform .22s ease, box-shadow .22s ease;
+  will-change: transform;
+}
+.product-card:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px -18px rgba(15,23,42,.35);
+}
+
+/* Imagen: cuadrado, centrada, se amolda al eje horizontal (sin recortar) */
+.thumb{
+  position: relative;
+  aspect-ratio: 1 / 1;
+  display: flex; align-items: center; justify-content: center;
+  background:
+    repeating-linear-gradient(90deg, rgba(30,32,65,.03) 0 1px, transparent 1px 16px),
+    repeating-linear-gradient( 0deg, rgba(30,32,65,.03) 0 1px, transparent 1px 16px);
+}
+.thumb-img{
+  max-width: 100%;       /* llena el ancho cuando puede */
+  max-height: 100%;      /* nunca excede el alto del cuadro */
+  width: 100%;
+  height: auto;
+  object-fit: contain;   /* sin recortes, se adapta al contenedor */
+  object-position: center;
+  transition: transform .55s ease, filter .55s ease;
+  filter: grayscale(15%);
+  border: 100px solid var(--c-border);
+}
+.product-card:hover .thumb-img{
+  transform: scale(1.03);
+  filter: grayscale(0%);
+}
+
+/* Sheen (destello diagonal) */
+.sheen{
+  position: absolute; inset: 0;
+  background: linear-gradient(110deg, rgba(255,255,255,0) 30%, rgba(255,255,255,.28) 50%, rgba(255,255,255,0) 70%);
+  transform: translateX(-120%);
+  transition: transform .7s ease;
+  pointer-events: none;
+}
+.product-card:hover .sheen{ transform: translateX(120%); }
+
+/* Nombre y acentos */
+.meta{
+  padding: .8rem .95rem;
+  border-top: 2px solid var(--c-border);
+  text-align: center;
+  background: #fff;
+}
+.name{
+  margin: 0;
+  color: var(--c-text);
+  font-weight: 700;
+  letter-spacing: .2px;
+  font-size: 13px;
+  min-height: 2.4rem; /* 2 líneas sin mover layout */
+}
+.name-wrap{ display: grid; gap: .35rem; justify-items: center; }
+.accent-bar{
+  height: 3px; width: 0;
+  background: var(--c-border);
+  border-radius: 9999px;
+  transition: width .35s ease;
+}
+.product-card:hover .accent-bar{ width: 42%; }
+
+/* Suavidad */
+img{ will-change: transform, filter; }
