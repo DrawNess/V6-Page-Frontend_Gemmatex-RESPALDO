@@ -15,6 +15,7 @@ import { SobreNosotrosComponent } from './domains/pages/empresa/sobre-nosotros/s
 
 import { CheckoutComponent } from './domains/pages/pay/checkout/checkout.component';
 
+import { AnadirProductosParaManejoFacilDesdeInterfazAmigable123456789Component } from './domains/pages/MenuProducts/add/anadir-productos-para-manejo-facil-desde-interfaz-amigable123456789/anadir-productos-para-manejo-facil-desde-interfaz-amigable123456789.component';
 
 export const routes: Routes = [
     {
@@ -69,6 +70,10 @@ export const routes: Routes = [
                 path: 'checkout',
                 component: CheckoutComponent
             },
+            {
+                path: 'admin/anadir-productos-para-manejo-facil-desde-interfaz-amigable123456789',
+                component: AnadirProductosParaManejoFacilDesdeInterfazAmigable123456789Component
+            }
         ]
     },
     {

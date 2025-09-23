@@ -215,13 +215,13 @@ private toProduct(x: any): Product {
       subhead: '.',
       routerLink: ['/product', 13],
     },
-    {
+/*     {
       id: 3,
       image: 'https://peru-crane-813567.hostingersite.com/Logos/Portada/Portada%20publi%20papel%20sublimaci%C3%B3n.jpg',
       headline: '',
       subhead: '.',
       routerLink: '.',
-    },
+    }, */
   ];
 
 
