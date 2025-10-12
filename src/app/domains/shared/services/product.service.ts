@@ -25,4 +25,12 @@ export class ProductService {
   getProductos() {
     return this.http.get<Product[]>(`https://gemmatex.store/api/v1/products`);
   }
+  private base = 'https://gemmatex.store/api/v1';
+  
+  // NEW: PATCH parcial (edición / activar / soft-delete)
+  patchProduct(id: string | number, partial: Partial<Product> & Record<string, any>) {
+    return this.http.patch<Product>(`${this.base}/products/${id}`, partial);
+  }
 }
+
+

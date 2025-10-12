@@ -1,0 +1,109 @@
+<section class="w-full bg-white">
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:py-12">
+    <!-- Header -->
+    <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-blue-600">Catálogos y documentos</h1>
+        <p class="text-slate-600">Descarga o visualiza los PDF oficiales.</p>
+      </div>
+    </header>
+
+    <!-- Grid -->
+   <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+  @for (d of filtered(); track d.file) {
+<!-- CARD minimal: título arriba + imagen grande centrada -->
+<div
+  class="group relative w-full rounded-2xl border border-slate-200 bg-white
+         p-5 shadow-sm hover:shadow-md transition"
+  (click)="ver(d)" role="button" tabindex="0"
+  (keydown.enter)="ver(d)" (keydown.space)="$event.preventDefault(); ver(d)"
+  [attr.aria-label]="'Vista rápida de ' + titleOf(d)"
+>
+  <!-- Título + chip -->
+  <header class="text-center">
+    <h3 class="font-semibold text-slate-900 text-base sm:text-lg leading-snug line-clamp-2">
+      {{ titleOf(d) }}
+    </h3>
+    <div class="mt-1">
+      <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium
+                   border-slate-200 text-slate-700 bg-slate-50">
+        {{ d.brand ?? 'General' }}
+      </span>
+    </div>
+  </header>
+
+  <!-- Imagen grande centrada (más aire) -->
+  <div
+    class="mx-auto mt-4 mb-4 grid place-items-center overflow-hidden
+           h-40 w-40 sm:h-48 sm:w-48 lg:h-56 lg:w-56 bg-white"
+    aria-hidden="true"
+  >
+    <img
+      [src]="d.image || 'assets/icons/pdf.png'"
+      [alt]="d.brand || 'Documento PDF'"
+      class="h-[88%] w-[88%] object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+      loading="lazy"
+
+    />
+  </div>
+
+  <!-- Acciones (centradas en móvil) -->
+  <div class="mt-1 flex flex-wrap items-center gap-2 justify-center sm:justify-between"
+       (click)="$event.stopPropagation()">
+    <a
+      class="inline-flex items-center rounded-lg bg-blue-600 text-white px-3 py-1.5 text-sm
+             hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
+      [href]="url(d)" [attr.download]="d.file"
+      [attr.aria-label]="'Descargar '+titleOf(d)"
+    >
+      Descargar
+    </a>
+
+    <a
+      class="inline-flex items-center rounded-lg border border-slate-300 px-3 py-1.5 text-sm
+             text-slate-700 hover:bg-slate-50"
+      [href]="url(d)" target="_blank" rel="noopener"
+      [attr.aria-label]="'Abrir '+titleOf(d)"
+    >
+      Abrir
+    </a>
+
+    <button
+      type="button"
+      class="inline-flex items-center rounded-lg px-3 py-1.5 text-sm
+             border border-slate-300 text-slate-700 hover:bg-slate-50"
+      (click)="ver(d)"
+      [attr.aria-label]="'Vista rápida de '+titleOf(d)"
+    >
+      Vista rápida
+    </button>
+  </div>
+</div>
+
+
+  }
+</div>
+
+  </div>
+</section>
+
+<!-- Modal de vista rápida -->
+<div
+  *ngIf="previewDoc() as pd"
+  class="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+  (click)="cerrarPreview()"
+>
+  <div class="relative w-full max-w-5xl h-[80vh] bg-white rounded-xl shadow-2xl overflow-hidden" (click)="$event.stopPropagation()">
+    <div class="flex items-center justify-between px-4 py-3 border-b">
+      <h4 class="font-semibold text-slate-900 truncate">{{ titleOf(pd) }}</h4>
+      <div class="flex items-center gap-2">
+        <a [href]="url(pd)" target="_blank" rel="noopener"
+           class="rounded-lg border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50">Abrir</a>
+        <a [href]="url(pd)" [attr.download]="pd.file"
+           class="rounded-lg bg-blue-600 text-white px-3 py-1.5 text-sm hover:bg-blue-700">Descargar</a>
+        <button class="rounded-lg border px-3 py-1.5 text-sm hover:bg-slate-50" (click)="cerrarPreview()">Cerrar</button>
+      </div>
+    </div>
+    <iframe class="w-full h-full" [src]="safeUrl(pd)" title="Vista rápida PDF"></iframe>
+  </div>
+</div>

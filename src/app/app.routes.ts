@@ -15,7 +15,14 @@ import { SobreNosotrosComponent } from './domains/pages/empresa/sobre-nosotros/s
 
 import { CheckoutComponent } from './domains/pages/pay/checkout/checkout.component';
 
-import { AnadirProductosParaManejoFacilDesdeInterfazAmigable123456789Component } from './domains/pages/MenuProducts/add/anadir-productos-para-manejo-facil-desde-interfaz-amigable123456789/anadir-productos-para-manejo-facil-desde-interfaz-amigable123456789.component';
+import { MenuSecretComponentComponent } from './domains/pages/secret-admin/menu-secret/menu-secret.component/menu-secret.component.component';
+import { ProductsManagerComponentComponent } from './domains/pages/secret-admin/products-manager/products-manager.component/products-manager.component.component'
+
+import { DescargaPdfsComponent} from './domains/pages/descarga-pdfs/descarga-pdfs.component';
+
+export const SECRET_BASE = 'admin-gx-panel-secreto-6f3e2b3e-9c31-4c8c-8cfa-ccf06b9b1c21';
+
+
 
 export const routes: Routes = [
     {
@@ -71,9 +78,18 @@ export const routes: Routes = [
                 component: CheckoutComponent
             },
             {
-                path: 'admin/anadir-productos-para-manejo-facil-desde-interfaz-amigable123456789',
-                component: AnadirProductosParaManejoFacilDesdeInterfazAmigable123456789Component
-            }
+                path: `${SECRET_BASE}/menu-secreto`,
+                component: MenuSecretComponentComponent
+            },
+            {
+                path: `${SECRET_BASE}/panel-productos`,
+                component: ProductsManagerComponentComponent
+            },
+            {
+                path: 'recursos/pdfs',
+                component: DescargaPdfsComponent
+            },
+
         ]
     },
     {

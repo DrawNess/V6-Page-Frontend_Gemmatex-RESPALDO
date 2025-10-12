@@ -37,32 +37,134 @@
 <!-- Sidebar derecha: filtros por “subcategoría” -->
 <aside class="col-span-12 lg:col-span-3">
   <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 sticky top-20 mt-10">
+
+    <!-- Encabezado -->
     <div class="flex items-center justify-between">
-      <h3 class="text-lg font-semibold text-slate-900">EPSON</h3>
-      <button class="text-xs text-slate-500 hover:underline" (click)="clearFilters()">Limpiar</button>
+      <h3 class="text-lg font-semibold text-slate-900">Filtros</h3>
+      <button class="text-xs text-slate-500 hover:underline" (click)="clearFilters()">Limpiar todo</button>
     </div>
 
-    <!-- Subcategorías (definidas por ustedes) -->
-    <div class="mt-3 space-y-1.5 max-h-[50vh] overflow-auto pr-1">
-      @for (f of SUB_FILTERS; track f.label) {
+    <!-- =============== EPSON (desplegable) =============== -->
+    <div class="mt-5 border rounded-xl overflow-hidden">
+      <button
+        type="button"
+        class="w-full flex items-center justify-between px-3 py-2.5 bg-slate-50 hover:bg-slate-100"
+        (click)="toggleBrand('epson')"
+        [attr.aria-expanded]="openBrand() === 'epson'"
+      >
+        <span class="font-semibold text-slate-900">EPSON</span>
+        <svg class="h-4 w-4 transition-transform"
+             [class.rotate-180]="openBrand() === 'epson'" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
+      </button>
+
+      <div *ngIf="openBrand() === 'epson'" class="p-2">
+        <div class="space-y-1.5 max-h-[50vh] overflow-auto pr-1">
+          @for (f of SUB_FILTERS; track f.label) {
+            <button
+              type="button"
+              class="w-full text-left rounded-lg px-3 py-2 transition border hover:bg-slate-50 flex items-center justify-between"
+              [ngClass]="isActive(f.label)
+                         ? 'border-blue-300 bg-blue-50 text-blue-800'
+                         : 'border-transparent text-slate-800'"
+              (click)="applySub(f.label)"
+              [attr.aria-pressed]="isActive(f.label)"
+            >
+              <span class="text-[15px] sm:text-base font-medium">{{ f.label }}</span>
+              <span class="text-xs rounded-full px-2 py-0.5 border"
+                    [ngClass]="countEpson(f.label) > 0 ? 'bg-slate-50 text-slate-700 border-slate-200' : 'bg-slate-100 text-slate-400 border-slate-200'">
+                {{ countEpson(f.label) }}
+              </span>
+            </button>
+          }
+        </div>
+
+        <div class="mt-2 flex justify-end">
+          <button class="text-xs text-slate-500 hover:underline" (click)="clearEpson()">Borrar EPSON</button>
+        </div>
+      </div>
+    </div>
+
+
+<!-- =============== GX =============== -->
+<div class="mt-4 border rounded-xl overflow-hidden">
+  <button
+    type="button"
+    class="w-full flex items-center justify-between px-3 py-2.5 bg-slate-50 hover:bg-slate-100"
+    (click)="toggleBrand('gx')"
+    [attr.aria-expanded]="openBrand() === 'gx'">
+    <span class="font-semibold text-slate-900">GX</span>
+    <svg class="h-4 w-4 transition-transform"
+         [class.rotate-180]="openBrand() === 'gx'" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
+  </button>
+
+  <div *ngIf="openBrand() === 'gx'" class="p-3">
+    <div class="grid grid-cols-1 gap-2">
+      @for (g of GX_SUB_FILTERS; track g.label) {
         <button
           type="button"
-          class="w-full text-left rounded-lg px-3 py-2 transition border hover:bg-slate-50"
-          [ngClass]="isActive(f.label)
-                     ? 'border-blue-300 bg-blue-50 text-blue-800'
-                     : 'border-transparent text-slate-800'"
-          (click)="applySub(f.label)"
-          [attr.aria-pressed]="isActive(f.label)"
-        >
-          <span class="text-[15px] sm:text-base font-medium">{{ f.label }}</span>
+          class="flex items-center justify-between rounded-lg border px-3 py-2 hover:bg-slate-50"
+          [ngClass]="isGxActive(g.label) ? 'border-blue-300 bg-blue-50 text-blue-800' : 'border-slate-200 text-slate-800'"
+          (click)="toggleGx(g.label)"
+          >
+          <span>{{ g.label }}</span>
+          <span class="text-xs rounded-full px-2 py-0.5 border"
+                [ngClass]="(gxCounts().get(g.label) ?? 0) > 0 ? 'bg-slate-50 text-slate-700 border-slate-200' : 'bg-slate-100 text-slate-400 border-slate-200'">
+            <!-- {{ gxCounts().get(g.label) ?? 0 }} -->
+              {{ gxCounts().get(g.label) }}
+          </span>
         </button>
       }
     </div>
 
-    <!-- (Opcional) filtros por categoría de API que ya tenías… puedes dejarlos debajo -->
-    <!-- … -->
+    <div class="mt-2 flex justify-end">
+      <button class="text-xs text-slate-500 hover:underline" (click)="clearGx()">Borrar GX</button>
+    </div>
+  </div>
+</div>
+
+<!-- =============== Descargas rápidas (PDFs) =============== -->
+<div class="mt-4 border rounded-xl overflow-hidden">
+  <button
+    type="button"
+    class="w-full flex items-center justify-between px-3 py-2.5 bg-slate-50 hover:bg-slate-100"
+    (click)="toggleDownloads()"
+    [attr.aria-expanded]="openDownloads()"
+  >
+    <span class="font-semibold text-slate-900">CATALOGO PDF</span>
+    <svg class="h-4 w-4 transition-transform"
+         [class.rotate-180]="openDownloads()" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/>
+    </svg>
+  </button>
+
+  <div *ngIf="openDownloads()" class="p-3">
+    <div class="space-y-1.5 max-h-[50vh] overflow-auto pr-1">
+      @for (d of QUICK_PDFS; track d.file) {
+        <a
+          class="w-full block rounded-lg px-3 py-2 transition border hover:bg-slate-50
+                 text-slate-800 flex items-center justify-between"
+          [href]="docUrl2(d)"
+          [attr.download]="d.file"
+          [attr.aria-label]="'Descargar ' + docTitle2(d)"
+        >
+          <span class="text-[15px] sm:text-base font-medium truncate">{{ docTitle2(d) }}</span>
+          <span class="text-xs rounded-full px-2 py-0.5 border bg-slate-50 text-slate-700 border-slate-200">
+            PDF
+          </span>
+        </a>
+      }
+    </div>
+  </div>
+</div>
+
+
+    <!-- (Opcional) Aquí puedes dejar tus filtros por categoría de API -->
   </div>
 </aside>
+
 
       <!-- Principal: listado -->
       <div class="col-span-12 lg:col-span-9">
@@ -108,3 +210,6 @@
     </div>
   </div>
 </section>
+
+
+
