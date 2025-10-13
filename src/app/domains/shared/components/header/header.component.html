@@ -251,6 +251,79 @@
   </div>
 </section>
 
+<!-- Subnav de Categorías (desktop) -->
+<nav class="hidden lg:block border-t border-slate-200 bg-white/80 backdrop-blur">
+  <div class="mx-auto max-w-7xl px-4">
+    <!-- Contenedor centrado; si hay muchas, hace wrap a 2+ filas -->
+    <div class="flex flex-wrap justify-center gap-x-2 gap-y-2 py-2 relative">
+
+      <!-- Botón + submenu por categoría -->
+      <div
+        class="relative"
+        *ngFor="let cat of headerCategories(); trackBy: trackByCat"
+        (mouseenter)="openCat(cat)"
+        (mouseleave)="closeCatDelayed()"
+        (focusin)="openCat(cat)"
+        (focusout)="closeCatDelayed()"
+      >
+        <button
+          type="button"
+          class="shrink-0 px-3 py-2 text-sm font-medium
+                 rounded-md border border-slate-200 bg-white/90 text-slate-800
+                 shadow-sm hover:bg-slate-50 hover:border-slate-300 hover:shadow
+                 active:scale-[.98] transition
+                 focus:outline-none focus:ring-2 focus:ring-blue-300"
+          (click)="goToCategory(cat)"
+          [attr.aria-label]="'Ver ' + cat.name"
+        >
+          <span class="inline-flex items-center gap-2">
+            {{ cat.name }}
+            <!-- caret visual para indicar submenu -->
+            <svg class="h-3.5 w-3.5 opacity-60" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/>
+            </svg>
+          </span>
+        </button>
+
+        <!-- Dropdown: subcategorías -->
+        <div
+          *ngIf="openCatId === cat.id"
+          class="absolute left-1/2 -translate-x-1/2 mt-2 w-[min(80vw,22rem)]
+                 rounded-xl border border-slate-200 bg-white shadow-xl z-50"
+          (mouseenter)="cancelClose()"
+          (mouseleave)="closeCatDelayed()"
+        >
+          <div class="p-2 max-h-[60vh] overflow-auto">
+            <ng-container *ngIf="subcatsMap.get(cat.id)?.length; else loadingOrEmpty">
+              <ul class="grid grid-cols-1 gap-1">
+                <li *ngFor="let sc of subcatsMap.get(cat.id)">
+                  <a
+                    class="block rounded-lg px-3 py-2 text-sm hover:bg-blue-50 hover:text-blue-700"
+                    (click)="goToSubcategory(cat, sc)"
+                    [attr.aria-label]="'Ver ' + sc.name"
+                  >
+                    {{ sc.name }}
+                  </a>
+                </li>
+              </ul>
+            </ng-container>
+
+            <ng-template #loadingOrEmpty>
+              <div class="px-3 py-2 text-sm text-slate-500">
+                {{ subcatsLoading ? 'Cargando…' : 'Sin subcategorías' }}
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</nav>
+
+
+
+
 
 
 
@@ -273,82 +346,105 @@
 <section
   *ngIf="sheetOpen"
   class="fixed inset-x-0 bottom-0 z-[70] w-full
-         bg-black backdrop-blur-xl supports-[backdrop-filter]:bg-black
-         rounded-t-3xl shadow-2xl border-t border-slate-200
+         rounded-t-[28px] shadow-2xl border-t border-white/10
+         bg-gradient-to-b from-[#1E2041] to-[#0B0E2A]/95 backdrop-blur-xl
          animate-slideUp"
   (click)="$event.stopPropagation()"
   role="dialog" aria-modal="true" aria-label="Menú"
 >
   <!-- Handle -->
   <div class="flex justify-center pt-3">
-    <span class="h-1.5 w-12 rounded-full bg-whit"></span>
+    <span class="h-1.5 w-12 rounded-full bg-white/40"></span>
   </div>
 
-  <div class="px-4 pb-6 pt-4 bg-black">
+  <!-- Header -->
+  <div class="px-4 pt-4 pb-2 flex items-center justify-between text-white">
+    <h2 class="text-base font-semibold tracking-wide">Menú</h2>
+    <button (click)="closeSheet()" class="p-2 rounded-lg hover:bg-white/10">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 opacity-90" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="px-4 pb-8 text-white">
+    <!-- Acciones rápidas -->
     <div class="grid grid-cols-2 gap-2 mb-4">
       <a routerLink="/" (click)="closeSheet()"
-         class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-center font-semibold hover:bg-slate-50">
+         class="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-center font-semibold hover:bg-white/15 transition">
         Inicio
       </a>
       <a routerLink="/catalogo" (click)="closeSheet()"
-         class="rounded-2xl border border-red-200 bg-red-500 text-white px-4 py-3 text-center font-semibold hover:brightness-110">
+         class="rounded-2xl bg-[#0511F2] text-white px-4 py-3 text-center font-semibold shadow-lg shadow-blue-900/30 hover:brightness-110 transition">
         Ofertas
       </a>
     </div>
 
-    <!-- Catálogo (acordeón) -->
-    <div class="rounded-2xl border border-slate-200 bg-white overflow-hidden">
-      <button
-        class="w-full flex items-center justify-between px-4 py-3 text-left font-semibold"
-        (click)="toggleSheetCatalog()"
-        aria-controls="sheet-cat" [attr.aria-expanded]="sheetCatOpen"
-      >
-        <span>EPSON</span>
-        <span class="transition" [style.transform]="sheetCatOpen ? 'rotate(180deg)' : 'rotate(0deg)'">▾</span>
-      </button>
+    <!-- Catálogo (acordeón dinámico por categoría) -->
+    <div class="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
+      <div *ngFor="let cat of headerCategories(); trackBy: trackByCat" class="border-b border-white/10 last:border-b-0">
+        <button
+          class="w-full flex items-center justify-between px-4 py-3 text-left font-semibold hover:bg-white/5 transition"
+          (click)="toggleCatAccordion(cat)"
+          [attr.aria-expanded]="accordionOpenId === cat.id"
+        >
+          <span class="inline-flex items-center gap-2">
+            <!-- icono folder -->
+            <svg class="w-4 h-4 opacity-80" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M10.59 4.59A2 2 0 0 1 12 4h6a2 2 0 0 1 2 2v2H4V6a2 2 0 0 1 2-2h3.17l1.42.59Z"/>
+              <path d="M4 10h16v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8Z"/>
+            </svg>
+            {{ cat.name }}
+          </span>
+          <span class="transition"
+                [style.transform]="accordionOpenId === cat.id ? 'rotate(180deg)' : 'rotate(0deg)'">▾</span>
+        </button>
 
-      <div id="sheet-cat"
-           class="grid transition-[grid-template-rows] duration-300 ease-out"
-           [style.gridTemplateRows]="sheetCatOpen ? '1fr' : '0fr'">
-        <div class="overflow-hidden">
-          <!-- Marca EPSON -->
-          <div class="px-4 pb-3">
-            <!-- <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">EPSON</div> -->
-            <ul class="space-y-1">
-              <li *ngFor="let s of visibleSubsArr; trackBy: trackLabel">
-                <a [routerLink]="s.link" (click)="closeSheet()"
-                   class="block rounded-xl px-3 py-2 hover:bg-blue-50 hover:text-blue-700">
-                  {{ s.label }}
-                </a>
-              </li>
-            </ul>
-          </div>
+        <div class="grid transition-[grid-template-rows] duration-300 ease-out"
+             [style.gridTemplateRows]="accordionOpenId === cat.id ? '1fr' : '0fr'">
+          <div class="overflow-hidden">
+            <div class="px-3 pb-3">
+              <ul class="space-y-1.5">
+                <li *ngFor="let sc of subcatsMap.get(cat.id) || []">
+                  <a
+                    (click)="goToSubcategory(cat, sc); closeSheet()"
+                    class="flex items-center justify-between gap-2 rounded-xl px-3 py-2
+                           bg-white/0 hover:bg-[#0511F2]/10 transition"
+                  >
+                    <span class="inline-flex items-center gap-2">
+                      <svg class="w-3.5 h-3.5 opacity-70" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="3"/></svg>
+                      {{ sc.name }}
+                    </span>
+                    <svg class="w-4 h-4 opacity-60" viewBox="0 0 24 24" fill="currentColor"><path d="m9 6 6 6-6 6"/></svg>
+                  </a>
+                </li>
 
-          <!-- Marcas futuras (comentado)
-          <div class="px-4 pb-3">
-            <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">FREESUB</div>
-            <ul class="space-y-1">
-              <li><a [routerLink]="['/catalogos']" class="block rounded-xl px-3 py-2 hover:bg-blue-50 hover:text-blue-700">Planchas térmicas</a></li>
-            </ul>
+                <!-- fallback -->
+                <li *ngIf="(subcatsMap.get(cat.id) || []).length === 0" class="px-3 py-2 text-sm text-white/70">
+                  Sin subcategorías
+                </li>
+              </ul>
+            </div>
           </div>
-          -->
         </div>
       </div>
     </div>
 
     <!-- Resto de secciones -->
-    <div class="mt-3 grid gap-2">
+    <div class="mt-4 grid gap-2">
       <a routerLink="/encuentranos" (click)="closeSheet()"
-         class="rounded-2xl border border-slate-200 bg-white px-4 py-3 hover:bg-slate-50">
+         class="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 hover:bg-white/15 transition">
         Empresa / Sucursales
       </a>
       <a routerLink="/recursos/perfiles-de-color" (click)="closeSheet()"
-         class="rounded-2xl border border-slate-200 bg-white px-4 py-3 hover:bg-slate-50">
+         class="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 hover:bg-white/15 transition">
         Recursos
       </a>
     </div>
+
   </div>
 </section>
+
 
 
 

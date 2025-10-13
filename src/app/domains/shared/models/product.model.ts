@@ -1,4 +1,5 @@
-import { Category } from "./category.model";
+/* import { Subcategory } from "@shared/services/subcategory.service"; */
+import { Subcategory } from "./subcategory.model";
 
 export interface Product {
 
@@ -13,7 +14,7 @@ export interface Product {
   slug: string;
   description: string;
   shortDescription: string;
-  subcategory: string;
+  brand: string;
   imageUrl: string;
   galleryUrls: string[];
   price: number;
@@ -26,6 +27,6 @@ export interface Product {
   is_active: boolean;
   created_at: string;
   updated_at: string;
-  category: Category;
+  subcategory: Subcategory;
   /* category: 1; */
 }

@@ -35,7 +35,7 @@ private toProduct(x: any): Product {
     slug: x.slug ?? (x.name ? String(x.name).toLowerCase().replace(/\s+/g,'-') : ''),
     description: x.description ?? '',
     shortDescription: x.shortDescription ?? x.short_description ?? '',
-    subcategory: x.subcategory ?? x.subcategory_name ?? '',
+    brand: x.brand ?? x.brand ?? '',
     imageUrl: x.imageUrl ?? x.image_url ?? '',
     galleryUrls: x.galleryUrls ?? x.gallery_urls ?? [],
     price: Number(x.price ?? 0),
@@ -48,7 +48,7 @@ private toProduct(x: any): Product {
     is_active: Boolean(x.is_active ?? x.isActive ?? true),
     created_at: x.created_at ?? x.createdAt ?? new Date().toISOString(),
     updated_at: x.updated_at ?? x.updatedAt ?? new Date().toISOString(),
-    category: x.category
+    subcategory: x.subcategory
   } as Product;
 }
 

@@ -6,6 +6,17 @@ import { RouterLinkWithHref, RouterLinkActive } from '@angular/router';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
+import { CategoryService } from './../../services/category.service';
+import { Category } from './../../models/category.model';
+
+import { SubcategoryService } from '@shared/services/subcategory.service';
+import { Subcategory } from '@shared/models/subcategory.model';
+
+
+type HeaderCategory = { id: number; name: string; slug?: string };
+type HeaderSubcategory = { id: number; name: string; slug?: string };
+
+
 @Component({
   selector: 'app-header',
   standalone: true,
@@ -14,10 +25,16 @@ import { filter } from 'rxjs/operators';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent {
+
   hideSideMenu = signal(true);
   private cartService = inject(CartService);
   cart = this.cartService.cart;
   total = this.cartService.total;
+  
+
+private readonly categorySvc = inject(CategoryService);
+/* private readonly router = inject(Router); */
+headerCategories = signal<Category[]>([]);
 
   toogleSideMenu() {
     this.hideSideMenu.update(prevState => !prevState);
@@ -26,7 +43,7 @@ export class HeaderComponent {
 /* agregacion */
 
   openMenu: string | null = null;
-  closeTimer: any = null;
+  private closeTimer: any = null;
 
   onEnter(menu: string) {
     if (this.closeTimer) clearTimeout(this.closeTimer);
@@ -130,8 +147,6 @@ private router = inject(Router);
   }
 
 
-
-
 // Texto comercial
 mensaje = 'NO SOLO TE VENDEMOS EL PRODUCTO, TE ENSEÑAMOS A UTILIZARLO.';
 chars: string[] = Array.from(this.mensaje);
@@ -158,6 +173,13 @@ ngOnInit() {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }, 0);
       });
+  this.categorySvc.getAll().subscribe({
+    next: (cats) => this.headerCategories.set(cats ?? []),
+    error: () => this.headerCategories.set([]),
+  });
+
+
+
 }
 
 ngOnDestroy() {
@@ -268,7 +290,81 @@ toggleSheetCatalog() { this.sheetCatOpen = !this.sheetCatOpen; }
 
 get visibleSubsArr() { return this.subsMap[this.activeCat] ?? []; }
 
+trackByCat = (_: number, c: Category) => c.id;
 
 
- 
+
+
+/*  */
+
+  private subcatSrv = inject(SubcategoryService);
+
+  // estado para el dropdown
+  openCatId: number | null = null;
+  subcatsMap = new Map<number, HeaderSubcategory[]>();
+  subcatsLoading = false;
+  /* private closeTimer: any = null; */
+
+  // abrir y precargar subcategorías
+  openCat(cat: HeaderCategory) {
+    this.openCatId = cat.id;
+    if (!this.subcatsMap.has(cat.id)) {
+      this.subcatsLoading = true;
+      this.subcatSrv.getByCategory(cat.id).subscribe({
+        next: (arr) => {
+          this.subcatsMap.set(cat.id, arr ?? []);
+          this.subcatsLoading = false;
+        },
+        error: () => {
+          this.subcatsMap.set(cat.id, []);
+          this.subcatsLoading = false;
+        }
+      });
+    }
+  }
+
+  cancelClose() {
+    if (this.closeTimer) {
+      clearTimeout(this.closeTimer);
+      this.closeTimer = null;
+    }
+  }
+
+  closeCatDelayed() {
+    this.cancelClose();
+    this.closeTimer = setTimeout(() => {
+      this.openCatId = null;
+    }, 120); // pequeño delay para que no parpadee
+  }
+
+  // navegación
+  goToCategory(cat: HeaderCategory) {
+    this.router.navigate(['/productos'], { queryParams: { categoryId: cat.id } });
+  }
+  goToSubcategory(cat: HeaderCategory, sc: HeaderSubcategory) {
+    this.router.navigate(['/productos'], { queryParams: { categoryId: cat.id, subcategoryId: sc.id } });
+    this.openCatId = null;
+  }
+
+  accordionOpenId: number | null = null;
+
+toggleCatAccordion(cat: HeaderCategory) {
+  // abre/cierra
+  this.accordionOpenId = this.accordionOpenId === cat.id ? null : cat.id;
+  // carga si no está en cache
+  if (!this.subcatsMap.has(cat.id)) {
+    this.subcatsLoading = true;
+    this.subcatSrv.getByCategory(cat.id).subscribe({
+      next: (arr) => {
+        this.subcatsMap.set(cat.id, arr ?? []);
+        this.subcatsLoading = false;
+      },
+      error: () => {
+        this.subcatsMap.set(cat.id, []);
+        this.subcatsLoading = false;
+      }
+    });
+  }
+}
+
 }
