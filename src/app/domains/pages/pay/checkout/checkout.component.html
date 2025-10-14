@@ -1,3 +1,174 @@
-<div>
-    
-</div>
+<section class="w-full">
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:py-10">
+
+    <!-- Encabezado -->
+    <div class="mb-6 flex items-start justify-between gap-4">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Finalizar compra</h1>
+        <p class="text-slate-600">Revisa tus productos y completa tus datos para enviar el pedido por WhatsApp.</p>
+      </div>
+
+      <a routerLink="/productos"
+         class="hidden sm:inline-flex items-center rounded-lg border px-3 py-2 text-sm hover:bg-slate-50">
+        ← Seguir comprando
+      </a>
+    </div>
+
+    <!-- Carrito vacío -->
+    <div *ngIf="isEmpty()" class="rounded-xl border border-slate-200 bg-white p-8 text-center">
+      <p class="text-slate-600">Tu carrito está vacío.</p>
+      <a routerLink="/productos"
+         class="mt-4 inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+        Ver productos
+      </a>
+    </div>
+
+    <!-- Layout principal -->
+    <div *ngIf="!isEmpty()" class="grid grid-cols-12 gap-6 lg:gap-8">
+
+      <!-- Izquierda: datos + sucursal -->
+      <div class="col-span-12 lg:col-span-5">
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <h2 class="text-lg font-semibold text-slate-900">Tus datos</h2>
+          <div class="mt-4 grid grid-cols-1 gap-4">
+            <div>
+              <label class="block text-sm text-slate-700 mb-1">Nombre y apellido</label>
+              <input
+                type="text"
+                class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none
+                       focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+                [ngModel]="customerName()"
+                (ngModelChange)="customerName.set($event)"
+                placeholder="Ej: Juan Pérez"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm text-slate-700 mb-1">Teléfono (WhatsApp)</label>
+              <input
+                type="tel"
+                class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none
+                       focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+                [ngModel]="customerPhone()"
+                (ngModelChange)="customerPhone.set($event)"
+                placeholder="Ej: 5917XXXXXXXX"
+              />
+              <p class="mt-1 text-[12px] text-slate-500">Incluye el código de país (ej: 591...)</p>
+            </div>
+
+            <div>
+              <label class="block text-sm text-slate-700 mb-1">Notas / indicaciones</label>
+              <textarea
+                rows="3"
+                class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none
+                       focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+                [ngModel]="notes()"
+                (ngModelChange)="notes.set($event)"
+                placeholder="Ej: Facturar a nombre de..., horarios preferidos, etc."
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <h2 class="text-lg font-semibold text-slate-900">Elegí tu sucursal</h2>
+          <div class="mt-4 grid grid-cols-1 gap-3">
+            <label
+              *ngFor="let b of branches"
+              class="flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition hover:bg-slate-50"
+              [class.border-blue-300]="selectedBranchId() === b.id"
+            >
+              <input
+                type="radio"
+                class="mt-1"
+                name="branch"
+                [value]="b.id"
+                [checked]="selectedBranchId() === b.id"
+                (change)="selectedBranchId.set(b.id)"
+              />
+              <div>
+                <div class="font-medium text-slate-900">{{ b.name }}</div>
+                <div class="text-sm text-slate-600">
+                  Tel: {{ b.phone }} <span *ngIf="b.address">• {{ b.address }}</span>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Derecha: listado + resumen -->
+      <div class="col-span-12 lg:col-span-7">
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <h2 class="text-lg font-semibold text-slate-900">Tu carrito</h2>
+
+          <div class="mt-4 divide-y">
+            <div
+              *ngFor="let item of groupedCart(); trackBy: trackByItem"
+              class="py-4 flex items-center gap-4"
+            >
+              <img
+                [src]="item.product.imageUrl"
+                [alt]="item.product.name"
+                class="h-16 w-16 rounded-lg object-cover border"
+              />
+              <div class="flex-1 min-w-0">
+                <div class="font-medium text-slate-900 truncate">{{ item.product.name }}</div>
+                <div class="text-sm text-slate-500">SKU: {{ (item.product.sku) }}</div>
+                <div class="mt-0.5 text-sm text-slate-700">
+                  {{ item.unitPrice | currency:'BOB':'symbol-narrow':'1.2-2' }} c/u
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <button class="h-8 w-8 rounded border hover:bg-slate-50" (click)="dec(item.product)">−</button>
+                <div class="px-2 text-sm font-medium">{{ item.count }}</div>
+                <button class="h-8 w-8 rounded border hover:bg-slate-50" (click)="inc(item.product)">+</button>
+              </div>
+
+              <div class="w-28 text-right font-semibold">
+                {{ itemSubtotal(item) | currency:'BOB':'symbol-narrow':'1.2-2' }}
+              </div>
+
+              <button
+                class="h-8 w-8 inline-flex items-center justify-center rounded border border-red-200 text-red-600 hover:bg-red-50"
+                (click)="removeAll(item.product)"
+                title="Quitar todos"
+                aria-label="Quitar"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-4 flex items-center justify-between">
+            <button class="text-sm text-slate-500 hover:underline" (click)="clearCart()">Vaciar carrito</button>
+            <div class="text-right">
+              <div class="text-sm text-slate-600">Total</div>
+              <div class="text-xl font-extrabold">
+                {{ total() | currency:'BOB':'symbol-narrow':'1.2-2' }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 flex flex-col sm:flex-row-reverse gap-3">
+          <button
+            class="inline-flex items-center justify-center rounded-xl bg-green-600 px-5 py-3 text-white font-semibold
+                   hover:bg-green-700 shadow-sm active:scale-[.98] transition"
+            (click)="placeOrder()"
+          >
+            Hacer pedido por WhatsApp
+          </button>
+
+          <a routerLink="/productos"
+             class="inline-flex items-center justify-center rounded-xl border px-5 py-3 bg-white hover:bg-slate-50">
+            ← Seguir comprando
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>

@@ -23,6 +23,7 @@ import { DescargaPdfsComponent} from './domains/pages/descarga-pdfs/descarga-pdf
 export const SECRET_BASE = 'admin-gx-panel-secreto-6f3e2b3e-9c31-4c8c-8cfa-ccf06b9b1c21';
 
 import { ProductosComponent } from './domains/catalogo/productos/productos.component'
+import { OffersComponent } from './domains/catalogo/offers/offers.component'
 
 export const routes: Routes = [
     {
@@ -92,7 +93,12 @@ export const routes: Routes = [
             {
                 path: 'productos',
                 component: ProductosComponent
+            },
+            {
+                path: 'ofertas',
+                component: OffersComponent
             }
+
 
         ]
     },
