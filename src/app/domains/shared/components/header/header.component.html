@@ -1,231 +1,218 @@
 <nav class="sticky top-[0px] sm:top-[0px] left-0 z-[50] w-full bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70 shadow-lg transition-all hover:bg-gradient-to-b">
   <div class="mx-auto px-4 h-[90px]">
-    <div class="flex h-20  items-center justify-between gap-4">
+   <div class="flex h-20 items-center gap-4">
 
-      <!-- Logo -->
-      <a routerLink="" class="ml-[0px] @max-md:ml-20" aria-label="Inicio">
-        <img src="https://peru-crane-813567.hostingersite.com/Logos/Logo%20gemmatex%20azul.png"
-             alt="Logo Gemmatex" class="h-[80%] sm:h-[55px] transition-transform duration-300 hover:scale-105">
-      </a>
+    <!-- Logo -->
+    <a routerLink="/" class="ml-0 max-md:ml-5 flex items-center" aria-label="Inicio">
+      <img
+        src="https://peru-crane-813567.hostingersite.com/Logos/Logo%20gemmatex%20azul.png"
+        alt="Logo Gemmatex"
+        class="h-[55px] transition-transform duration-300 hover:scale-105"
+      >
+    </a>
 
-
-      <!-- Menú principal -->
-      <ul class="hidden lg:flex items-center gap-6 font-medium text-[#0511F2] pl-[400px]">
-
-        <!-- INICIO -->
-
-        <li>
-          <a routerLink="catalogo"
-          class="hover:underline hover:text-blue-900 transition block bg-red-500 text-white font-bold px-3 py-1 rounded-lg mr-[30px]">
-            Ofertas
-          </a>
-        </li>
-
-        <li>
-          <a routerLink="" routerLinkActive="text-blue-900 font-bold"
-             class="hover:underline hover:text-blue-900 transition block">Inicio</a>
-        </li>
-
-        <!-- CATÁLOGO (MEGA) -->
-<li class="" (document:keydown.escape)="closeMega()">
-  <!-- Trigger -->
-  <a
-    (click)="toggleMega($event)"
-    [attr.aria-expanded]="isMegaOpen"
-    role="button"
-    class="transition block hover:text-blue-400"
-  >
-    Catálogo
-  </a>
-
-  <!-- Overlay -->
-  <div
-    *ngIf="isMegaOpen"
-    class="fixed inset-0 z-40 bg-black/50"
-    (click)="closeMega()"
-  ></div>
-
-  <!-- Mega panel full-width (negro translúcido) -->
-  <div
-    *ngIf="isMegaOpen"
-    class="absolute left-1/2 -translate-x-1/2 top-full z-50 w-screen
-           bg-black/85 text-white backdrop-blur border-b border-white/10 shadow-2xl
-           animate-[fadeSlide_.22s_ease-out] bg-black"
-    (mouseenter)="panelHover = true" (mouseleave)="panelHover = false"
-  >
-    <div class="mx-auto max-w-7xl px-4 py-6 flex flex-row">
-      <!-- Tabs de categorías (marcas primero) -->
-      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
-        <button
-          *ngFor="let c of cats; trackBy: trackKey"
-          type="button"
-          class="px-3 py-1.5 text-2xl font-semibold transition
-                 hover:bg-white/5"
-          [class.border-blue-400]="activeCat === c.key"
-          [class.text-blue-300]="activeCat === c.key"
-          [class.border-white-15]="activeCat !== c.key"
-          [class.text-white90]="activeCat !== c.key"
-          (mouseenter)="setActive(c.key)"
-          (focus)="setActive(c.key)"
-        >
-          {{ c.label }}
-        </button>
-      </div>
-
-      <!-- Subcategorías del tab activo -->
-      <div class="flex flex-col items-start gap-1">
-        <a
-          *ngFor="let s of visibleSubs(); trackBy: trackLabel"
-          [routerLink]="s.link"
-          class="group p-4 hover:border-blue-400 transition "
-          (click)="closeMega()"
-        >
-          <!-- <div class="flex items-start justify-between gap-2">
-            <h4 class="font-semibold text-white group-hover:text-blue-300">
-              {{ s.label }}
-            </h4>
-            <span class="text-white/50 group-hover:text-blue-300 transition">›</span>
-          </div>
-          <p *ngIf="s.desc" class="mt-1 text-sm text-white/70 line-clamp-2">
-            {{ s.desc }}
-          </p> -->
-          <div class="flex items-start justify-between gap-2">
-            <h4 class="font-semibold text-white group-hover:text-blue-300">
-              {{ s.label }}
-            </h4>
-            <span class="text-white/50 group-hover:text-blue-300 transition">›</span>
-          </div>
-          <p *ngIf="s.desc" class="mt-1 text-sm text-white/70 line-clamp-2">
-            {{ s.desc }}
-          </p>
-        </a>
-      </div>
-      <a
-    routerLink="/recursos/pdfs"
-    (click)="closeMega()"
-    class="hidden sm:inline-flex items-center gap-2 rounded-lg bg-blue-600 text-white
-           px-4 py-2 font-semibold shadow hover:bg-blue-500 transition"
-    aria-label="Ir a Catálogos"
-  >
-    <!-- ícono pdf -->
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z"/><path d="M14 2v6h6"/>
-    </svg>
-    Catálogos PDFs
-  </a>
-
-    </div>
-  </div>
-</li>
-
-
-
-
-
-
-
-
-        <!-- SERVICIOS -->
-<!--         <li class="relative" (mouseenter)="onEnter('servicios')" (mouseleave)="onLeave('servicios')">
-          <a routerLink="servicios" routerLinkActive="text-blue-900 font-bold"
-             role="button" [attr.aria-expanded]="openMenu === 'servicios'"
-             (click)="toggleMenu($event,'servicios')"
-             class="hover:underline hover:text-blue-900 transition block">
-            Servicios
-          </a>
-          <ul *ngIf="openMenu === 'servicios'"
-              class="absolute top-full left-0 mt-2 w-64 bg-white shadow-lg rounded-xl z-50 border border-gray-100 py-2">
-            <li><a routerLink="/servicio/dtf" class="block px-4 py-2 hover:bg-gray-100">Impresiones DTF</a></li>
-            <li><a routerLink="/services/instalacion" class="block px-4 py-2 hover:bg-gray-100">impresiones UV</a></li>
-            <li><a routerLink="/services/capacitacion" class="block px-4 py-2 hover:bg-gray-100">Impresiones Quemado</a></li>
-            <li><a routerLink="/services/mantenimiento" class="block px-4 py-2 hover:bg-gray-100">Revelado de mallas</a></li>
-          </ul>
-        </li> -->
-
-        <!-- EMPRESA -->
-        <li class="relative" (mouseenter)="onEnter('empresa')" (mouseleave)="onLeave('empresa')">
-          <a routerLink="encuentranos" routerLinkActive="text-blue-900 font-bold"
-             role="button" [attr.aria-expanded]="openMenu === 'empresa'"
-             (click)="toggleMenu($event,'empresa')"
-             class="hover:underline hover:text-blue-900 transition block">
-            Empresa
-          </a>
-          <ul *ngIf="openMenu === 'empresa'"
-              class="absolute top-full left-0 mt-2 w-64 bg-white shadow-lg rounded-xl z-50 border border-gray-100 py-2">
-            <li><a routerLink="empresa/sobre-nosotros" class="block px-4 py-2 hover:bg-gray-100">Sobre nosotros</a></li>
-            <li><a routerLink="empresa/sobre-nosotros" class="block px-4 py-2 hover:bg-gray-100">Misión y visión</a></li>
-            <li><a routerLink="empresa/sobre-nosotros" class="block px-4 py-2 hover:bg-gray-100">Valores</a></li>
-            <!-- <li><a routerLink="empresa/sobre-nosotros" class="block px-4 py-2 hover:bg-gray-100">Casos de éxito</a></li> -->
-          </ul>
-        </li>
-
-        <!-- RECURSOS -->
-        <li class="relative" (mouseenter)="onEnter('recursos')" (mouseleave)="onLeave('recursos')">
-          <a routerLink="recursos/perfiles-de-color" routerLinkActive="text-blue-900 font-bold"
-          role="button" [attr.aria-expanded]="openMenu === 'recursos'"
-             (click)="toggleMenu($event,'recursos')"
-             class="hover:underline hover:text-blue-900 transition block">
-            Recursos
-          </a>
-          <ul *ngIf="openMenu === 'recursos'"
-              class="absolute top-full left-0 mt-2 w-72 bg-white shadow-lg rounded-xl z-50 border border-gray-100 py-2">
-            <li><a href="https://www.youtube.com/@GemmatexTV" class="block px-4 py-2 hover:bg-gray-100">Videos</a></li>
-            <li><a routerLink="/recursos/perfiles-de-color" class="block px-4 py-2 hover:bg-gray-100">Perfiles de color</a></li>
-            <li><a routerLink="/descargas/sublimacion" class="block px-4 py-2 hover:bg-gray-100">Guías de sublimación</a></li>
-          </ul>
-        </li>
-
-        <!-- SUCURSALES -->
-        <li>
-          <a routerLink="encuentranos" routerLinkActive="text-blue-900 font-bold"
-             class="hover:underline hover:text-blue-900 transition block">
-            Sucursales
-          </a>
-        </li>
-         <li>
-          <a routerLink="catalogo" routerLinkActive="text-blue-900 font-bold"
-             class="hover:underline hover:text-white  block bg-red-500 text-white font-bold px-3 py-1 rounded-lg transition-transform duration-700 hover:scale-105 ">
-            outlet
-          </a>
-        </li>
-      </ul>
-
-      <!-- Acciones derechas -->
-<div class="flex items-center gap-2">
-  <!-- Botón menú (móvil) -->
-  <button
-    class="lg:hidden inline-flex items-center justify-center h-10 w-10 rounded-xl
-           border border-slate-300 text-slate-700 bg-white hover:bg-slate-50
-           shadow-sm active:scale-95 transition"
-    (click)="openSheet()"
-    aria-label="Abrir menú móvil"
-  >
-    <svg id="Layer_1" style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><style type="text/css">
-	.st0{fill:#231F20;}
-</style><g><g><path class="st0" d="M381,190.9H131c-11,0-20-9-20-20s9-20,20-20h250c11,0,20,9,20,20S392,190.9,381,190.9z"/></g><g><path class="st0" d="M381,361.1H131c-11,0-20-9-20-20s9-20,20-20h250c11,0,20,9,20,20S392,361.1,381,361.1z"/></g><g><path class="st0" d="M381,276H131c-11,0-20-9-20-20s9-20,20-20h250c11,0,20,9,20,20S392,276,381,276z"/></g></g></svg>
-  </button>
-
-  <!-- Carrito -->
-  <button
-    class="relative p-2 bg-blue-100 hover:bg-blue-200 border border-blue-300
-           text-blue-800 rounded-full shadow transition active:scale-95"
-    (click)="toogleSideMenu()" aria-label="Abrir carrito"
-  >
-    <span
-      class="absolute -top-1 -left-1 w-5 h-5 bg-blue-700 text-white text-xs font-semibold
-             rounded-full flex items-center justify-center shadow-md"
+    <!-- Menú principal (centrado) -->
+    <ul
+      class="hidden lg:flex flex-1 items-center justify-center gap-6 font-medium text-[#0511F2]"
+      aria-label="Navegación principal"
     >
-      {{ cart().length }}
-    </span>
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-         stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-      <path stroke-linecap="round" stroke-linejoin="round"
-            d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/>
-    </svg>
-  </button>
+      <!-- OFERTAS (actualizado) -->
+      <li>
+        <a
+          routerLink="/ofertas"
+          class="block rounded-xl bg-red-600 px-3 py-1.5 font-semibold text-white shadow-sm
+                hover:bg-red-700 hover:shadow transition"
+        >
+          Ofertas
+        </a>
+      </li>
+
+      <!-- INICIO -->
+      <li>
+        <a
+          routerLink="/"
+          routerLinkActive="text-blue-900 font-bold"
+          class="block transition hover:underline hover:text-blue-900"
+        >
+          Inicio
+        </a>
+      </li>
+
+      <!-- CATÁLOGO (MEGA) -->
+      <li class="relative" (document:keydown.escape)="closeMega()">
+        <!-- Trigger -->
+        <a
+          (click)="toggleMega($event)"
+          [attr.aria-expanded]="isMegaOpen"
+          role="button"
+          class="block transition hover:text-blue-400"
+        >
+          Catálogo
+        </a>
+
+        <!-- Overlay -->
+        <div
+          *ngIf="isMegaOpen"
+          class="fixed inset-0 z-40 bg-black/50"
+          (click)="closeMega()"
+          aria-hidden="true"
+        ></div>
+
+        <!-- Mega panel -->
+        <div
+          *ngIf="isMegaOpen"
+          class="absolute left-1/2 top-full z-50 w-screen -translate-x-1/2
+                bg-black/85 text-white backdrop-blur border-b border-white/10 shadow-2xl
+                animate-[fadeSlide_.22s_ease-out]"
+          (mouseenter)="panelHover = true" (mouseleave)="panelHover = false"
+        >
+          <div class="mx-auto max-w-7xl px-4 py-6 flex flex-row gap-6">
+            <!-- Tabs categorías (marcas primero) -->
+            <div class="flex flex-wrap items-center gap-3">
+              <button
+                *ngFor="let c of cats; trackBy: trackKey"
+                type="button"
+                class="px-3 py-1.5 text-xl font-semibold rounded-lg transition
+                      hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+                [class.text-blue-300]="activeCat === c.key"
+                (mouseenter)="setActive(c.key)" (focus)="setActive(c.key)"
+              >
+                {{ c.label }}
+              </button>
+            </div>
+
+            <!-- Subcategorías del tab activo -->
+            <div class="flex flex-col items-start gap-1">
+              <a
+                *ngFor="let s of visibleSubs(); trackBy: trackLabel"
+                [routerLink]="s.link"
+                class="group rounded-lg p-4 border border-transparent hover:border-blue-400 transition"
+                (click)="closeMega()"
+              >
+                <div class="flex items-start justify-between gap-2">
+                  <h4 class="font-semibold text-white group-hover:text-blue-300">
+                    {{ s.label }}
+                  </h4>
+                  <span class="text-white/50 group-hover:text-blue-300 transition">›</span>
+                </div>
+                <p *ngIf="s.desc" class="mt-1 text-sm text-white/70 line-clamp-2">
+                  {{ s.desc }}
+                </p>
+              </a>
+            </div>
+
+            <!-- CTA PDFs -->
+            <a
+              routerLink="/recursos/pdfs"
+              (click)="closeMega()"
+              class="hidden sm:inline-flex items-center gap-2 rounded-lg bg-blue-600 text-white
+                    px-4 py-2 font-semibold shadow hover:bg-blue-500 transition"
+              aria-label="Ir a Catálogos PDF"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z"/><path d="M14 2v6h6"/>
+              </svg>
+              Catálogos PDFs
+            </a>
+          </div>
+        </div>
+      </li>
+
+      <!-- EMPRESA -->
+      <li class="relative" (mouseenter)="onEnter('empresa')" (mouseleave)="onLeave('empresa')">
+        <a
+          routerLink="/encuentranos"
+          routerLinkActive="text-blue-900 font-bold"
+          role="button"
+          [attr.aria-expanded]="openMenu === 'empresa'"
+          (click)="toggleMenu($event,'empresa')"
+          class="block transition hover:underline hover:text-blue-900"
+        >
+          Empresa
+        </a>
+        <ul *ngIf="openMenu === 'empresa'"
+            class="absolute top-full left-0 mt-2 w-64 bg-white shadow-lg rounded-xl z-50 border border-gray-100 py-2">
+          <li><a routerLink="/empresa/sobre-nosotros" class="block px-4 py-2 hover:bg-gray-100">Sobre nosotros</a></li>
+          <li><a routerLink="/empresa/sobre-nosotros" class="block px-4 py-2 hover:bg-gray-100">Misión y visión</a></li>
+          <li><a routerLink="/empresa/sobre-nosotros" class="block px-4 py-2 hover:bg-gray-100">Valores</a></li>
+        </ul>
+      </li>
+
+      <!-- RECURSOS -->
+      <li class="relative" (mouseenter)="onEnter('recursos')" (mouseleave)="onLeave('recursos')">
+        <a
+          routerLink="/recursos/perfiles-de-color"
+          routerLinkActive="text-blue-900 font-bold"
+          role="button"
+          [attr.aria-expanded]="openMenu === 'recursos'"
+          (click)="toggleMenu($event,'recursos')"
+          class="block transition hover:underline hover:text-blue-900"
+        >
+          Recursos
+        </a>
+        <ul *ngIf="openMenu === 'recursos'"
+            class="absolute top-full left-0 mt-2 w-72 bg-white shadow-lg rounded-xl z-50 border border-gray-100 py-2">
+          <li><a href="https://www.youtube.com/@GemmatexTV" class="block px-4 py-2 hover:bg-gray-100">Videos</a></li>
+          <li><a routerLink="/recursos/perfiles-de-color" class="block px-4 py-2 hover:bg-gray-100">Perfiles de color</a></li>
+          <li><a routerLink="/descargas/sublimacion" class="block px-4 py-2 hover:bg-gray-100">Guías de sublimación</a></li>
+        </ul>
+      </li>
+
+      <!-- SUCURSALES -->
+      <li>
+        <a routerLink="/encuentranos" routerLinkActive="text-blue-900 font-bold"
+          class="block transition hover:underline hover:text-blue-900">
+          Sucursales
+        </a>
+      </li>
+
+      <!-- OUTLET (si se mantiene como sección separada) -->
+      <li>
+        <a routerLink="/catalogo"
+          class="block rounded-xl bg-red-500 px-3 py-1.5 font-semibold text-white shadow-sm
+                  hover:bg-red-600 transition hover:scale-105">
+          Outlet
+        </a>
+      </li>
+    </ul>
+
+ <!-- aca estaba el carrito dejo migaja -->
+           <!-- Acciones derechas -->
+  <div class="flex items-center gap-2">
+    <!-- Botón menú (móvil) -->
+    <button
+      class="lg:hidden inline-flex items-center justify-center h-10 w-10 rounded-xl
+             border border-slate-300 text-slate-700 bg-white hover:bg-slate-50
+             shadow-sm active:scale-95 transition"
+      (click)="openSheet()"
+      aria-label="Abrir menú móvil"
+    >
+      <svg viewBox="0 0 24 24" class="h-6 w-6" fill="currentColor">
+        <path d="M4 7h16v2H4zm0 4h16v2H4zm0 4h16v2H4z"/>
+      </svg>
+    </button>
+
+    <!-- Carrito -->
+    <button
+      class="relative p-2 bg-blue-100 hover:bg-blue-200 border border-blue-300
+             text-blue-800 rounded-full shadow transition active:scale-95"
+      (click)="toogleSideMenu()" aria-label="Abrir carrito"
+    >
+      <span
+        class="absolute -top-1 -left-1 w-5 h-5 bg-blue-700 text-white text-xs font-semibold
+               rounded-full flex items-center justify-center shadow-md"
+      >
+        {{ cart().length }}
+      </span>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+           stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/>
+      </svg>
+    </button>
+  </div>
 </div>
 
-    </div>
   </div>
 <section class="w-full bg-[#1E2041] text-white h-12">
   <div class="">
@@ -248,6 +235,39 @@
         </ng-container>
       </p>
     </div>
+  </div>
+    <div class="flex items-center gap-2">
+    <!-- Botón menú (móvil) -->
+    <button
+      class="lg:hidden inline-flex items-center justify-center h-10 w-10 rounded-xl
+             border border-slate-300 text-slate-700 bg-white hover:bg-slate-50
+             shadow-sm active:scale-95 transition"
+      (click)="openSheet()"
+      aria-label="Abrir menú móvil"
+    >
+      <svg viewBox="0 0 24 24" class="h-6 w-6" fill="currentColor">
+        <path d="M4 7h16v2H4zm0 4h16v2H4zm0 4h16v2H4z"/>
+      </svg>
+    </button>
+
+    <!-- Carrito -->
+    <button
+      class="relative p-2 bg-blue-100 hover:bg-blue-200 border border-blue-300
+             text-blue-800 rounded-full shadow transition active:scale-95"
+      (click)="toogleSideMenu()" aria-label="Abrir carrito"
+    >
+      <span
+        class="absolute -top-1 -left-1 w-5 h-5 bg-blue-700 text-white text-xs font-semibold
+               rounded-full flex items-center justify-center shadow-md"
+      >
+        {{ cart().length }}
+      </span>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+           stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/>
+      </svg>
+    </button>
   </div>
 </section>
 
@@ -319,6 +339,8 @@
 
     </div>
   </div>
+
+
 </nav>
 
 
