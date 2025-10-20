@@ -20,10 +20,24 @@ import { ProductsManagerComponentComponent } from './domains/pages/secret-admin/
 
 import { DescargaPdfsComponent} from './domains/pages/descarga-pdfs/descarga-pdfs.component';
 
-export const SECRET_BASE = 'admin-gx-panel-secreto-6f3e2b3e-9c31-4c8c-8cfa-ccf06b9b1c21';
-
 import { ProductosComponent } from './domains/catalogo/productos/productos.component'
 import { OffersComponent } from './domains/catalogo/offers/offers.component'
+
+
+
+/* RUTA SECRETA --- MENU --- */
+
+import { MenuComponent } from './domains/pages/MenuProducts/menu/menu.component';
+import { CategoriesComponent } from './domains/pages/MenuProducts/categories/categories.component';
+import { SubcategoriesComponent} from './domains/pages/MenuProducts/subcategories/subcategories.component';
+import { ProductsComponent } from './domains/pages/MenuProducts/products/products.component';
+
+import { MenuAddsComponent } from './domains/pages/MenuProducts/adds/menu-adds/menu-adds.component';
+import { HeroSlidesComponent } from './domains/pages/MenuProducts/adds/hero-slides/hero-slides.component';
+import { OffersAddsComponent } from './domains/pages/MenuProducts/adds/offers-adds/offers-adds.component';
+import { PromoComponent } from './domains/pages/MenuProducts/adds/promo/promo.component';
+
+export const SECRET_BASE = 'admin-gx-panel-secreto-6f3e2b3e-9c31-4c8c-8cfa-ccf06b9b1c21';
 
 export const routes: Routes = [
     {
@@ -98,8 +112,38 @@ export const routes: Routes = [
                 path: 'ofertas',
                 component: OffersComponent
             }
-
-
+            ,{
+                path: `${SECRET_BASE}/menu`,
+                component: MenuComponent
+            },
+            {
+                path: `${SECRET_BASE}/categories`,
+                component: CategoriesComponent
+            },
+            { 
+                path: `${SECRET_BASE}/subcategories`,
+                component: SubcategoriesComponent
+            },
+            {
+                path: `${SECRET_BASE}/products`,
+                component: ProductsComponent
+            },
+            {
+                path: `${SECRET_BASE}/menu-adds`,
+                component: MenuAddsComponent
+            },
+            {
+                path: `${SECRET_BASE}/menu-adds/hero-slides`,
+                component: HeroSlidesComponent
+            },
+            {
+                path: `${SECRET_BASE}/menu-adds/offers-adds`,
+                component: OffersAddsComponent
+            },
+            {
+                path: `${SECRET_BASE}/menu-adds/promo`,
+                component: PromoComponent
+            }
         ]
     },
     {

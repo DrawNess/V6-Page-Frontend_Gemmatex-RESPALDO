@@ -1,492 +1,244 @@
-<div class="flex space-x-4 ">
-<!--     <div class="w-56">
-        <ul>
-            <li>
-                <a routerLink="/">All</a>
-            </li>
-            @for (category of categories(); track category) {
-              <li>
-                <a routerLink="/" [queryParams]="{category_id: category.id}">{{ category.name }}</a>
-              </li>
-            }
-        </ul>
-    </div>
-     -->
-<div class="">
-  <!-- HERO -->
-<section
-  id="hero"
-  class="relative w-full h-[85svh] bg-slate-900 overflow-hidden"
-  (mouseenter)="pauseHero()" (mouseleave)="resumeHero()"
->
-  <!-- Slides -->
-  <div class="absolute inset-0">
-    @for (s of slides; track s.id; let idx = $index) {
-      <div
-        class="absolute inset-0 opacity-0 transition-opacity duration-200"
-        [class.opacity-100]="idx === currentSlide"
-        [class.pointer-events-none]="idx !== currentSlide"
-      >
-      
-      <a *ngIf="slides[currentSlide]?.routerLink as link"
-             [routerLink]="link" >
-        <img
-          [src]="s.image"
-          [alt]="s.subhead || s.headline || 'Promoción'"
-          class="w-full h-AUTO object-cover"
-          loading="eager"
-        />
-      </a>
-        <!-- overlay -->
-        
-      </div>
-    }
-  </div>
+<!-- CARGA / ERROR -->
+<div *ngIf="loading()" class="py-10 text-center text-slate-600">Cargando…</div>
+<div *ngIf="error()" class="py-4 mx-auto max-w-3xl text-center rounded-xl border border-red-200 bg-red-50 text-red-700">
+  {{ error() }}
+</div>
 
-  <!-- Contenido (headline + CTA) -->
-<!--   <div class="relative h-full">
-    <div class="mx-auto max-w-7xl h-full px-4 flex items-center">
-      <div class="text-white max-w-2xl">
-        <h1 class="text-3xl sm:text-5xl font-extrabold leading-tight">
-          {{ slides[currentSlide]?.headline || 'Promociones destacadas' }}
-        </h1>
-        <p class="mt-3 text-white/90 text-sm sm:text-base">
-          {{ slides[currentSlide]?.subhead || 'Equipos, insumos y soporte para producir desde el día uno.' }}
-        </p>
-
-        <div class="mt-6 flex flex-wrap gap-3">
-          <a *ngIf="slides[currentSlide]?.routerLink as link"
-             [routerLink]="link"
-             class="inline-flex items-center rounded-xl bg-blue-600 px-5 py-2.5 text-sm sm:text-base font-semibold text-white hover:bg-blue-700">
-            Ver producto
-          </a>
-          <a routerLink="/catalogo"
-             class="inline-flex items-center rounded-xl border border-white/70 bg-white/10 px-5 py-2.5 text-sm sm:text-base font-semibold text-white hover:bg-white/15">
-            Ver catálogo
-          </a>
-        </div>
-      </div>
-    </div>
-  </div> -->
-
-  <!-- Controles (desktop) -->
-  <button
-    type="button"
-    class="hidden md:grid place-items-center absolute left-4 top-1/2 -translate-y-1/2
-           h-11 w-11 rounded-full bg-white/90 hover:bg-white shadow"
-    (click)="prevHero()" aria-label="Anterior">‹</button>
-
-  <button
-    type="button"
-    class="hidden md:grid place-items-center absolute right-4 top-1/2 -translate-y-1/2
-           h-11 w-11 rounded-full bg-white/90 hover:bg-white shadow"
-    (click)="nextHero()" aria-label="Siguiente">›</button>
-
-  <!-- Dots -->
-  <div class="absolute bottom-4 inset-x-0 flex justify-center gap-2">
-    @for (s of slides; track s.id; let i = $index) {
-      <button
-        type="button"
-        class="h-2.5 w-2.5 rounded-full transition"
-        [class.bg-white]="i === currentSlide"
-        (click)="goHero(i)"
-        [attr.aria-label]="'Ir al slide ' + (i + 1)">
-      </button>
-    }
-  </div>
-</section>
-
-<!-- ----------------------------------------------------------- -->
-
-
-
-
-
-
-
-<!-- =========================================================== -->
-
-<!-- <app-bestseller/> -->
-
-
-<!-- ======================= cards nivel==================================== -->
-<section id="destacados" class="w-screen bg-white">
-  <div class="mx-auto max-w-7xl px-4 py-8 sm:py-10">
-    <!-- Título + flechas (desktop) -->
-    <div class="mb-4 flex items-center justify-between gap-3">
-      <h2 class="text-2xl sm:text-3xl font-extrabold text-blue-600">
-        Novedades
-      </h2>
-
-      <!-- Flechas top (ocultas en móvil) -->
-      <!-- <div class="hidden sm:flex items-center gap-2">
-        <button
-          type="button"
-          class="h-9 w-9 grid place-items-center rounded-full border border-slate-300 bg-white hover:bg-slate-50"
-          (click)="prevSlide()" aria-label="Anterior">‹</button>
-        <button
-          type="button"
-          class="h-9 w-9 grid place-items-center rounded-full border border-slate-300 bg-white hover:bg-slate-50"
-          (click)="nextSlide()" aria-label="Siguiente">›</button>
-      </div> -->
-    </div>
-
-    <!-- Carrusel -->
-    <div class="">
-      <!-- Track -->
-      <div
-        #carouselTrack
-        class="hide-scroll grid grid-flow-col gap-4 sm:gap-5 lg:gap-6
-               auto-cols-[88%] sm:auto-cols-[50%] lg:auto-cols-[33.333%]
-               overflow-x-auto snap-x snap-mandatory scroll-smooth
-               touch-pan-x [-ms-overflow-style:none] [scrollbar-width:none]"
-        (mouseenter)="pauseAutoplay()" (mouseleave)="resumeAutoplay()"
-      >
-        @for (p of randomProducts(); track p.id) {
-          <div class="snap-start slide">
-            <app-product [product]="p" (addToCart)="addToCart($event)"></app-product>
-          </div>
-        }
-      </div>
-
-      <!-- Gradientes laterales (sugerencia de scroll) -->
-<!--       <div class="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-white to-transparent"></div>
-      <div class="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white to-transparent"></div> -->
-
-      <!-- Flechas superpuestas (desktop) -->
-      <!-- <button
-        type="button"
-        class="hidden md:grid place-items-center absolute left-2 top-1/2 -translate-y-1/2
-               h-10 w-10 rounded-full border border-slate-300 bg-white shadow hover:bg-slate-50"
-        (click)="prevSlide()" aria-label="Anterior">‹</button>
-
-      <button
-        type="button"
-        class="hidden md:grid place-items-center absolute right-2 top-1/2 -translate-y-1/2
-               h-10 w-10 rounded-full border border-slate-300 bg-white shadow hover:bg-slate-50"
-        (click)="nextSlide()" aria-label="Siguiente">›</button> -->
-    </div>
-
-    <!-- CTA -->
-    <div class="mt-8 sm:mt-10 flex justify-center">
-      <a
-        routerLink="catalogo"
-        class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white
-               px-4 py-2.5 sm:px-5 sm:py-3 text-sm sm:text-base
-               font-semibold text-slate-700 hover:bg-slate-50
-               focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300">
-        Ver todo el catálogo
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" fill="none"
-             viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-        </svg>
-      </a>
-    </div>
-  </div>
-
-</section>
-
-<!--  -->
-
-  <section id="categories" class="relative w-full py-10 sm:py-14 bg-gradient-to-b from-white to-slate-50">
-    <div class="mx-auto w-full max-w-7xl px-4">
-      <!-- Título responsivo -->
-      <!-- <header class="text-center">
-        <h2
-          class="font-extrabold tracking-tight text-3xl sm:text-4xl md:text-5xl text-blue-600">
-          NUESTRAS CATEGORÍAS
-        </h2>
-        <p class="mt-2 text-slate-600 text-sm sm:text-base">
-          Explora las líneas de productos y encuentra lo que necesitas.
-        </p>
-      </header> -->
-
-      <!-- Grid responsivo -->
-     <!--  <div
-        class="mt-8 sm:mt-10 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6 lg:gap-8 place-items-center">
-        @for (category of categories(); track category) {
-          <a
-            [routerLink]="['/catalogo']"
-            
-            [attr.aria-label]="'Ver ' + category.name"
-            class="group relative w-full max-w-[220px] sm:max-w-[240px] rounded-2xl border border-slate-200 bg-white/80 backdrop-blur p-4 sm:p-5 shadow-sm transition-transform duration-200 ease-out hover:-translate-y-1 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
-          >
-              <div
-                class="mx-auto w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28
-                      rounded-full overflow-hidden ring-2 ring-white
-                      shadow-md bg-slate-100">
-                <img
-                  [src]="category.image"
-                  [alt]="category.name"
-                  class="w-full h-full object-cover"
-                  (error)="onCatImgError($event)"
-                  loading="lazy"
-                />
-              </div>
-              <h3
-                class="mt-3 text-center font-semibold text-slate-800
-                      text-sm sm:text-base md:text-lg
-                      line-clamp-2">
-                {{ category.name }}
-              </h3>
-              <div
-                class="pointer-events-none absolute -z-10 inset-0 rounded-2xl opacity-0 blur-md
-                      transition-opacity duration-200
-                      group-hover:opacity-100"
-                style="background:
-                  radial-gradient(40% 35% at 50% 30%, rgba(56,189,248,.25), transparent 60%),
-                  radial-gradient(35% 30% at 60% 70%, rgba(217,70,239,.18), transparent 60%)">
-              </div>
+<!-- ================= HERO ================= -->
+<section *ngIf="!loading() && activeSlides().length" class="relative w-full overflow-hidden bg-slate-900">
+  <div class="relative h-[56vh] sm:h-[68vh] md:h-[78vh]" (mouseenter)="pauseHero()" (mouseleave)="resumeHero()">
+    <!-- Slides -->
+    <div class="absolute inset-0">
+      <ng-container *ngFor="let s of activeSlides(); let i = index">
+        <div
+          class="absolute inset-0 transition-opacity duration-500"
+          [class.opacity-100]="i === current()"
+          [class.opacity-0]="i !== current()"
+        >
+          <!-- Slide como link interno -->
+          <ng-container *ngIf="slideRouterLink(s) as link; else extOrPlain">
+            <a
+              [routerLink]="link"
+              class="block h-full cursor-pointer"
+              [attr.aria-label]="s.title || 'Ver promoción'"
+            >
+              <picture>
+                <source [srcset]="heroImageMobile(s)" media="(max-width: 640px)" />
+                <img [src]="heroImage(s)" [alt]="s.title || 'Slide'" class="w-full h-full object-cover" />
+              </picture>
             </a>
-          }
-        </div> -->
+          </ng-container>
 
-      <!-- CTA inferior -->
-      <!-- <div class="mt-8 sm:mt-10 flex justify-center">
-        <a
-          routerLink="catalogo"
-          class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white
-                px-4 py-2.5 sm:px-5 sm:py-3 text-sm sm:text-base
-                font-semibold text-slate-700 hover:bg-slate-50
-                focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300">
-          Ver todo el catálogo
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" fill="none"
-              viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <!-- Slide como link externo o imagen plana -->
+          <ng-template #extOrPlain>
+            <ng-container *ngIf="slideHref(s) as href; else plain">
+              <a
+                [href]="href" target="_blank" rel="noopener"
+                class="block h-full cursor-pointer"
+                [attr.aria-label]="s.title || 'Ver promoción'"
+              >
+                <picture>
+                  <source [srcset]="heroImageMobile(s)" media="(max-width: 640px)" />
+                  <img [src]="heroImage(s)" [alt]="s.title || 'Slide'" class="w-full h-full object-cover" />
+                </picture>
+              </a>
+            </ng-container>
+            <ng-template #plain>
+              <picture>
+                <source [srcset]="heroImageMobile(s)" media="(max-width: 640px)" />
+                <img [src]="heroImage(s)" [alt]="s.title || 'Slide'" class="w-full h-full object-cover" />
+              </picture>
+            </ng-template>
+          </ng-template>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- Controles -->
+    <button
+      type="button"
+      class="hidden md:grid place-items-center absolute left-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-white/90 hover:bg-white shadow"
+      (click)="prev()" (mouseenter)="pauseHero()" (mouseleave)="resumeHero()"
+      [attr.aria-label]="'Anterior'">‹</button>
+
+    <button
+      type="button"
+      class="hidden md:grid place-items-center absolute right-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-white/90 hover:bg-white shadow"
+      (click)="next()" (mouseenter)="pauseHero()" (mouseleave)="resumeHero()"
+      [attr.aria-label]="'Siguiente'">›</button>
+
+    <!-- Dots -->
+    <div class="absolute bottom-4 inset-x-0 flex justify-center gap-2">
+      <ng-container *ngFor="let _ of activeSlides(); let i = index">
+        <button
+          type="button"
+          class="h-2.5 w-2.5 rounded-full transition"
+          [class.bg-white]="i === current()"
+          [class.bg-white-40]="i !== current()"
+          (click)="go(i)"
+          [attr.aria-label]="'Ir al slide ' + (i + 1)">
+        </button>
+      </ng-container>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= PROMOCIONES ======================= -->
+
+
+
+<!-- ================= ANUNCIOS (barra) ================= -->
+<section *ngIf="activeAnnouncements().length" class="w-full bg-white border-y border-slate-200">
+  <div class="mx-auto max-w-7xl px-4 py-3">
+    <div class="flex gap-2 overflow-x-auto no-scrollbar">
+      <ng-container *ngFor="let a of activeAnnouncements()">
+        <ng-container *ngIf="annRouterLink(a) as rlink; else extAnn">
+          <a [routerLink]="rlink"
+             class="shrink-0 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium border"
+             [ngStyle]="{ 'background': a.background || '#EAF1FF', 'color': a.textColor || '#0B1A7A', 'borderColor': '#cfe0ff' }">
+            <span class="inline-block h-2 w-2 rounded-full bg-current opacity-70"></span>
+            {{ a.title }}
+          </a>
+        </ng-container>
+        <ng-template #extAnn>
+          <a *ngIf="annHref(a) as href" [href]="href" target="_blank" rel="noopener"
+             class="shrink-0 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium border"
+             [ngStyle]="{ 'background': a.background || '#EAF1FF', 'color': a.textColor || '#0B1A7A', 'borderColor': '#cfe0ff' }">
+            <span class="inline-block h-2 w-2 rounded-full bg-current opacity-70"></span>
+            {{ a.title }}
+          </a>
+          <span *ngIf="!annHref(a)" class="shrink-0 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium border"
+                [ngStyle]="{ 'background': a.background || '#EAF1FF', 'color': a.textColor || '#0B1A7A', 'borderColor': '#cfe0ff' }">
+            <span class="inline-block h-2 w-2 rounded-full bg-current opacity-70"></span>
+            {{ a.title }}
+          </span>
+        </ng-template>
+      </ng-container>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PROMOS (carrusel/grid) ================= -->
+<section *ngIf="activePromos().length" class="w-full bg-white">
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:py-10">
+    <div class="mb-4">
+      <h2 classs="text-2xl sm:text-3xl font-extrabold text-[#0511F2]">Promociones</h2>
+      <p class="text-slate-600">Imágenes rotativas configuradas desde la API.</p>
+    </div>
+
+    <!-- Grid responsive -->
+    <div class="grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      <ng-container *ngFor="let p of activePromos()">
+        <!-- Preferimos routerLink si hay hrefProductId; si no, <a> externo; si no, <div> -->
+        <a *ngIf="promoRouterLink(p) as link" [routerLink]="link"
+           class="group block rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm hover:shadow-md transition">
+          <img [src]="p.imageUrl" [alt]="p.title || 'Promo'" class="w-full h-56 object-cover">
+          <div class="p-4">
+            <h3 class="font-semibold text-slate-900 line-clamp-2">{{ p.title || 'Promoción' }}</h3>
+            <p *ngIf="p.description" class="text-sm text-slate-600 mt-1 line-clamp-2">{{ p.description }}</p>
+            <span class="inline-flex mt-3 items-center gap-1 text-[#0511F2] font-semibold">
+              {{ p.ctaLabel || 'Ver' }}
+              <svg width="18" height="18" viewBox="0 0 24 24" class="opacity-80"><path fill="currentColor" d="m13 7l5 5l-5 5v-4H6v-2h7z"/></svg>
+            </span>
+          </div>
+        </a>
+
+        <a *ngIf="!promoRouterLink(p) && promoHref(p) as href" [href]="href" target="_blank" rel="noopener"
+           class="group block rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm hover:shadow-md transition">
+          <img [src]="p.imageUrl" [alt]="p.title || 'Promo'" class="w-full h-56 object-cover">
+          <div class="p-4">
+            <h3 class="font-semibold text-slate-900 line-clamp-2">{{ p.title || 'Promoción' }}</h3>
+            <p *ngIf="p.description" class="text-sm text-slate-600 mt-1 line-clamp-2">{{ p.description }}</p>
+            <span class="inline-flex mt-3 items-center gap-1 text-[#0511F2] font-semibold">
+              {{ p.ctaLabel || 'Ver' }}
+              <svg width="18" height="18" viewBox="0 0 24 24" class="opacity-80"><path fill="currentColor" d="m13 7l5 5l-5 5v-4H6v-2h7z"/></svg>
+            </span>
+          </div>
+        </a>
+
+        <div *ngIf="!promoRouterLink(p) && !promoHref(p)"
+             class="group rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm">
+          <img [src]="p.imageUrl" [alt]="p.title || 'Promo'" class="w-full h-56 object-cover">
+          <div class="p-4">
+            <h3 class="font-semibold text-slate-900 line-clamp-2">{{ p.title || 'Promoción' }}</h3>
+            <p *ngIf="p.description" class="text-sm text-slate-600 mt-1 line-clamp-2">{{ p.description }}</p>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</section>
+
+  <!-- ===== Promos (carrusel horizontal) ===== -->
+  <section *ngIf="activePromos().length" id="promos" class="w-full bg-white">
+    <div class="mx-auto max-w-7xl px-4 py-8 sm:py-10">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-[#0511F2]">Promos</h2>
+        <a routerLink="/offers"
+           class="hidden sm:inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+          Ver todas las ofertas
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+               viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
           </svg>
         </a>
-      </div> -->
+      </div>
+
+      <div
+        class="relative"
+        (mouseenter)="pauseHero()" (mouseleave)="resumeHero()">
+        <div
+          class="no-scrollbar grid grid-flow-col gap-4 sm:gap-5 lg:gap-6
+                 auto-cols-[86%] sm:auto-cols-[55%] lg:auto-cols-[33.333%]
+                 overflow-x-auto snap-x snap-mandatory scroll-smooth
+                 touch-pan-x [-ms-overflow-style:none] [scrollbar-width:none]">
+          <ng-container *ngFor="let p of activePromos(); let i = index">
+            <div class="snap-start">
+              <!-- Con routerLink si hay producto -->
+              <a *ngIf="promoRouterLink(p) as prlink" [routerLink]="prlink"
+                 class="block group rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition">
+                <img [src]="p.imageUrl" [alt]="p.title || 'Promoción'"
+                     class="w-full h-48 sm:h-52 object-cover" />
+                <div class="p-3">
+                  <h3 class="text-sm font-semibold text-slate-900 line-clamp-2">{{ p.title || 'Promoción' }}</h3>
+                  <p *ngIf="p.description" class="mt-1 text-xs text-slate-500 line-clamp-2">{{ p.description }}</p>
+                </div>
+              </a>
+
+              <!-- Con href externo -->
+              <a *ngIf="!promoRouterLink(p) && promoHref(p) as phref" [href]="phref" target="_blank" rel="noopener"
+                 class="block group rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition">
+                <img [src]="p.imageUrl" [alt]="p.title || 'Promoción'"
+                     class="w-full h-48 sm:h-52 object-cover" />
+                <div class="p-3">
+                  <h3 class="text-sm font-semibold text-slate-900 line-clamp-2">{{ p.title || 'Promoción' }}</h3>
+                  <p *ngIf="p.description" class="mt-1 text-xs text-slate-500 line-clamp-2">{{ p.description }}</p>
+                </div>
+              </a>
+
+              <!-- Sin link -->
+              <div *ngIf="!promoRouterLink(p) && !promoHref(p)"
+                   class="block group rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm">
+                <img [src]="p.imageUrl" [alt]="p.title || 'Promoción'"
+                     class="w-full h-48 sm:h-52 object-cover" />
+                <div class="p-3">
+                  <h3 class="text-sm font-semibold text-slate-900 line-clamp-2">{{ p.title || 'Promoción' }}</h3>
+                  <p *ngIf="p.description" class="mt-1 text-xs text-slate-500 line-clamp-2">{{ p.description }}</p>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+
+        <!-- CTA móvil -->
+        <div class="mt-6 sm:hidden flex justify-center">
+          <a routerLink="/offers"
+             class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+            Ver todas las ofertas
+          </a>
+        </div>
+      </div>
     </div>
   </section>
 
-
-
-
-<!-- ====== MOBILE: lista apilada ====== -->
-<section class="w-full bg-white py-4 sm:hidden">
-  <div class="mx-auto max-w-7xl px-3">
-    <div class="space-y-4">
-      @for (s of slides2; track s.id) {
-        <a
-          [routerLink]="['/product', s.productId]"
-          class="block rounded-2xl overflow-hidden ring-1 ring-black/5 shadow-md active:scale-[0.99] transition"
-          aria-label="Ver producto"
-        >
-          <img
-            [src]="s.image" [alt]="s.alt || 'Producto'"
-            class="w-full aspect-square object-contain bg-white"
-            loading="eager"
-          />
-          
-        </a>
-      }
-    </div>
-  </div>
-</section>
-
-<section class="hidden sm:block w-full bg-white py-4 sm:py-8">
-  <div class="mx-auto max-w-7xl px-3 sm:px-4">
-    <div
-      class="relative mx-auto w-full max-w-5xl
-             h-[54vh] min-h-[300px]
-             sm:h-[64vh] md:h-[70vh]
-             flex items-center justify-center select-none"
-      (mouseenter)="pause()" (mouseleave)="resume()"
-      (pointerdown)="onPointerDown($event)" (pointerup)="onPointerUp($event)"
-      (pointercancel)="onPointerCancel()" (pointerleave)="onPointerCancel()"
-      (keydown)="onKeydown($event)"
-      tabindex="0" aria-roledescription="carousel" aria-label="Promociones"
-    >
-      <!-- Slides apilados -->
-      @for (s of slides2; track s.id; let i = $index) {
-
-        <!-- LATERALES -->
-        <div
-          *ngIf="!isCenter(i)"
-          class="absolute inset-0 flex items-center justify-center
-                 transition-[transform,opacity,filter] duration-500 ease-out will-change-transform
-                 cursor-pointer"
-          [ngStyle]="positionStyle(i)"
-          [style.zIndex]="isLeft(i) ? 20 : isRight(i) ? 20 : 5"
-          (click)="go(i)"
-          aria-label="Mostrar esta promoción"
-        >
-          <div
-            class="relative aspect-square w-[72%] lg:w-[60%]
-                   rounded-[28px] overflow-hidden shadow-xl ring-1 ring-black/5"
-          >
-            <img
-              [src]="s.image" [alt]="s.alt || 'Producto'"
-              class="absolute inset-0 w-full h-full object-cover object-center"
-              loading="eager"
-            />
-          </div>
-        </div>
-
-        <!-- CENTRO -->
-        <a
-          *ngIf="isCenter(i)"
-          [routerLink]="['/product', s.productId]"
-          class="absolute inset-0 flex items-center justify-center
-                 transition-[transform,opacity,filter] duration-500 ease-out will-change-transform
-                 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-300/60 rounded-3xl"
-          [ngStyle]="positionStyle(i)"
-          [style.zIndex]="30"
-          (click)="$event.stopPropagation()"
-          (keyup.enter)="navigateCenter(i)"
-          role="link"
-          aria-label="Ver producto en promoción"
-        >
-          <div
-            class="relative aspect-square w-[76%] lg:w-[62%]
-                   rounded-[28px] overflow-hidden shadow-2xl ring-1 ring-black/5"
-          >
-            <img
-              [src]="s.image" [alt]="s.alt || 'Producto'"
-              class="absolute inset-0 w-full h-full object-cover object-center"
-              loading="eager"
-            />
-          </div>
-        </a>
-      }
-
-      <!-- Flechas -->
-     
-    </div>
-  </div>
-</section>
-
-
-
-
-
-
-
-
-
-
-
-  <section id="encuentranos" class="w-full">
-  <div class="mx-auto w-full max-w-7xl px-4 py-10 sm:py-14">
-    <!-- Título -->
-    <header class="text-center">
-      <h2
-        class="font-extrabold tracking-tight text-3xl sm:text-4xl md:text-5xl
-               text-blue-600">
-        ¿DÓNDE ENCONTRARNOS?
-      </h2>
-      <p class="mt-2 text-slate-600 text-sm sm:text-base">
-        Visítanos en nuestra tienda física o contáctanos para más información.
-      </p>
-
-      <!-- CTA principal -->
-      <div class="mt-6">
-        <a
-          routerLink="/encuentranos"
-          class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5
-                 text-sm sm:text-base font-semibold text-white shadow
-                 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
-          [attr.aria-label]="'Conoce nuestras sucursales'"
-        >
-          Conoce nuestras sucursales
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24"
-               stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-          </svg>
-        </a>
-      </div>
-    </header>
-
-    <!-- Grid -->
-    <div class="mt-8 sm:mt-10 grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-stretch">
-      <!-- Mapa responsive -->
-      <div class="relative w-full aspect-[16/9] md:aspect-auto md:h-[420px] rounded-lg overflow-hidden shadow-lg">
-        <iframe
-          class="absolute inset-0 w-full h-full"
-          src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d7651.226524196067!2d-68.140311!3d-16.495109!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x915f2075ab61618b%3A0x9cb53130882cfa67!2sGEMMATEX!5e0!3m2!1ses!2sbo!4v1757144804844!5m2!1ses!2sbo"
-          style="border:0;"
-          allowfullscreen
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-          title="Ubicación de la tienda principal">
-        </iframe>
-      </div>
-
-      <!-- Información -->
-      <div class="flex flex-col justify-center">
-        <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h3 class="text-xl font-semibold text-slate-900">Sucursal principal</h3>
-          <p class="mt-1 text-slate-600">Av. Illampu 682, La Paz</p>
-
-          <div class="mt-3 flex flex-wrap items-center gap-3 text-slate-700">
-            <a href="tel:62537378" class="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 hover:bg-slate-50">
-              <span>62537378</span>
-            </a>
-            <a href="https://wa.me/59162537378" target="_blank" rel="noopener"
-               class="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 hover:bg-slate-50">
-               <span>WhatsApp</span>
-            </a>
-            <a href="https://maps.google.com/?q=Av.+Illampu+682+La+Paz"
-               target="_blank" rel="noopener"
-               class="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 hover:bg-slate-50">
-               <span>Cómo llegar</span>
-            </a>
-          </div>
-
-          <div class="mt-5 grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <h4 class="font-semibold text-slate-800">Horario</h4>
-              <p class="text-slate-600 mt-1">Lun–Vie: 8:30–18:30</p>
-              <p class="text-slate-600">Sáb: 8:30–13:00</p>
-              <p class="text-slate-600">Dom: Cerrado</p>
-            </div>
-            <div>
-              <h4 class="font-semibold text-slate-800">Servicios en tienda</h4>
-              <ul class="mt-1 list-disc pl-4 text-slate-600">
-                <li>Asesoría técnica</li>
-                <li>Demostraciones</li>
-                <li>Retiro de compras</li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- CTA secundario en tarjeta -->
-          <div class="mt-5">
-            <a
-              routerLink="/sucursales"
-              class="inline-flex items-center gap-2 rounded-lg border border-blue-300 text-blue-700
-                     px-4 py-2 hover:bg-blue-50"
-              [attr.aria-label]="'Ver todas las sucursales'"
-            >
-              Ver todas las sucursales
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-
-
-
-
-
-
-
-
-
-<!-- Renderizado de productos. -->
-    <!-- <div class="grid grid-cols-4 gap-8 w-full">
-        @for (product of products(); track product) {
-          <app-product [product]="product" (addToCart)="addToCart($event)"/>
-        }
-    </div>  -->
-
-     </div>
-
-
-
-</div>
 

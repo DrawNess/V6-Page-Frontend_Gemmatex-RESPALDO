@@ -39,84 +39,7 @@
       </li>
 
       <!-- CATÁLOGO (MEGA) -->
-      <li class="relative" (document:keydown.escape)="closeMega()">
-        <!-- Trigger -->
-        <a
-          (click)="toggleMega($event)"
-          [attr.aria-expanded]="isMegaOpen"
-          role="button"
-          class="block transition hover:text-blue-400"
-        >
-          Catálogo
-        </a>
 
-        <!-- Overlay -->
-        <div
-          *ngIf="isMegaOpen"
-          class="fixed inset-0 z-40 bg-black/50"
-          (click)="closeMega()"
-          aria-hidden="true"
-        ></div>
-
-        <!-- Mega panel -->
-        <div
-          *ngIf="isMegaOpen"
-          class="absolute left-1/2 top-full z-50 w-screen -translate-x-1/2
-                bg-black/85 text-white backdrop-blur border-b border-white/10 shadow-2xl
-                animate-[fadeSlide_.22s_ease-out]"
-          (mouseenter)="panelHover = true" (mouseleave)="panelHover = false"
-        >
-          <div class="mx-auto max-w-7xl px-4 py-6 flex flex-row gap-6">
-            <!-- Tabs categorías (marcas primero) -->
-            <div class="flex flex-wrap items-center gap-3">
-              <button
-                *ngFor="let c of cats; trackBy: trackKey"
-                type="button"
-                class="px-3 py-1.5 text-xl font-semibold rounded-lg transition
-                      hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-                [class.text-blue-300]="activeCat === c.key"
-                (mouseenter)="setActive(c.key)" (focus)="setActive(c.key)"
-              >
-                {{ c.label }}
-              </button>
-            </div>
-
-            <!-- Subcategorías del tab activo -->
-            <div class="flex flex-col items-start gap-1">
-              <a
-                *ngFor="let s of visibleSubs(); trackBy: trackLabel"
-                [routerLink]="s.link"
-                class="group rounded-lg p-4 border border-transparent hover:border-blue-400 transition"
-                (click)="closeMega()"
-              >
-                <div class="flex items-start justify-between gap-2">
-                  <h4 class="font-semibold text-white group-hover:text-blue-300">
-                    {{ s.label }}
-                  </h4>
-                  <span class="text-white/50 group-hover:text-blue-300 transition">›</span>
-                </div>
-                <p *ngIf="s.desc" class="mt-1 text-sm text-white/70 line-clamp-2">
-                  {{ s.desc }}
-                </p>
-              </a>
-            </div>
-
-            <!-- CTA PDFs -->
-            <a
-              routerLink="/recursos/pdfs"
-              (click)="closeMega()"
-              class="hidden sm:inline-flex items-center gap-2 rounded-lg bg-blue-600 text-white
-                    px-4 py-2 font-semibold shadow hover:bg-blue-500 transition"
-              aria-label="Ir a Catálogos PDF"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z"/><path d="M14 2v6h6"/>
-              </svg>
-              Catálogos PDFs
-            </a>
-          </div>
-        </div>
-      </li>
 
       <!-- EMPRESA -->
       <li class="relative" (mouseenter)="onEnter('empresa')" (mouseleave)="onLeave('empresa')">
@@ -177,7 +100,7 @@
     </ul>
 
  <!-- aca estaba el carrito dejo migaja -->
-           <!-- Acciones derechas -->
+  <!-- Acciones derechas -->
   <div class="flex items-center gap-2">
     <!-- Botón menú (móvil) -->
     <button
@@ -237,8 +160,8 @@
     </div>
   </div>
     <div class="flex items-center gap-2">
-    <!-- Botón menú (móvil) -->
-    <button
+       <!-- Botón menú (móvil) -->
+<!--     <button
       class="lg:hidden inline-flex items-center justify-center h-10 w-10 rounded-xl
              border border-slate-300 text-slate-700 bg-white hover:bg-slate-50
              shadow-sm active:scale-95 transition"
@@ -248,10 +171,10 @@
       <svg viewBox="0 0 24 24" class="h-6 w-6" fill="currentColor">
         <path d="M4 7h16v2H4zm0 4h16v2H4zm0 4h16v2H4z"/>
       </svg>
-    </button>
+    </button> -->
 
     <!-- Carrito -->
-    <button
+    <!-- <button
       class="relative p-2 bg-blue-100 hover:bg-blue-200 border border-blue-300
              text-blue-800 rounded-full shadow transition active:scale-95"
       (click)="toogleSideMenu()" aria-label="Abrir carrito"
@@ -267,7 +190,8 @@
         <path stroke-linecap="round" stroke-linejoin="round"
               d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/>
       </svg>
-    </button>
+    </button> -->
+   
   </div>
 </section>
 

@@ -19,9 +19,9 @@ export class CheckoutComponent {
  private cartService = inject(CartService);
 
   // señales del servicio
-  cart = this.cartService.cart;           // Product[]
+  cart = this.cartService.cart; // Product[]
 
-  // ---- groupedCart: usa el del service si existe; si no, calcula acá
+  // Grouped (usa el del service si existe; si no, calculo aquí)
   groupedCart = (this.cartService as any).groupedCart ?? computed(() => {
     const map = new Map<string, { product: Product; count: number; unitPrice: number }>();
     for (const p of this.cart()) {
@@ -32,43 +32,41 @@ export class CheckoutComponent {
     return [...map.values()];
   });
 
-  // total (usa el del service si existe; si no, calcula)
+  // Total (usa el del service si existe; si no, calculo aquí)
   total = (this.cartService as any).total ?? computed(() =>
     this.cart().reduce((acc, p) => acc + (p.price ?? 0), 0)
   );
 
-  // datos del cliente
+  // Datos del cliente
   customerName = signal<string>('');
   customerPhone = signal<string>('');
   notes = signal<string>('');
 
-  // sucursales
+  // Sucursales
   branches: Branch[] = [
-    { id: 'sc', name: 'Santa Cruz',  phone: '59170000001', address: 'Av. Principal #123' },
-    { id: 'lp', name: 'La Paz',      phone: '59170000002', address: 'Calle Central #456' },
-    { id: 'cb', name: 'Cochabamba',  phone: '59170000003', address: 'Av. Libertad #789' },
+    { id: 'lp', name: 'La Paz',      phone: '59171926087', address: 'Av. Illampu esq. Graneros Nº 682' },
+    { id: 'sc', name: 'Santa Cruz',  phone: '59163565431', address: 'Calle Isabela Católica Nº 275' },
+    { id: 'cb', name: 'Cochabamba',  phone: '59162537431', address: 'Av. Aroma c/ 16 de Julio y Av. Oquendo' },
   ];
   selectedBranchId = signal<string>(this.branches[0].id);
   selectedBranch = computed<Branch | undefined>(() =>
     this.branches.find(b => b.id === this.selectedBranchId())
   );
 
-  // --- helpers trackBy para *ngFor
+  // TrackBy
   trackByItem = (_: number, item: { product: Product }) =>
     (item.product as any).id ?? (item.product as any).slug ?? _;
 
-  // --- acciones línea (con fallbacks si tu CartService no trae helpers)
+  // Acciones línea (fallbacks si tu CartService no trae helpers)
   inc(p: Product) {
     const svc: any = this.cartService as any;
     if (typeof svc.addOne === 'function') return svc.addOne(p);
-    // fallback: reutiliza addToCart
     this.cartService.addToCart(p);
   }
-
   dec(p: Product) {
     const svc: any = this.cartService as any;
     if (typeof svc.removeFromCart === 'function') return svc.removeFromCart(p);
-    // fallback: quitar 1 unidad del array
+    // quitar 1 del array
     const arr = this.cart().slice();
     const idx = arr.findIndex(x => (x as any).id === (p as any).id || (x as any).slug === (p as any).slug);
     if (idx > -1) {
@@ -76,28 +74,50 @@ export class CheckoutComponent {
       this.cartService.cart.set(arr);
     }
   }
-
   removeAll(p: Product) {
     const svc: any = this.cartService as any;
     if (typeof svc.removeAllFromCart === 'function') return svc.removeAllFromCart(p);
-    // fallback: quitar todas las coincidencias
     const arr = this.cart().filter(x =>
       (x as any).id !== (p as any).id && (x as any).slug !== (p as any).slug
     );
     this.cartService.cart.set(arr);
   }
-
   clearCart() {
     const svc: any = this.cartService as any;
     if (typeof svc.clear === 'function') return svc.clear();
     this.cartService.cart.set([]);
   }
 
-  // --- WhatsApp
+  // Helpers de validación
+  nameValid = computed(() => this.customerName().trim().length >= 2);
+  phoneSanitized = computed(() => this.customerPhone().trim().replace(/\s+/g, ''));
+  phoneValid = computed(() => /^(\+?591)?\d{8,11}$/.test(this.phoneSanitized())); // simple
+  isEmpty = computed(() => this.cart().length === 0);
+  formValid = computed(() => this.nameValid() && this.phoneValid() && !this.isEmpty());
+
+  // Formato moneda robusto
+  private fmtBOB(n: number): string {
+    try {
+      return new Intl.NumberFormat('es-BO', {
+        style: 'currency',
+        currency: 'BOB',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(n);
+    } catch {
+      return `Bs ${n.toFixed(2)}`;
+    }
+  }
+
+  itemSubtotal(item: { unitPrice: number; count: number }) {
+    return (item.unitPrice ?? 0) * (item.count ?? 0);
+  }
+
+  // WhatsApp
   private waMessage(): string {
     const lines: string[] = [];
     lines.push(`*Pedido Gemmatex*`);
-    lines.push(`Fecha: ${new Date().toLocaleString()}`);
+    lines.push(`Fecha: ${new Date().toLocaleString('es-BO')}`);
     lines.push('');
     lines.push(`*Cliente*: ${this.customerName().trim() || '—'}`);
     lines.push(`*Teléfono*: ${this.customerPhone().trim() || '—'}`);
@@ -107,20 +127,20 @@ export class CheckoutComponent {
     for (const item of this.groupedCart()) {
       const sku = (item.product as any).sku ?? '—';
       const unit = item.unitPrice ?? item.product.price ?? 0;
-      const subtotal = unit * item.count;
+      const subtotal = this.itemSubtotal(item);
       lines.push(
-        `• ${item.count} x ${item.product.name} (SKU: ${sku}) — ${unit.toLocaleString('es-BO',{style:'currency',currency:'BOB'})} c/u — Subtotal: ${subtotal.toLocaleString('es-BO',{style:'currency',currency:'BOB'})}`
+        `* (SKU: ${sku}) - ${item.product.name} X ${item.count} — ${this.fmtBOB(unit)} c/u — Subtotal: ${this.fmtBOB(subtotal)}`
       );
     }
     lines.push('');
-    lines.push(`*TOTAL*: ${this.total().toLocaleString('es-BO',{style:'currency',currency:'BOB'})}`);
+    lines.push(`*TOTAL*: ${this.fmtBOB(this.total())}`);
     const extra = this.notes().trim();
     if (extra) {
       lines.push('');
       lines.push(`*Notas*: ${extra}`);
     }
     lines.push('');
-    lines.push(`Gracias por su preferencia 🙌`);
+    lines.push(`Gracias por su preferencia.`);
     return lines.join('\n');
   }
 
@@ -130,14 +150,19 @@ export class CheckoutComponent {
     return `https://wa.me/${phone}?text=${text}`;
   }
 
-  placeOrder() {
-    window.open(this.waLink(), '_blank');
-    // this.clearCart(); // opcional
-  }
+  placeOrder(ev?: Event) {
+    ev?.preventDefault?.();
+    ev?.stopPropagation?.();
 
-  itemSubtotal(item: { unitPrice: number; count: number }) {
-    return (item.unitPrice ?? 0) * (item.count ?? 0);
-  }
+    if (!this.formValid()) return;
 
-  isEmpty = computed(() => this.cart().length === 0);
+    const url = this.waLink();
+    const win = window.open(url, '_blank');
+    if (!win) {
+      // popup bloqueado → abrir en la misma pestaña
+      window.location.href = url;
+    } else {
+      try { (win as any).opener = null; } catch {}
+    }
+  }
 }
