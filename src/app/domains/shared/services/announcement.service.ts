@@ -9,7 +9,7 @@ export class AnnouncementService {
 
   constructor() { }
   private http = inject(HttpClient);
-  private base = 'http://localhost:3000/api/v1';
+  private base = 'http://gemmatex.store:3000/api/v1';
 
   getAll() {
     return this.http.get<Announcement[]>(`${this.base}/announcements`);

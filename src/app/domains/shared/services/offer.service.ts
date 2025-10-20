@@ -9,7 +9,7 @@ export class OfferService {
 
   constructor() { }
   private http = inject(HttpClient);
-  private base = 'http://localhost:3000/api/v1/offers'; // link directo
+  private base = 'http://gemmatex.store:3000/api/v1/offers'; // link directo
 
   getAll() {
     return this.http.get<Offer[]>(this.base);

@@ -12,7 +12,7 @@ export class ProductService {
   constructor() { }
 //https://gemmatex.store/api/v1/products
   getProducts(category_id?: string) {
-    const url = new URL(`http://localhost:3000/api/v1/products`);
+    const url = new URL(`http://gemmatex.store:3000/api/v1/products`);
     if (category_id) {
       url.searchParams.set('categoryId', category_id);
     }
@@ -20,12 +20,12 @@ export class ProductService {
   }
 
   getOne(id: string) {
-    return this.http.get<Product>(`http://localhost:3000/api/v1/products/${id}`);
+    return this.http.get<Product>(`http://gemmatex.store:3000/api/v1/products/${id}`);
   }
   getProductos() {
-    return this.http.get<Product[]>(`http://localhost:3000/api/v1/products`);
+    return this.http.get<Product[]>(`http://gemmatex.store:3000/api/v1/products`);
   }
-  private base = 'http://localhost:3000/api/v1/products';
+  private base = 'http://gemmatex.store:3000/api/v1/products';
   
   // NEW: PATCH parcial (edición / activar / soft-delete)
   patchProduct(id: string | number, partial: Partial<Product> & Record<string, any>) {
