@@ -1,33 +1,55 @@
-/* Vaivén suave del bloque de texto/CTA */
-.hero-float { animation: heroFloat 7s ease-in-out infinite; }
-@keyframes heroFloat {
-  0%,100% { transform: translateY(0) }
-  50%     { transform: translateY(-8px) }
+:host { display: block; }
+
+/* Alturas responsivas del hero */
+.hero-wrapper { position: relative; width: 100%; background: #0f172a; } /* slate-900 */
+.hero-stage   { position: relative; height: 46vh; }
+@media (min-width: 640px){ .hero-stage{ height: 62vh; } }
+@media (min-width: 768px){ .hero-stage{ height: 74vh; } }
+@media (min-width: 1024px){ .hero-stage{ height: 78vh; } }
+
+/* Slide layering */
+.slide{
+  position:absolute; inset:0;
+  opacity:0; transition:opacity .45s ease;
+}
+.slide--active{ opacity:1; }
+.img{
+  width:100%; height:100%;
+  object-fit:cover; display:block;
 }
 
-/* Glow respirando para dar profundidad al fondo */
-.hero-glow {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(60% 50% at 50% 50%, rgba(255,255,255,0.18), transparent 70%);
-  animation: heroGlow 6s ease-in-out infinite;
-}
-@keyframes heroGlow {
-  0%,100% { opacity: .16; transform: scale(1) }
-  50%     { opacity: .26; transform: scale(1.04) }
+/* Overlay sutil para legibilidad y suavizar bordes en blanco */
+.overlay{
+  pointer-events:none;
+  position:absolute; inset:0;
+  background: linear-gradient(to top, rgba(0,0,0,.35), rgba(0,0,0,.10) 40%, transparent);
 }
 
-/* Manchas CMYK sutiles y animadas */
-.hero-blob {
-  background:
-    radial-gradient(40% 35% at 20% 25%, rgba(6,182,212,.35), transparent 70%),
-    radial-gradient(35% 30% at 80% 20%, rgba(217,70,239,.28), transparent 70%),
-    radial-gradient(30% 28% at 50% 85%, rgba(250,204,21,.25), transparent 70%);
-  animation: heroBlob 20s ease-in-out infinite;
-  filter: saturate(1.08);
+/* Controles */
+.nav{
+  display:grid; place-items:center;
+  position:absolute; top:50%; transform:translateY(-50%);
+  width:44px; height:44px;
+  border-radius:999px; border:0;
+  background:rgba(255,255,255,.9);
+  box-shadow:0 6px 18px rgba(0,0,0,.12);
+  cursor:pointer;
 }
-@keyframes heroBlob {
-  0%,100% { transform: translate3d(0,0,0) scale(1) }
-  50%     { transform: translate3d(0,-10px,0) scale(1.03) }
+.nav:hover{ background:#fff; }
+.nav--left{ left:16px; }
+.nav--right{ right:16px; }
+@media (max-width: 639.98px){ .nav{ display:none; } }
+
+/* Dots */
+.dots{
+  position:absolute; left:0; right:0; bottom:14px;
+  display:flex; justify-content:center; gap:8px;
 }
-#destacados .hide-scroll::-webkit-scrollbar { display: none; }
+.dot{
+  width:10px; height:10px; border-radius:999px;
+  background:rgba(255,255,255,.35);
+  border:1px solid rgba(255,255,255,.6);
+  cursor:pointer; transition:transform .15s ease, background .15s ease;
+}
+.dot:hover{ transform:scale(1.1); }
+.dot--active{ background:#fff; }

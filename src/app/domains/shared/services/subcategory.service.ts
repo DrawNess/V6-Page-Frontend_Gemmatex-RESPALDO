@@ -13,20 +13,20 @@ export class SubcategoryService {
   private http = inject(HttpClient);
 
   getAll() {
-    return this.http.get<Subcategory[]>('http://gemmatex.store:3000/api/v1/subcategories');
+    return this.http.get<Subcategory[]>('https://gemmatex.store/api/v1/subcategories');
   }
 
   getOne(id: string | number) {
-    return this.http.get<Subcategory>(`http://gemmatex.store:3000/api/v1/subcategories/${id}`);
+    return this.http.get<Subcategory>(`https://gemmatex.store/api/v1/subcategories/${id}`);
   }
 
   // /subcategories/:id/products (si lo tienes en tu API)
   getProductsBySubcategory(id: string | number) {
-    return this.http.get<Product[]>(`http://gemmatex.store:3000/api/v1/subcategories/${id}/products`);
+    return this.http.get<Product[]>(`https://gemmatex.store/api/v1/subcategories/${id}/products`);
   }
   getByCategory(categoryId: string | number) {
     return this.http.get<Subcategory[]>(
-      `http://gemmatex.store:3000/api/v1/categories/${categoryId}/subcategories`
+      `https://gemmatex.store/api/v1/categories/${categoryId}/subcategories`
     );
   }
 

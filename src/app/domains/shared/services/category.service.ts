@@ -12,20 +12,20 @@ export class CategoryService {
   constructor() { }
 //https://gemmatex.store/api/v1/categories
   getAll() {
-    return this.http.get<Category[]>('http://gemmatex.store:3000/api/v1/categories');
+    return this.http.get<Category[]>('https://gemmatex.store/api/v1/categories');
   }
     getOne(id: string | number) {
-    return this.http.get<Category>(`http://gemmatex.store:3000/api/v1/categories/${id}`);
+    return this.http.get<Category>(`https://gemmatex.store/api/v1/categories/${id}`);
   }
 
 
   getProductsByCategory(id: string | number) {
-    return this.http.get<Product[]>(`http://gemmatex.store:3000/api/v1/categories/${id}/products`);
+    return this.http.get<Product[]>(`https://gemmatex.store/api/v1/categories/${id}/products`);
   }
 
   getByCategory(categoryId: string | number) {
     return this.http.get<Category[]>(
-      `http://gemmatex.store:3000/api/v1/categories/${categoryId}/subcategories`
+      `https://gemmatex.store/api/v1/categories/${categoryId}/subcategories`
     );
   }
 

@@ -10,7 +10,7 @@ export class HeroSlideService {
   constructor() { }
 
   private http = inject(HttpClient);
-  private base = 'http://gemmatex.store:3000/api/v1';
+  private base = 'https://gemmatex.store/api/v1';
 
   getAll() {
     return this.http.get<HeroSlide[]>(`${this.base}/hero-slides`);

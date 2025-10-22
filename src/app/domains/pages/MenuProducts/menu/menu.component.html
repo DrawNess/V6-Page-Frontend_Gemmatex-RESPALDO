@@ -10,7 +10,7 @@
         routerLink="/"
         class="inline-flex items-center gap-2 rounded-xl border px-3 py-2 bg-white hover:bg-slate-50 text-sm"
       >
-        ← Volver al sitio
+        Volver al sitio
       </a>
     </div>
 
@@ -64,18 +64,17 @@
   <!-- Accesos rápidos abajo (opcional) -->
   <div class="mt-8 flex flex-wrap gap-3">
     <a
-      [routerLink]="'/' + ( '<?=SECRET_BASE?>' || '' ) + '/menu-adds/hero-slides'"
-      [routerLink]="linksAds()[1]?.to"
+      [routerLink]="linksAds()[1].to"
       class="inline-flex items-center rounded-lg border px-3 py-2 bg-white hover:bg-slate-50 text-sm"
     >Hero Slides</a>
 
     <a
-      [routerLink]="linksAds()[2]?.to"
+      [routerLink]="linksAds()[2].to"
       class="inline-flex items-center rounded-lg border px-3 py-2 bg-white hover:bg-slate-50 text-sm"
     >Announcements</a>
 
     <a
-      [routerLink]="linksAds()[3]?.to"
+      [routerLink]="linksAds()[3].to"
       class="inline-flex items-center rounded-lg border px-3 py-2 bg-white hover:bg-slate-50 text-sm"
     >Promos</a>
   </div>

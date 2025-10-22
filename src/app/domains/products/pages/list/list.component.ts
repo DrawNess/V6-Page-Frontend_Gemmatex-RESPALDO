@@ -1,145 +1,254 @@
-// src/app/domains/pages/home/list/list.component.ts
-import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, OnInit, inject, signal, computed, ViewChild, ElementRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { HeroSlideService } from '@shared/services/hero-slide.service';
+import { HeroSlide } from '@shared/models/hero-slide.model';
 
 import { AnnouncementService } from '@shared/services/announcement.service';
-import { HeroSlideService } from '@shared/services/hero-slide.service';
-import { PromoService } from '@shared/services/promo.service';
-
 import { Announcement } from '@shared/models/announcement.model';
-import { HeroSlide } from '@shared/models/hero-slide.model';
-import { Promo } from '@shared/models/promo.model';
+
+import { Product } from '@shared/models/product.model';
+import { ProductService } from '@shared/services/product.service';
+import { CartService } from '@shared/services/cart.service';
+import { ProductComponent } from '@products/components/product/product.component';
 
 
 @Component({
   selector: 'app-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ProductComponent],
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.css']
 })
 
 export default class ListComponent implements OnInit, OnDestroy {
 
-  private annService = inject(AnnouncementService);
-  private heroService = inject(HeroSlideService);
-  private promoService = inject(PromoService);
+  private heroSrv = inject(HeroSlideService);
 
-  // data
-  announcements = signal<Announcement[]>([]);
-  heroSlides   = signal<HeroSlide[]>([]);
-  promos       = signal<Promo[]>([]);
+  slides  = signal<HeroSlide[]>([]);
+  loading = signal<boolean>(true);
+  error   = signal<string | null>(null);
 
-  // estado
-  loading = signal(true);
-  error = signal<string | null>(null);
+  current = signal<number>(0);
 
-  // hero player
-  current = signal(0);
-  private heroTimer: any = null;
-  private readonly heroInterval = 6000;
+  // autoplay más calmado
+  private timer: any = null;
+  private readonly intervalMs = 9000;
 
-  // ======= helpers de tiempo (activos ahora) =======
-  private isNowActive = (startAt?: string | null, endAt?: string | null): boolean => {
-    const now = new Date();
-    const startOk = !startAt ? true : (new Date(startAt) <= now);
-    const endOk   = !endAt ? true : (new Date(endAt) >= now);
-    return startOk && endOk;
-  };
 
-  // derivados filtrados / ordenados
-  activeAnnouncements = computed(() =>
-    (this.announcements() || [])
-      .filter(a => a.is_active && this.isNowActive(a.startAt, a.endAt))
-      .sort((x,y) => (x.ordering ?? 0) - (y.ordering ?? 0))
-  );
-
-  activeSlides = computed(() =>
-    (this.heroSlides() || [])
-      .filter(s => s.is_active && this.isNowActive(s.startAt, s.endAt))
-      .sort((x,y) => (x.ordering ?? 0) - (y.ordering ?? 0))
-  );
-
-  activePromos = computed(() =>
-    (this.promos() || [])
-      .filter(p => p.is_active/*  && this.isNowActive(p.startAt, p.endAt) */)
-      .sort((x,y) => (x.ordering ?? 0) - (y.ordering ?? 0))
-  );
-
-  // imagen responsive para hero
-  heroImage = (s: HeroSlide) => s?.imageUrl;
-  heroImageMobile = (s: HeroSlide) => s?.mobileImageUrl || s?.imageUrl;
-
-  // ====== ciclo de vida ======
+  /* NG ON INIT */
   ngOnInit() {
-    Promise.all([
-      this.annService.getAll().toPromise(),
-      this.heroService.getAll().toPromise(),
-      this.promoService.getAll().toPromise(),
-    ])
-    .then(([anns, slides, promos]) => {
-      this.announcements.set(anns ?? []);
-      this.heroSlides.set(slides ?? []);
-      this.promos.set(promos ?? []);
-      this.loading.set(false);
-      this.startHero();
-    })
-    .catch(err => {
-      console.error(err);
-      this.error.set('No se pudo cargar el contenido inicial.');
-      this.loading.set(false);
+    this.heroSrv.getAll().subscribe({
+      next: (items) => {
+        const now = new Date();
+        const inRange = (a?: string | null, b?: string | null) => {
+          const sOk = !a || new Date(a) <= now;
+          const eOk = !b || new Date(b) >= now;
+          return sOk && eOk;
+        };
+
+        const data = (items ?? [])
+          .filter(s => !!s.is_active && inRange(s.startAt, s.endAt))
+          .sort((a,b)=> (a.ordering ?? 0) - (b.ordering ?? 0));
+
+        this.slides.set(data);
+        this.loading.set(false);
+        this.start();
+      },
+      error: (err) => {
+        console.error(err);
+        this.error.set('No se pudo cargar el hero.');
+        this.loading.set(false);
+      }
     });
+
+    document.addEventListener('visibilitychange', this.onVis);
+
+    /* Announcement */
+    this.annService.getAll().subscribe({
+      next: (items) => {
+        this.announcements.set(items ?? []);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error(err);
+        this.error.set('No se pudieron cargar los anuncios.');
+        this.loading.set(false);
+      }
+    });
+    /* ============== */
+
+
+    /* CARDS ALEATORIO */
+    this.loadRandom10();
+    // autoplay opcional:
+    // this.resumeAutoplayRandom();
+    /* =============== */
   }
 
-  ngOnDestroy() { this.stopHero(); }
+  /* NG ON DESTROY */
+  ngOnDestroy() {
+    document.removeEventListener('visibilitychange', this.onVis);
+    this.stop();
 
-  // ====== hero controls ======
-  startHero() {
-    this.stopHero();
-    if ((this.activeSlides()?.length ?? 0) <= 1) return;
-    this.heroTimer = setInterval(() => this.next(), this.heroInterval);
+    /* CARDS ALEATORIO */
+    this.pauseAutoplayRandom();
+    /* =============== */
   }
-  stopHero() { if (this.heroTimer) { clearInterval(this.heroTimer); this.heroTimer = null; } }
-  pauseHero() { this.stopHero(); }
-  resumeHero() { this.startHero(); }
 
+  /** autoplay */
+  private start() {
+    this.stop();
+    if (this.slides().length <= 1) return;
+    this.timer = setInterval(() => this.next(), this.intervalMs);
+  }
+  private stop() {
+    if (this.timer) { clearInterval(this.timer); this.timer = null; }
+  }
+  pause()  { this.stop(); }
+  resume() { this.start(); }
+  private onVis = () => { document.hidden ? this.stop() : this.start(); };
+
+  /** navegación */
   prev() {
-    const n = this.activeSlides().length;
-    if (n === 0) return;
-    const i = this.current();
-    this.current.set( (i - 1 + n) % n );
+    const n = this.slides().length;
+    if (!n) return;
+    this.current.set((this.current() - 1 + n) % n);
   }
   next() {
-    const n = this.activeSlides().length;
-    if (n === 0) return;
-    const i = this.current();
-    this.current.set( (i + 1) % n );
+    const n = this.slides().length;
+    if (!n) return;
+    this.current.set((this.current() + 1) % n);
   }
   go(i: number) {
-    if (i >= 0 && i < this.activeSlides().length) this.current.set(i);
+    if (i < 0 || i >= this.slides().length) return;
+    this.current.set(i);
   }
 
-  // CTA de hero: o va a producto (router) o a link externo
-  slideRouterLink(s: HeroSlide) {
-    return s.hrefProductId ? ['/product', s.hrefProductId] : null;
-  }
-  slideHref(s: HeroSlide) {
-    return !s.hrefProductId && s.ctaUrl ? s.ctaUrl : null;
+  /** helpers imagen/link */
+  imgDesktop(s: HeroSlide) { return s.imageUrl; }
+  imgMobile(s: HeroSlide)  { return s.mobileImageUrl }
+  cta(s: HeroSlide)        { return s.ctaUrl || null; } // SOLO ctaUrl, sin texto overlay
+
+
+
+
+  /* =========================================== */
+
+  private annService = inject(AnnouncementService);
+
+  // estado
+  announcements = signal<Announcement[]>([]);
+
+
+  /** vigencia: activo y dentro de rango de fechas */
+  private isNowActive(startAt?: string | null, endAt?: string | null): boolean {
+    const now = new Date();
+    const startOk = !startAt || new Date(startAt) <= now;
+    const endOk   = !endAt   || new Date(endAt)   >= now;
+    return startOk && endOk;
   }
 
-  // CTA de anuncio
-  annHref(a: Announcement) { return a.linkUrl || null; }
+  /** lista final mostrable (ordenada por ordering asc) */
+  activeAnnouncements = computed(() =>
+    (this.announcements() ?? [])
+      .filter(a => !!a.is_active && this.isNowActive(a.startAt, a.endAt))
+      .sort((a, b) => (a.ordering ?? 0) - (b.ordering ?? 0))
+  );
+
+  /** label visible dentro del chip */
+  annLabel(a: Announcement) {
+    return (a.linkLabel && a.linkLabel.trim()) || a.title || 'Anuncio';
+  }
+
+  /** destino con prioridad: producto -> link externo -> sin link */
   annRouterLink(a: Announcement) {
     return a.hrefProductId ? ['/product', a.hrefProductId] : null;
   }
+  annHref(a: Announcement) {
+    return !a.hrefProductId && a.linkUrl ? a.linkUrl : null;
+  }
 
-  // CTA promo
-  promoHref(p: Promo) { return p.ctaUrl || null; }
-  promoRouterLink(p: Promo) { return p.hrefProductId ? ['/product', p.hrefProductId] : null; }
+  /** trackBy estable */
+  trackByAnn = (_: number, a: Announcement) => a.id ?? a.title ?? _;
 
+ 
 
-  /* ---------------------------------------------- */
+  /* =========================================== */
+  /* ------ CARDS ALEATORIOS ------ */
+
+  private productService = inject(ProductService);
+  private cartService = inject(CartService);
+
+  // === estado ===
+  random10 = signal<Product[]>([]);
+
+  // === carrusel ===
+  @ViewChild('randomTrack', { static: false }) randomTrack?: ElementRef<HTMLDivElement>;
+  private randomTimer: any = null;
+  private randomIntervalMs = 3800; // velocidad autoplay
+
+  // === data ===
+  private loadRandom10() {
+    this.productService.getProducts().subscribe({
+      next: (items) => {
+        const list = (items ?? []).slice();
+        // Fisher–Yates + toma 10
+        for (let i = list.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [list[i], list[j]] = [list[j], list[i]];
+        }
+        this.random10.set(list.slice(0, 10));
+      },
+      error: () => this.random10.set([])
+    });
+  }
+
+  // === acciones ===
+  addToCart(p: Product) {
+    this.cartService.addToCart(p);
+  }
+
+  // === navegación carrusel ===
+  private stepPx(): number {
+    const el = this.randomTrack?.nativeElement;
+    if (!el) return 0;
+    const first = el.querySelector<HTMLElement>('.snap-start');
+    if (!first) return 0;
+    const gap = parseFloat(getComputedStyle(el).columnGap || '0');
+    return first.clientWidth + gap;
+  }
+
+  nextRandom() {
+    const el = this.randomTrack?.nativeElement;
+    if (!el) return;
+    el.scrollBy({ left: this.stepPx(), behavior: 'smooth' });
+    this.restartAutoplayRandom();
+  }
+
+  prevRandom() {
+    const el = this.randomTrack?.nativeElement;
+    if (!el) return;
+    el.scrollBy({ left: -this.stepPx(), behavior: 'smooth' });
+    this.restartAutoplayRandom();
+  }
+
+  // === autoplay ===
+  resumeAutoplayRandom() {
+    if (this.randomTimer) return;
+    this.randomTimer = setInterval(() => this.nextRandom(), this.randomIntervalMs);
+  }
+
+  pauseAutoplayRandom() {
+    if (this.randomTimer) { clearInterval(this.randomTimer); this.randomTimer = null; }
+  }
+
+  private restartAutoplayRandom() {
+    this.pauseAutoplayRandom();
+    this.resumeAutoplayRandom();
+  }
+
+  /* ============================== */
   
 }
 
