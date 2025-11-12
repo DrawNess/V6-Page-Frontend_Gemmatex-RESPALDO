@@ -16,7 +16,7 @@ export interface Product {
   shortDescription: string;
   brand: string;
   imageUrl: string;
-  galleryUrls: string[];
+  galleryUrls: string;
   price: number;
   discountPrice: number;
   sku: string;

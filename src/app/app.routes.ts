@@ -36,6 +36,7 @@ import { MenuAddsComponent } from './domains/pages/MenuProducts/adds/menu-adds/m
 import { HeroSlidesComponent } from './domains/pages/MenuProducts/adds/hero-slides/hero-slides.component';
 import { OffersAddsComponent } from './domains/pages/MenuProducts/adds/offers-adds/offers-adds.component';
 import { PromoComponent } from './domains/pages/MenuProducts/adds/promo/promo.component';
+import { OffersMenuComponent } from './domains/pages/MenuProducts/offers-menu/offers-menu.component';
 
 export const SECRET_BASE = 'admin-gx-panel-secreto-6f3e2b3e-9c31-4c8c-8cfa-ccf06b9b1c21';
 
@@ -99,6 +100,10 @@ export const routes: Routes = [
             {
                 path: `${SECRET_BASE}/panel-productos`,
                 component: ProductsManagerComponentComponent
+            },
+            {
+                path: `${SECRET_BASE}/offers-menu`,
+                component: OffersMenuComponent
             },
             {
                 path: 'recursos/pdfs',

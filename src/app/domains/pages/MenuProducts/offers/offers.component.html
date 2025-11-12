@@ -1,0 +1,283 @@
+<section class="max-w-7xl mx-auto px-4 py-8 sm:py-10">
+  <!-- Encabezado -->
+  <header class="mb-6 flex items-start justify-between gap-3">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Ofertas</h1>
+      <p class="text-slate-600">Administra ofertas (outlet/activo). Galería y tags aceptan “coma o saltos de línea”.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="rounded-lg border px-3 py-2 bg-white hover:bg-slate-50 text-sm"
+              (click)="refresh()">Refrescar</button>
+      <a routerLink="/" class="rounded-lg border px-3 py-2 bg-white hover:bg-slate-50 text-sm">Volver</a>
+    </div>
+  </header>
+
+  <!-- Estados -->
+  <div *ngIf="loading()" class="mb-4 rounded-xl border p-4 bg-white">
+    Cargando…
+  </div>
+  <div *ngIf="error()" class="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
+    {{ error() }}
+  </div>
+  <div *ngIf="okMsg()" class="mb-4 rounded-xl border border-green-200 bg-green-50 p-4 text-green-700">
+    {{ okMsg() }}
+  </div>
+
+  <!-- Crear nueva -->
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 mb-6">
+    <h2 class="text-lg font-semibold text-slate-900 mb-3">Nueva oferta</h2>
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+      <div class="md:col-span-4">
+        <label class="block text-sm text-slate-700 mb-1">Nombre *</label>
+        <input class="w-full rounded-lg border px-3 py-2"
+               [ngModel]="newOffer().name" (ngModelChange)="setNewName($event)">
+      </div>
+      <div class="md:col-span-3">
+        <label class="block text-sm text-slate-700 mb-1">Slug</label>
+        <input class="w-full rounded-lg border px-3 py-2"
+               [ngModel]="newOffer().slug" (ngModelChange)="setNew('slug',$event)">
+      </div>
+      <div class="md:col-span-2">
+        <label class="block text-sm text-slate-700 mb-1">Marca</label>
+        <input class="w-full rounded-lg border px-3 py-2"
+               [ngModel]="newOffer().brand" (ngModelChange)="setNew('brand',$event)">
+      </div>
+      <div class="md:col-span-2">
+        <label class="block text-sm text-slate-700 mb-1">SKU</label>
+        <input class="w-full rounded-lg border px-3 py-2"
+               [ngModel]="newOffer().sku" (ngModelChange)="setNew('sku',$event)">
+      </div>
+      <div class="md:col-span-1">
+        <label class="block text-sm text-slate-700 mb-1">Stock</label>
+        <input type="number" class="w-full rounded-lg border px-3 py-2"
+               [ngModel]="newOffer().stock" (ngModelChange)="setNew('stock', toInt($event))">
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="block text-sm text-slate-700 mb-1">Precio</label>
+        <input type="number" class="w-full rounded-lg border px-3 py-2"
+               [ngModel]="newOffer().price" (ngModelChange)="setNew('price', toNum($event))">
+      </div>
+      <div class="md:col-span-2">
+        <label class="block text-sm text-slate-700 mb-1">Precio desc.</label>
+        <input type="number" class="w-full rounded-lg border px-3 py-2"
+               [ngModel]="newOffer().discountPrice" (ngModelChange)="setNew('discountPrice', toNum($event))">
+      </div>
+
+      <div class="md:col-span-4">
+        <label class="block text-sm text-slate-700 mb-1">Imagen (imageUrl)</label>
+        <input class="w-full rounded-lg border px-3 py-2"
+               [ngModel]="newOffer().imageUrl" (ngModelChange)="setNew('imageUrl',$event)">
+      </div>
+      <div class="md:col-span-4">
+        <label class="block text-sm text-slate-700 mb-1">Galería (coma o salto de línea)</label>
+        <textarea rows="2" class="w-full rounded-lg border px-3 py-2"
+                  [ngModel]="newOffer().galleryUrls" (ngModelChange)="setNew('galleryUrls',$event)"></textarea>
+      </div>
+
+      <div class="md:col-span-4">
+        <label class="block text-sm text-slate-700 mb-1">Tags (coma o salto de línea)</label>
+        <textarea rows="2" class="w-full rounded-lg border px-3 py-2"
+                  [ngModel]="newOffer().tags" (ngModelChange)="setNew('tags',$event)"></textarea>
+      </div>
+
+      <div class="md:col-span-6">
+        <label class="block text-sm text-slate-700 mb-1">Descripción</label>
+        <textarea rows="2" class="w-full rounded-lg border px-3 py-2"
+                  [ngModel]="newOffer().description" (ngModelChange)="setNew('description',$event)"></textarea>
+      </div>
+      <div class="md:col-span-6">
+        <label class="block text-sm text-slate-700 mb-1">Descripción corta</label>
+        <textarea rows="2" class="w-full rounded-lg border px-3 py-2"
+                  [ngModel]="newOffer().shortDescription" (ngModelChange)="setNew('shortDescription',$event)"></textarea>
+      </div>
+
+      <div class="md:col-span-3">
+        <label class="block text-sm text-slate-700 mb-1">U. medida</label>
+        <input class="w-full rounded-lg border px-3 py-2"
+               [ngModel]="newOffer().unitOfMeasure" (ngModelChange)="setNew('unitOfMeasure',$event)">
+      </div>
+      <div class="md:col-span-3">
+        <label class="block text-sm text-slate-700 mb-1">Dimensiones</label>
+        <input class="w-full rounded-lg border px-3 py-2"
+               [ngModel]="newOffer().dimensions" (ngModelChange)="setNew('dimensions',$event)">
+      </div>
+
+      <div class="md:col-span-3 flex items-end">
+        <label class="inline-flex items-center gap-2">
+          <input type="checkbox" [checked]="newOffer().outlet"
+                 (change)="setNew('outlet', $any($event.target).checked)">
+          <span class="text-sm">Outlet</span>
+        </label>
+      </div>
+
+      <div class="md:col-span-3 flex items-end">
+        <label class="inline-flex items-center gap-2">
+          <input type="checkbox" [checked]="newOffer().is_active"
+                 (change)="setNew('is_active', $any($event.target).checked)">
+          <span class="text-sm">Activo</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="mt-3">
+      <button class="rounded-lg bg-blue-600 text-white px-4 py-2 font-semibold hover:bg-blue-700 disabled:opacity-60"
+              [disabled]="saving()" (click)="create()">Crear oferta</button>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+      <div class="md:col-span-4">
+        <label class="block text-sm text-slate-700 mb-1">Buscar</label>
+        <input type="search" class="w-full rounded-lg border px-3 py-2"
+               [ngModel]="query()" (ngModelChange)="query.set($event)"
+               placeholder="Nombre, SKU, descripción…">
+      </div>
+
+      <div class="md:col-span-3">
+        <label class="block text-sm text-slate-700 mb-1">Marca</label>
+        <input type="text" class="w-full rounded-lg border px-3 py-2"
+               [ngModel]="brandFilter()" (ngModelChange)="brandFilter.set($event)"
+               placeholder="Epson, Sublinova…">
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="block text-sm text-slate-700 mb-1">Estado</label>
+        <select class="w-full rounded-lg border px-3 py-2 bg-white"
+                [ngModel]="activeFilter()" (ngModelChange)="activeFilter.set($event)">
+          <option value="all">Todos</option>
+          <option value="active">Activos</option>
+          <option value="inactive">Inactivos</option>
+        </select>
+      </div>
+
+      <div class="md:col-span-3">
+        <label class="block text-sm text-slate-700 mb-1">Outlet</label>
+        <select class="w-full rounded-lg border px-3 py-2 bg-white"
+                [ngModel]="outletFilter()" (ngModelChange)="outletFilter.set($event)">
+          <option value="all">Todos</option>
+          <option value="only">Sólo outlet</option>
+          <option value="without">Sin outlet</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla -->
+  <div class="rounded-2xl border border-slate-200 bg-white overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead class="bg-slate-50">
+        <tr>
+          <th class="px-3 py-2 text-left">Img</th>
+          <th class="px-3 py-2 text-left cursor-pointer" (click)="setSort('id')">ID {{ sortArrow('id') }}</th>
+          <th class="px-3 py-2 text-left cursor-pointer" (click)="setSort('name')">Nombre {{ sortArrow('name') }}</th>
+          <th class="px-3 py-2 text-left cursor-pointer" (click)="setSort('brand')">Marca {{ sortArrow('brand') }}</th>
+          <th class="px-3 py-2 text-left">SKU</th>
+          <th class="px-3 py-2 text-left cursor-pointer" (click)="setSort('price')">Precio {{ sortArrow('price') }}</th>
+          <th class="px-3 py-2 text-left cursor-pointer" (click)="setSort('discountPrice')">Desc. {{ sortArrow('discountPrice') }}</th>
+          <th class="px-3 py-2 text-left cursor-pointer" (click)="setSort('stock')">Stock {{ sortArrow('stock') }}</th>
+          <th class="px-3 py-2 text-left cursor-pointer" (click)="setSort('outlet')">Outlet {{ sortArrow('outlet') }}</th>
+          <th class="px-3 py-2 text-left cursor-pointer" (click)="setSort('is_active')">Activo {{ sortArrow('is_active') }}</th>
+          <th class="px-3 py-2 text-left cursor-pointer" (click)="setSort('created_at')">Creado {{ sortArrow('created_at') }}</th>
+          <th class="px-3 py-2 text-right">Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody class="divide-y">
+        <tr *ngFor="let o of filteredSorted(); trackBy: trackById">
+          <!-- Imagen -->
+          <td class="px-3 py-2">
+            <img [src]="o.imageUrl" (error)="onImgError($event)" alt="" class="w-12 h-12 rounded object-cover border">
+          </td>
+
+          <!-- Edición -->
+          <ng-container *ngIf="editingId() === o.id; else rowView">
+            <td class="px-3 py-2">{{ o.id }}</td>
+            <td class="px-3 py-2">
+              <input class="w-56 rounded border px-2 py-1"
+                     [ngModel]="editRow().name" (ngModelChange)="setEdit('name',$event)">
+              <div class="mt-1">
+                <input class="w-56 rounded border px-2 py-1 text-[12px]"
+                       placeholder="slug"
+                       [ngModel]="editRow().slug" (ngModelChange)="setEdit('slug',$event)">
+              </div>
+            </td>
+            <td class="px-3 py-2">
+              <input class="w-36 rounded border px-2 py-1"
+                     [ngModel]="editRow().brand" (ngModelChange)="setEdit('brand',$event)">
+            </td>
+            <td class="px-3 py-2">
+              <input class="w-28 rounded border px-2 py-1"
+                     [ngModel]="editRow().sku" (ngModelChange)="setEdit('sku',$event)">
+            </td>
+            <td class="px-3 py-2">
+              <input type="number" class="w-24 rounded border px-2 py-1"
+                     [ngModel]="editRow().price" (ngModelChange)="setEdit('price', toNum($event))">
+            </td>
+            <td class="px-3 py-2">
+              <input type="number" class="w-24 rounded border px-2 py-1"
+                     [ngModel]="editRow().discountPrice" (ngModelChange)="setEdit('discountPrice', toNum($event))">
+            </td>
+            <td class="px-3 py-2">
+              <input type="number" class="w-20 rounded border px-2 py-1"
+                     [ngModel]="editRow().stock" (ngModelChange)="setEdit('stock', toInt($event))">
+            </td>
+            <td class="px-3 py-2">
+              <input type="checkbox" [checked]="!!editRow().outlet"
+                     (change)="setEdit('outlet', $any($event.target).checked)">
+            </td>
+            <td class="px-3 py-2">
+              <input type="checkbox" [checked]="!!editRow().is_active"
+                     (change)="setEdit('is_active', $any($event.target).checked)">
+            </td>
+            <td class="px-3 py-2 whitespace-nowrap">{{ o.created_at || '—' }}</td>
+            <td class="px-3 py-2 text-right">
+              <button class="rounded border px-2 py-1 mr-1" (click)="cancelEdit()">Cancelar</button>
+              <button class="rounded bg-blue-600 text-white px-3 py-1" (click)="saveEdit(o.id)">Guardar</button>
+            </td>
+          </ng-container>
+
+          <!-- Vista -->
+          <ng-template #rowView>
+            <td class="px-3 py-2">{{ o.id }}</td>
+            <td class="px-3 py-2">
+              <div class="font-medium">{{ o.name }}</div>
+              <div class="text-[12px] text-slate-500">{{ o.slug }}</div>
+            </td>
+            <td class="px-3 py-2">{{ o.brand || '—' }}</td>
+            <td class="px-3 py-2">{{ o.sku || '—' }}</td>
+            <td class="px-3 py-2">{{ o.price ?? 0 }}</td>
+            <td class="px-3 py-2">{{ o.discountPrice ?? 0 }}</td>
+            <td class="px-3 py-2">{{ o.stock ?? 0 }}</td>
+            <td class="px-3 py-2">
+              <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs"
+                    [class.bg-amber-100]="o.outlet" [class.text-amber-700]="o.outlet"
+                    [class.bg-slate-100]="!o.outlet" [class.text-slate-700]="!o.outlet">
+                {{ o.outlet ? 'Sí' : 'No' }}
+              </span>
+            </td>
+            <td class="px-3 py-2">
+              <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs"
+                    [class.bg-green-100]="o.is_active" [class.text-green-700]="o.is_active"
+                    [class.bg-slate-100]="!o.is_active" [class.text-slate-700]="!o.is_active">
+                {{ o.is_active ? 'Sí' : 'No' }}
+              </span>
+            </td>
+            <td class="px-3 py-2 whitespace-nowrap">{{ o.created_at || '—' }}</td>
+            <td class="px-3 py-2 text-right">
+              <button class="rounded border px-2 py-1 mr-1" (click)="startEdit(o)">Editar</button>
+              <button class="rounded border border-red-300 text-red-600 px-2 py-1"
+                      (click)="remove(o)">Eliminar</button>
+            </td>
+          </ng-template>
+        </tr>
+
+        <tr *ngIf="!filteredSorted().length">
+          <td colspan="12" class="px-3 py-8 text-center text-slate-500">Sin resultados.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
