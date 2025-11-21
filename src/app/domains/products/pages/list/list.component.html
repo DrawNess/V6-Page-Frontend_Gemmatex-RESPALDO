@@ -73,8 +73,8 @@
   </div>
 </section>
 
-<!-- ================= ANUNCIOS (barra) ================= -->
-<section *ngIf="activeAnnouncements().length" class="w-full bg-white border-y border-slate-200">
+<!-- ================= ANUNCIOS (barra)-ANNOUNCEMENTS ================= -->
+<section *ngIf="activeAnnouncements().length" class="w-full bg-inheritborder-y border-slate-200">
   <div class="mx-auto max-w-7xl px-4 py-3">
     <div class="flex gap-2 overflow-x-auto no-scrollbar">
       <ng-container *ngFor="let a of activeAnnouncements(); trackBy: trackByAnn">
@@ -167,6 +167,13 @@
     </div>
   </div>
 </section>
+<!-- ======================================================================================================== -->
+<!-- ANNOUNCEMENTS -->
+<!-- ================= OFERTAS (banners de announcements) ================= -->
+
+
+
+
 <!-- ======================================================================================================== -->
 
 <section id="encuentranos" class="relative w-full">

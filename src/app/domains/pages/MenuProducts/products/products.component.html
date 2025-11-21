@@ -213,7 +213,7 @@
   <!-- MODAL DE EDICIÓN -->
   <div
     *ngIf="showEditModal && editingProduct"
-    class="fixed inset-0 z-40 flex items-center justify-center bg-black/40">
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
     <div class="w-full max-w-lg rounded-2xl bg-white shadow-xl border border-slate-200 p-5">
       <div class="flex items-start justify-between gap-4 mb-3">
         <div>
@@ -236,6 +236,8 @@
         [formGroup]="form"
         (ngSubmit)="saveEdit()"
         class="grid grid-cols-1 gap-4">
+
+        <!-- Nombre -->
         <div>
           <label class="block text-sm text-slate-700 mb-1">Nombre *</label>
           <input
@@ -244,14 +246,27 @@
             formControlName="name" />
         </div>
 
-        <div>
-          <label class="block text-sm text-slate-700 mb-1">SKU</label>
-          <input
-            type="text"
-            class="w-full rounded-lg border px-3 py-2"
-            formControlName="sku" />
+        <!-- Marca + SKU -->
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm text-slate-700 mb-1">Marca</label>
+            <input
+              type="text"
+              class="w-full rounded-lg border px-3 py-2"
+              formControlName="brand"
+              placeholder="Ej: Epson, FreeSub, etc." />
+          </div>
+
+          <div>
+            <label class="block text-sm text-slate-700 mb-1">SKU</label>
+            <input
+              type="text"
+              class="w-full rounded-lg border px-3 py-2"
+              formControlName="sku" />
+          </div>
         </div>
 
+        <!-- Precios -->
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm text-slate-700 mb-1">Precio *</label>
@@ -270,6 +285,7 @@
           </div>
         </div>
 
+        <!-- Stock -->
         <div>
           <label class="block text-sm text-slate-700 mb-1">Stock *</label>
           <input
@@ -278,19 +294,47 @@
             formControlName="stock" />
         </div>
 
-        <div class="flex items-center gap-2 mt-1">
+        <!-- Imagen -->
+        <div>
+          <label class="block text-sm text-slate-700 mb-1">Imagen (URL)</label>
           <input
-            id="modal-active"
-            type="checkbox"
-            class="h-4 w-4 rounded border-slate-300 text-blue-600"
-            [checked]="editingProduct?.is_active"
-            disabled />
-          <label for="modal-active" class="text-sm text-slate-700">
-            Estado (solo lectura, el backend no permite cambiarlo)
-          </label>
+            type="url"
+            class="w-full rounded-lg border px-3 py-2"
+            formControlName="imageUrl"
+            placeholder="https://..." />
+          <div class="mt-2">
+            <img
+              *ngIf="form.get('imageUrl')?.value"
+              [src]="form.get('imageUrl')?.value"
+              (error)="onImgError($event)"
+              class="w-20 h-20 object-cover rounded border"
+              alt="preview" />
+          </div>
         </div>
 
+        <!-- Descripción corta -->
+        <div>
+          <label class="block text-sm text-slate-700 mb-1">Descripción corta</label>
+          <textarea
+            rows="2"
+            class="w-full rounded-lg border px-3 py-2 text-sm"
+            formControlName="shortDescription"
+            placeholder="Resumen breve del producto (aparece en tarjetas/listas)">
+          </textarea>
+        </div>
 
+        <!-- Descripción larga -->
+        <div>
+          <label class="block text-sm text-slate-700 mb-1">Descripción larga</label>
+          <textarea
+            rows="4"
+            class="w-full rounded-lg border px-3 py-2 text-sm"
+            formControlName="description"
+            placeholder="Detalles completos del producto para la ficha individual">
+          </textarea>
+        </div>
+
+        <!-- Botones -->
         <div class="mt-3 flex justify-end gap-2">
           <button
             type="button"
@@ -306,6 +350,7 @@
           </button>
         </div>
       </form>
+
     </div>
   </div>
 </section>

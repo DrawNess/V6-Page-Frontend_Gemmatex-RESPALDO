@@ -60,8 +60,11 @@ export class ProductsComponent implements OnInit {
       sku: [''],
       price: [0, [Validators.required]],
       discountPrice: [0],
-      stock: [0, [Validators.required]]
-      // OJO: ya no mandamos is_active porque el backend no lo permite
+      stock: [0, [Validators.required]],
+      shortDescription: [''],
+      description: [''],
+      brand: [''],
+      imageUrl: ['']
     });
   }
 
@@ -182,9 +185,15 @@ export class ProductsComponent implements OnInit {
       sku: product.sku,
       price: product.price,
       discountPrice: product.discountPrice,
-      stock: product.stock
+      stock: product.stock,
+      shortDescription: product.shortDescription,
+      description: product.description,
+      brand: product.brand,
+      imageUrl: product.imageUrl
     });
   }
+
+
 
   closeEditModal(): void {
     this.showEditModal = false;
@@ -198,13 +207,16 @@ export class ProductsComponent implements OnInit {
 
     const formValues = this.form.value;
 
-    // Solo mandamos campos que tu backend acepta
     const body = {
       name: formValues.name,
       sku: formValues.sku,
       price: formValues.price,
       discountPrice: formValues.discountPrice,
-      stock: formValues.stock
+      stock: formValues.stock,
+      shortDescription: formValues.shortDescription,
+      description: formValues.description,
+      brand: formValues.brand,
+      imageUrl: formValues.imageUrl
     };
 
     this.productService.patchProduct(this.editingProduct.id, body).subscribe({
@@ -220,6 +232,7 @@ export class ProductsComponent implements OnInit {
       }
     });
   }
+
 
   // ----------------- ACCIONES RÁPIDAS -----------------
 

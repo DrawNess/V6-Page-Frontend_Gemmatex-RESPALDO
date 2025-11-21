@@ -1,1 +1,374 @@
-<p>promo works!</p>
+<!-- src/app/domains/pages/MenuMarketing/promo/promo.component.html -->
+
+<section class="max-w-6xl mx-auto px-4 py-8 sm:py-10">
+  <!-- Header -->
+  <div class="mb-6 flex items-start justify-between gap-4">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Promociones (banners)</h1>
+      <p class="text-slate-600">
+        Administra los banners de promos que se muestran debajo del hero. Imagen recomendada: 1310 × 361 px.
+      </p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button
+        type="button"
+        class="inline-flex items-center rounded-lg border px-3 py-2 bg-white hover:bg-slate-50 text-sm"
+        (click)="loadPromos()">
+        Actualizar
+      </button>
+      <button
+        type="button"
+        class="inline-flex items-center rounded-lg bg-blue-600 px-3 py-2 text-sm text-white font-semibold hover:bg-blue-700"
+        (click)="openCreateModal()">
+        + Nueva promo
+      </button>
+    </div>
+  </div>
+
+  <!-- Mensajes -->
+  <div
+    *ngIf="error"
+    class="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-red-700">
+    {{ error }}
+  </div>
+
+  <div
+    *ngIf="success"
+    class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-emerald-700">
+    {{ success }}
+  </div>
+
+  <!-- Filtros -->
+  <div class="mb-3 flex flex-col sm:flex-row gap-3 sm:items-end sm:justify-between">
+    <div class="flex flex-col sm:flex-row sm:items-end gap-3 w-full">
+      <div class="w-full sm:max-w-xs">
+        <label class="block text-sm text-slate-700 mb-1">Buscar</label>
+        <input
+          type="search"
+          class="w-full rounded-lg border px-3 py-2"
+          [(ngModel)]="search"
+          (ngModelChange)="onSearchChange()"
+          placeholder="Título / descripción" />
+      </div>
+
+      <div class="flex items-center gap-2 mt-1">
+        <input
+          id="only-active-promos"
+          type="checkbox"
+          class="h-4 w-4 rounded border-slate-300 text-blue-600"
+          [(ngModel)]="showOnlyActive"
+          (change)="onToggleActiveFilter()" />
+        <label for="only-active-promos" class="text-sm text-slate-700">
+          Solo activas
+        </label>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="text-sm text-slate-500">Cargando…</div>
+  </div>
+
+  <!-- Tabla -->
+  <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <table class="min-w-full text-sm">
+      <thead class="bg-slate-50 text-slate-600">
+        <tr>
+          <th class="px-3 py-2 text-left">Orden</th>
+          <th class="px-3 py-2 text-left">Imagen</th>
+          <th class="px-3 py-2 text-left">Textos</th>
+          <th class="px-3 py-2 text-left">CTA / Destino</th>
+          <th class="px-3 py-2 text-left">Vigencia</th>
+          <th class="px-3 py-2 text-left">Estado</th>
+          <th class="px-3 py-2 text-left">Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          *ngFor="let p of filteredPromos; trackBy: trackByPromo"
+          class="border-t align-top">
+
+          <!-- Orden -->
+          <td class="px-3 py-2 text-slate-700">
+            {{ p.ordering || '—' }}
+          </td>
+
+          <!-- Imagen -->
+          <td class="px-3 py-2">
+            <div class="w-40">
+              <img
+                [src]="p.imageUrl"
+                [alt]="p.title || 'Promo'"
+                class="w-full h-20 object-cover rounded border"
+                (error)="onImgError($event)" />
+            </div>
+            <div class="mt-1 text-[11px] text-slate-400">
+              1310 × 361 px recomendado
+            </div>
+          </td>
+
+          <!-- Textos -->
+          <td class="px-3 py-2">
+            <div class="font-medium text-slate-900">
+              {{ p.title || 'Sin título' }}
+            </div>
+            <div class="mt-1 text-xs text-slate-600 line-clamp-3 max-w-xs">
+              {{ p.description || '' }}
+            </div>
+          </td>
+
+          <!-- CTA / Destino -->
+          <td class="px-3 py-2 text-xs text-slate-700">
+            <div>
+              <span class="font-semibold">Texto botón:</span>
+              {{ p.ctaLabel || '—' }}
+            </div>
+            <div class="break-all text-slate-500">
+              <span class="font-semibold">URL:</span>
+              {{ p.ctaUrl || '—' }}
+            </div>
+            <div class="mt-1 text-slate-500">
+              <span class="font-semibold">Producto ID:</span>
+              {{ p.hrefProductId || '—' }}
+            </div>
+          </td>
+
+          <!-- Vigencia -->
+          <td class="px-3 py-2 text-xs text-slate-700 whitespace-nowrap">
+            <div>
+              <span class="font-semibold">Inicio:</span> {{ p.startAt || '—' }}
+            </div>
+            <div>
+              <span class="font-semibold">Fin:</span> {{ p.endAt || '—' }}
+            </div>
+          </td>
+
+          <!-- Estado -->
+          <td class="px-3 py-2">
+            <span
+              class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+              [ngClass]="p.is_active
+                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                : 'bg-red-50 text-red-700 border border-red-200'">
+              {{ p.is_active ? 'Activa' : 'Inactiva' }}
+            </span>
+          </td>
+
+          <!-- Acciones -->
+          <td class="px-3 py-2">
+            <div class="flex flex-wrap gap-2">
+              <button
+                type="button"
+                class="rounded-lg border px-3 py-1.5 text-sm bg-white hover:bg-slate-50"
+                (click)="openEditModal(p)">
+                Editar
+              </button>
+
+              <button
+                type="button"
+                class="rounded-lg border px-3 py-1.5 text-sm bg-white hover:bg-slate-50"
+                (click)="toggleActive(p)">
+                {{ p.is_active ? 'Desactivar' : 'Activar' }}
+              </button>
+
+              <button
+                type="button"
+                class="rounded-lg border border-red-300 text-red-700 px-3 py-1.5 text-sm bg-white hover:bg-red-50"
+                (click)="deletePromo(p)">
+                Eliminar
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="!loading && !filteredPromos.length">
+          <td colspan="7" class="px-3 py-6 text-center text-slate-500">
+            No hay promociones para los filtros actuales.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- MODAL CREAR / EDITAR -->
+  <div
+    *ngIf="showModal"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+    <div class="w-full max-w-2xl rounded-2xl bg-white shadow-xl border border-slate-200 p-5 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-start justify-between gap-4 mb-3">
+        <div>
+          <h2 class="text-lg font-semibold text-slate-900">
+            {{ isCreating ? 'Nueva promoción' : 'Editar promoción' }}
+          </h2>
+          <p class="text-sm text-slate-500">
+            Define la imagen, los textos y el destino de la promoción.
+          </p>
+        </div>
+        <button
+          type="button"
+          class="inline-flex items-center rounded-lg border px-3 py-1.5 bg-white hover:bg-slate-50 text-sm"
+          (click)="closeModal()">
+          ✕
+        </button>
+      </div>
+
+      <form
+        [formGroup]="form"
+        (ngSubmit)="savePromo()"
+        class="grid grid-cols-1 gap-4">
+
+        <!-- Título -->
+        <div>
+          <label class="block text-sm text-slate-700 mb-1">Título</label>
+          <input
+            type="text"
+            class="w-full rounded-lg border px-3 py-2"
+            formControlName="title"
+            placeholder="Ej: Combo Epson F170 + tintas" />
+        </div>
+
+        <!-- Descripción -->
+        <div>
+          <label class="block text-sm text-slate-700 mb-1">Descripción</label>
+          <textarea
+            rows="3"
+            class="w-full rounded-lg border px-3 py-2 text-sm"
+            formControlName="description"
+            placeholder="Texto descriptivo de la promoción">
+          </textarea>
+        </div>
+
+        <!-- Imagen -->
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm text-slate-700 mb-1">
+              Imagen (URL) *
+            </label>
+            <input
+              type="url"
+              class="w-full rounded-lg border px-3 py-2"
+              formControlName="imageUrl"
+              placeholder="https://... (1310×361 px recomendado)" />
+            <div class="mt-2">
+              <img
+                *ngIf="form.get('imageUrl')?.value"
+                [src]="form.get('imageUrl')?.value"
+                (error)="onImgError($event)"
+                class="w-full h-24 object-cover rounded border"
+                alt="preview promo" />
+            </div>
+            <p class="mt-1 text-[11px] text-slate-500">
+              Usa imágenes horizontales (aprox. 1310 × 361 px).
+            </p>
+          </div>
+
+          <!-- CTA -->
+          <div class="space-y-3">
+            <div>
+              <label class="block text-sm text-slate-700 mb-1">Texto del botón (CTA)</label>
+              <input
+                type="text"
+                class="w-full rounded-lg border px-3 py-2"
+                formControlName="ctaLabel"
+                placeholder="Ej: Ver oferta" />
+            </div>
+
+            <div>
+              <label class="block text-sm text-slate-700 mb-1">URL (si no usas Producto ID)</label>
+              <input
+                type="url"
+                class="w-full rounded-lg border px-3 py-2"
+                formControlName="ctaUrl"
+                placeholder="https://tusitio.com/promo" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Apariencia -->
+        <div class="grid sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm text-slate-700 mb-1">Orden</label>
+            <input
+              type="number"
+              class="w-full rounded-lg border px-3 py-2"
+              formControlName="ordering" />
+          </div>
+
+          <div>
+            <label class="block text-sm text-slate-700 mb-1">Fondo (opcional)</label>
+            <input
+              type="text"
+              class="w-full rounded-lg border px-3 py-2"
+              formControlName="background"
+              placeholder="Ej: #000000 o bg-slate-900" />
+          </div>
+
+          <div>
+            <label class="block text-sm text-slate-700 mb-1">Color de texto</label>
+            <input
+              type="text"
+              class="w-full rounded-lg border px-3 py-2"
+              formControlName="textColor"
+              placeholder="Ej: #ffffff" />
+          </div>
+        </div>
+
+        <!-- Vigencia -->
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm text-slate-700 mb-1">Inicio de vigencia</label>
+            <input
+              type="date"
+              class="w-full rounded-lg border px-3 py-2"
+              formControlName="startAt" />
+          </div>
+
+          <div>
+            <label class="block text-sm text-slate-700 mb-1">Fin de vigencia</label>
+            <input
+              type="date"
+              class="w-full rounded-lg border px-3 py-2"
+              formControlName="endAt" />
+          </div>
+        </div>
+
+        <!-- Producto vinculado -->
+        <div>
+          <label class="block text-sm text-slate-700 mb-1">Producto vinculado (ID)</label>
+          <input
+            type="number"
+            class="w-full rounded-lg border px-3 py-2"
+            formControlName="hrefProductId"
+            placeholder="Si se llena, el click irá al producto" />
+        </div>
+
+        <!-- Estado -->
+        <div class="flex items-center gap-2 mt-1">
+          <input
+            id="promo-active"
+            type="checkbox"
+            class="h-4 w-4 rounded border-slate-300 text-blue-600"
+            formControlName="is_active" />
+          <label for="promo-active" class="text-sm text-slate-700">
+            Promoción activa
+          </label>
+        </div>
+
+        <!-- Botones -->
+        <div class="mt-3 flex justify-end gap-2">
+          <button
+            type="button"
+            class="inline-flex items-center justify-center rounded-lg border px-4 py-2 bg-white hover:bg-slate-50"
+            (click)="closeModal()">
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-white font-semibold hover:bg-blue-700 disabled:opacity-60"
+            [disabled]="form.invalid">
+            {{ isCreating ? 'Crear promo' : 'Guardar cambios' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>

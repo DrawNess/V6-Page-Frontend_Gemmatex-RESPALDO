@@ -1,3 +1,7 @@
+// src/app/domains/pages/Home/home.component.ts  (o inicio.component.ts)
+import { PromoService } from '@shared/services/promo.service';
+import { Promo } from '@shared/models/promo.model';
+
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject, signal, computed, ViewChild, ElementRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -155,11 +159,36 @@ export default class ListComponent implements OnInit, OnDestroy {
       .filter(a => !!a.is_active && this.isNowActive(a.startAt, a.endAt))
       .sort((a, b) => (a.ordering ?? 0) - (b.ordering ?? 0))
   );
+  bannerAnnouncements = computed(() =>
+    this.activeAnnouncements().filter(a => !!a.linkUrl)
+  );
+  @ViewChild('annBannerTrack', { read: ElementRef })
+  annBannerTrack?: ElementRef<HTMLDivElement>;
+  private scrollAnnBanners(direction: 'prev' | 'next') {
+    const el = this.annBannerTrack?.nativeElement;
+    if (!el) return;
+
+    // desplazamos un ancho de “slide” aprox
+    const cardWidth = el.clientWidth;
+    const delta = direction === 'next' ? cardWidth : -cardWidth;
+
+    el.scrollBy({ left: delta, behavior: 'smooth' });
+  }
+
+  prevAnnBanner() {
+    this.scrollAnnBanners('prev');
+  }
+
+  nextAnnBanner() {
+    this.scrollAnnBanners('next');
+  }
+
 
   /** label visible dentro del chip */
   annLabel(a: Announcement) {
     return (a.linkLabel && a.linkLabel.trim()) || a.title || 'Anuncio';
   }
+
 
   /** destino con prioridad: producto -> link externo -> sin link */
   annRouterLink(a: Announcement) {
@@ -170,7 +199,9 @@ export default class ListComponent implements OnInit, OnDestroy {
   }
 
   /** trackBy estable */
-  trackByAnn = (_: number, a: Announcement) => a.id ?? a.title ?? _;
+trackByAnn(_index: number, a: Announcement) {
+  return a.id;
+}
 
   /* =========================================== */
   /* ------ CARDS ALEATORIOS ------ */
@@ -247,6 +278,29 @@ export default class ListComponent implements OnInit, OnDestroy {
   }
 
   /* ============================== */
+  private promos = signal<Promo[]>([]);
+
+  // otras signals que ya tienes: slides, announcements, productos, etc.
+
+  readonly promosLoading = signal(false);
+  readonly promosError   = signal<string | null>(null);
+  readonly activePromos = computed(() => {
+    const now = new Date();
+    return this.promos().filter(p => {
+      if (!p.is_active) return false;
+
+      const startOk = !p.startAt || new Date(p.startAt) <= now;
+      const endOk   = !p.endAt   || new Date(p.endAt)   >= now;
+      return startOk && endOk;
+    }).sort((a, b) => {
+      const ao = a.ordering ?? 9999;
+      const bo = b.ordering ?? 9999;
+      return ao - bo;
+    });
+  });
+
+  // índice del slide de promo visible
+  readonly currentPromo = signal(0);
 
 }
 
