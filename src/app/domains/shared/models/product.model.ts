@@ -21,12 +21,12 @@ export interface Product {
   discountPrice: number;
   sku: string;
   stock: number;
-  unitOfMeasure: number;
-  dimensions: number;
+  unitOfMeasure: string;
+  dimensions: string;
   tags: string[];
   is_active: boolean;
   created_at: string;
   updated_at: string;
-  subcategory: Subcategory;
+  subcategory?: Subcategory;
   /* category: 1; */
 }

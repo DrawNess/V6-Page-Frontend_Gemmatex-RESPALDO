@@ -172,8 +172,6 @@ export default class ListComponent implements OnInit, OnDestroy {
   /** trackBy estable */
   trackByAnn = (_: number, a: Announcement) => a.id ?? a.title ?? _;
 
- 
-
   /* =========================================== */
   /* ------ CARDS ALEATORIOS ------ */
 
@@ -249,7 +247,7 @@ export default class ListComponent implements OnInit, OnDestroy {
   }
 
   /* ============================== */
-  
+
 }
 
 
