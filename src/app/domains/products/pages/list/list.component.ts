@@ -38,10 +38,33 @@ export default class ListComponent implements OnInit, OnDestroy {
   // autoplay más calmado
   private timer: any = null;
   private readonly intervalMs = 9000;
+    /* ========== PROMOS (banners debajo del hero) ========== */
+  private promoService = inject(PromoService);
+  private promos = signal<Promo[]>([]);
+
+  readonly promosLoading = signal(false);
+  readonly promosError   = signal<string | null>(null);
+
+  readonly activePromos = computed(() => {
+    const now = new Date();
+    return this.promos().filter(p => {
+      if (!p.is_active) return false;
+      const startOk = !p.startAt || new Date(p.startAt) <= now;
+      const endOk   = !p.endAt   || new Date(p.endAt)   >= now;
+      return startOk && endOk;
+    }).sort((a, b) => {
+      const ao = a.ordering ?? 9999;
+      const bo = b.ordering ?? 9999;
+      return ao - bo;
+    });
+  });
+
+  readonly currentPromo = signal(0);
 
 
   /* NG ON INIT */
   ngOnInit() {
+    // HERO SLIDES
     this.heroSrv.getAll().subscribe({
       next: (items) => {
         const now = new Date();
@@ -88,6 +111,9 @@ export default class ListComponent implements OnInit, OnDestroy {
     // autoplay opcional:
     // this.resumeAutoplayRandom();
     /* =============== */
+
+    // PROMOS
+    this.loadPromos();
   }
 
   /* NG ON DESTROY */
@@ -100,7 +126,7 @@ export default class ListComponent implements OnInit, OnDestroy {
     /* =============== */
   }
 
-  /** autoplay */
+  /** HERO AUTOPLAY Y NAVEGACION */
   private start() {
     this.stop();
     if (this.slides().length <= 1) return;
@@ -133,19 +159,20 @@ export default class ListComponent implements OnInit, OnDestroy {
   imgDesktop(s: HeroSlide) { return s.imageUrl; }
   imgMobile(s: HeroSlide)  { return s.mobileImageUrl }
   cta(s: HeroSlide)        { return s.ctaUrl || null; } // SOLO ctaUrl, sin texto overlay
-
-
-
-
   /* =========================================== */
 
+  // ANNNOUNCEMENTS
   private annService = inject(AnnouncementService);
 
   // estado
   announcements = signal<Announcement[]>([]);
 
 
-  /** vigencia: activo y dentro de rango de fechas */
+  /* VIGENCIA: activo y dentro de rango de fechas
+   * @param startAt fecha inicio (ISO) o null
+   * @param endAt fecha fin (ISO) o null
+   * @return true si ahora está dentro del rango
+  */
   private isNowActive(startAt?: string | null, endAt?: string | null): boolean {
     const now = new Date();
     const startOk = !startAt || new Date(startAt) <= now;
@@ -153,7 +180,10 @@ export default class ListComponent implements OnInit, OnDestroy {
     return startOk && endOk;
   }
 
-  /** lista final mostrable (ordenada por ordering asc) */
+  /* LISTA FINAL
+   * Anuncios activos y ordenados
+   * ORDENADOS POR ordering ASC
+  */
   activeAnnouncements = computed(() =>
     (this.announcements() ?? [])
       .filter(a => !!a.is_active && this.isNowActive(a.startAt, a.endAt))
@@ -167,7 +197,6 @@ export default class ListComponent implements OnInit, OnDestroy {
   private scrollAnnBanners(direction: 'prev' | 'next') {
     const el = this.annBannerTrack?.nativeElement;
     if (!el) return;
-
     // desplazamos un ancho de “slide” aprox
     const cardWidth = el.clientWidth;
     const delta = direction === 'next' ? cardWidth : -cardWidth;
@@ -183,13 +212,11 @@ export default class ListComponent implements OnInit, OnDestroy {
     this.scrollAnnBanners('next');
   }
 
-
+  // ANNOUNCEMENT HELPERS
   /** label visible dentro del chip */
   annLabel(a: Announcement) {
     return (a.linkLabel && a.linkLabel.trim()) || a.title || 'Anuncio';
   }
-
-
   /** destino con prioridad: producto -> link externo -> sin link */
   annRouterLink(a: Announcement) {
     return a.hrefProductId ? ['/product', a.hrefProductId] : null;
@@ -197,15 +224,12 @@ export default class ListComponent implements OnInit, OnDestroy {
   annHref(a: Announcement) {
     return !a.hrefProductId && a.linkUrl ? a.linkUrl : null;
   }
-
   /** trackBy estable */
-trackByAnn(_index: number, a: Announcement) {
-  return a.id;
-}
-
+  trackByAnn(_index: number, a: Announcement) {
+    return a.id;
+  }
   /* =========================================== */
-  /* ------ CARDS ALEATORIOS ------ */
-
+  /* ------ CARDS ALEATORIOS (Random products) ------ */
   private productService = inject(ProductService);
   private cartService = inject(CartService);
 
@@ -269,7 +293,9 @@ trackByAnn(_index: number, a: Announcement) {
   }
 
   pauseAutoplayRandom() {
-    if (this.randomTimer) { clearInterval(this.randomTimer); this.randomTimer = null; }
+    if (this.randomTimer) {
+      clearInterval(this.randomTimer);
+      this.randomTimer = null; }
   }
 
   private restartAutoplayRandom() {
@@ -278,30 +304,61 @@ trackByAnn(_index: number, a: Announcement) {
   }
 
   /* ============================== */
-  private promos = signal<Promo[]>([]);
+  private loadPromos() {
+    this.promosLoading.set(true);
+    this.promosError.set(null);
 
-  // otras signals que ya tienes: slides, announcements, productos, etc.
-
-  readonly promosLoading = signal(false);
-  readonly promosError   = signal<string | null>(null);
-  readonly activePromos = computed(() => {
-    const now = new Date();
-    return this.promos().filter(p => {
-      if (!p.is_active) return false;
-
-      const startOk = !p.startAt || new Date(p.startAt) <= now;
-      const endOk   = !p.endAt   || new Date(p.endAt)   >= now;
-      return startOk && endOk;
-    }).sort((a, b) => {
-      const ao = a.ordering ?? 9999;
-      const bo = b.ordering ?? 9999;
-      return ao - bo;
+    this.promoService.getAll().subscribe({
+      next: (items) => {
+        this.promos.set(items ?? []);
+        this.promosLoading.set(false);
+        if (this.currentPromo() >= this.activePromos().length) {
+          this.currentPromo.set(0);
+        }
+      },
+      error: (err) => {
+        console.error('Error cargando promos', err);
+        this.promosError.set('No se pudieron cargar las promociones.');
+        this.promosLoading.set(false);
+      }
     });
-  });
+  }
 
-  // índice del slide de promo visible
-  readonly currentPromo = signal(0);
+  nextPromo() {
+    const n = this.activePromos().length;
+    if (!n) return;
+    this.currentPromo.set((this.currentPromo() + 1) % n);
+  }
 
+  prevPromo() {
+    const n = this.activePromos().length;
+    if (!n) return;
+    this.currentPromo.set((this.currentPromo() - 1 + n) % n);
+  }
+
+  goPromo(i: number) {
+    const n = this.activePromos().length;
+    if (!n) return;
+    if (i < 0 || i >= n) return;
+    this.currentPromo.set(i);
+  }
+
+  promoRouterLink(p: Promo) {
+    if (p.hrefProductId) {
+      // ajusta si tu ruta es /productos/:id
+      return ['/product', p.hrefProductId];
+    }
+    if (p.ctaUrl && p.ctaUrl.startsWith('/')) {
+      return [p.ctaUrl];
+    }
+    return null;
+  }
+
+  promoHref(p: Promo): string | null {
+    if (p.hrefProductId) return null;
+    if (p.ctaUrl && !p.ctaUrl.startsWith('/')) return p.ctaUrl;
+    return null;
+  }
 }
 
 

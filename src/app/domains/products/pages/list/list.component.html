@@ -74,39 +74,98 @@
 </section>
 
 <!-- ================= ANUNCIOS (barra)-ANNOUNCEMENTS ================= -->
-<section *ngIf="activeAnnouncements().length" class="w-full bg-inheritborder-y border-slate-200">
-  <div class="mx-auto max-w-7xl px-4 py-3">
-    <div class="flex gap-2 overflow-x-auto no-scrollbar">
-      <ng-container *ngFor="let a of activeAnnouncements(); trackBy: trackByAnn">
-        <ng-container *ngIf="annRouterLink(a) as rlink; else extAnn">
-          <a [routerLink]="rlink"
-             class="shrink-0 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium border transition hover:opacity-90"
-             [ngStyle]="{ 'background': a.background || '#EAF1FF', 'color': a.textColor || '#0B1A7A', 'borderColor': '#cfe0ff' }"
-             [title]="a.description || annLabel(a)">
-            <span class="inline-block h-2 w-2 rounded-full bg-current opacity-70"></span>
-            {{ annLabel(a) }}
-          </a>
+<section *ngIf="activeAnnouncements().length"
+         class="w-full border-y border-slate-200
+                bg-gradient-to-r from-slate-50 via-white to-slate-50">
+  <div class="mx-auto max-w-7xl px-4 py-2.5 sm:py-3">
+    <div class="flex items-center gap-3">
+
+      <!-- Etiqueta "Novedades" minimalista -->
+    <!--   <div class="hidden sm:inline-flex items-center gap-1.5
+                  rounded-full bg-slate-900/5 px-3 py-1
+                  text-[11px] font-semibold text-slate-700 uppercase tracking-[0.14em]">
+        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        Novedades
+      </div>
+ -->
+      <!-- Carrusel horizontal de anuncios -->
+      <div class="flex-1 flex gap-2 overflow-x-auto no-scrollbar">
+        <ng-container *ngFor="let a of activeAnnouncements(); trackBy: trackByAnn">
+
+          <!-- Link interno (routerLink) -->
+          <ng-container *ngIf="annRouterLink(a) as rlink; else extAnn">
+            <a [routerLink]="rlink"
+               class="shrink-0 inline-flex items-center gap-2
+                      rounded-full border px-3.5 py-1.5
+                      text-xs sm:text-sm font-medium
+                      bg-white/90 hover:bg-white
+                      text-slate-800 hover:text-slate-900
+                      shadow-sm hover:shadow
+                      transition-all duration-150"
+               [ngStyle]="{
+                 'background': a.background || '#EAF1FF',
+                 'color': a.textColor || '#0B1A7A',
+                 'borderColor': '#cfe0ff'
+               }"
+               [title]="a.description || annLabel(a)">
+              <span class="h-1.5 w-1.5 rounded-full bg-current opacity-80"></span>
+              <span class="line-clamp-1">
+                {{ annLabel(a) }}
+              </span>
+            </a>
+          </ng-container>
+
+          <!-- Link externo o sin link -->
+          <ng-template #extAnn>
+            <a *ngIf="annHref(a) as href"
+               [href]="href" target="_blank" rel="noopener"
+               class="shrink-0 inline-flex items-center gap-2
+                      rounded-full border px-3.5 py-1.5
+                      text-xs sm:text-sm font-medium
+                      bg-white/90 hover:bg-white
+                      text-slate-800 hover:text-slate-900
+                      shadow-sm hover:shadow
+                      transition-all duration-150"
+               [ngStyle]="{
+                 'background': a.background || '#EAF1FF',
+                 'color': a.textColor || '#0B1A7A',
+                 'borderColor': '#cfe0ff'
+               }"
+               [title]="a.description || annLabel(a)">
+              <span class="h-1.5 w-1.5 rounded-full bg-current opacity-80"></span>
+              <span class="line-clamp-1">
+                {{ annLabel(a) }}
+              </span>
+            </a>
+
+            <span *ngIf="!annHref(a)"
+                  class="shrink-0 inline-flex items-center gap-2
+                         rounded-full border px-3.5 py-1.5
+                         text-xs sm:text-sm font-medium
+                         bg-white/90
+                         text-slate-800
+                         shadow-sm
+                         transition-all duration-150"
+                  [ngStyle]="{
+                    'background': a.background || '#EAF1FF',
+                    'color': a.textColor || '#0B1A7A',
+                    'borderColor': '#cfe0ff'
+                  }"
+                  [title]="a.description || annLabel(a)">
+              <span class="h-1.5 w-1.5 rounded-full bg-current opacity-80"></span>
+              <span class="line-clamp-1">
+                {{ annLabel(a) }}
+              </span>
+            </span>
+          </ng-template>
+
         </ng-container>
-        <ng-template #extAnn>
-          <a *ngIf="annHref(a) as href" [href]="href" target="_blank" rel="noopener"
-             class="shrink-0 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium border transition hover:opacity-90"
-             [ngStyle]="{ 'background': a.background || '#EAF1FF', 'color': a.textColor || '#0B1A7A', 'borderColor': '#cfe0ff' }"
-             [title]="a.description || annLabel(a)">
-            <span class="inline-block h-2 w-2 rounded-full bg-current opacity-70"></span>
-            {{ annLabel(a) }}
-          </a>
-          <span *ngIf="!annHref(a)"
-                class="shrink-0 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium border"
-                [ngStyle]="{ 'background': a.background || '#EAF1FF', 'color': a.textColor || '#0B1A7A', 'borderColor': '#cfe0ff' }"
-                [title]="a.description || annLabel(a)">
-            <span class="inline-block h-2 w-2 rounded-full bg-current opacity-70"></span>
-            {{ annLabel(a) }}
-          </span>
-        </ng-template>
-      </ng-container>
+      </div>
+
     </div>
   </div>
 </section>
+
 <!-- ======================================================================================================== -->
  <!-- CARDS ALEATORIOS DE PRODUCTOS -->
 <section id="novedades" class="w-full bg-white">
@@ -171,8 +230,149 @@
 <!-- ANNOUNCEMENTS -->
 <!-- ================= OFERTAS (banners de announcements) ================= -->
 
+<!-- ================= PROMOS (banners largos debajo del hero) ================= -->
 
+<!-- Error específico de promos (si falla la carga) -->
+<div *ngIf="promosError()" class="mx-auto max-w-7xl px-4 pt-4 text-center text-sm text-red-600">
+  {{ promosError() }}
+</div>
 
+<section *ngIf="!promosLoading() && activePromos().length"
+         class="w-full bg-slate-900">
+  <div class="mx-auto max-w-7xl px-0 sm:px-4 py-4 sm:py-6">
+    <div class="relative w-full
+                h-[220px] sm:h-[260px] md:h-[320px] lg:h-[360px]
+                rounded-none sm:rounded-2xl overflow-hidden shadow-lg">
+
+      <!-- Slides de promo -->
+      <div class="absolute inset-0">
+        <ng-container *ngFor="let p of activePromos(); let i = index">
+          <div class="absolute inset-0 transition-opacity duration-700 ease-out"
+               [class.opacity-100]="i === currentPromo()"
+               [class.opacity-0]="i !== currentPromo()">
+
+            <!-- Caso routerLink interno -->
+            <ng-container *ngIf="promoRouterLink(p) as rlink; else promoLinkExtOrStatic">
+              <a [routerLink]="rlink"
+                 class="block h-full w-full relative group"
+                 [attr.aria-label]="p.title || 'Ver promoción'">
+                <img
+                  [src]="p.imageUrl"
+                  [alt]="p.title || 'Promoción'"
+                  class="h-full w-full object-cover"
+                  loading="lazy" />
+
+                <!-- Overlay de texto opcional -->
+                <div *ngIf="p.title || p.description || p.ctaLabel"
+                     class="absolute inset-x-3 sm:inset-x-6 bottom-3 sm:bottom-4
+                            rounded-xl bg-black/55 backdrop-blur-sm
+                            px-3 sm:px-4 py-2 sm:py-3 text-white">
+                  <h3 class="text-sm sm:text-base font-semibold line-clamp-1">
+                    {{ p.title || 'Promoción' }}
+                  </h3>
+                  <p *ngIf="p.description"
+                     class="mt-0.5 text-xs sm:text-sm text-slate-100/90 line-clamp-2">
+                    {{ p.description }}
+                  </p>
+<!--                   <span *ngIf="p.ctaLabel"
+                        class="mt-1 inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold text-emerald-200">
+                    {{ p.ctaLabel }}
+                    <span aria-hidden="true">›</span>
+                  </span> -->
+                </div>
+              </a>
+            </ng-container>
+
+            <!-- Caso href externo o solo imagen -->
+            <ng-template #promoLinkExtOrStatic>
+              <a *ngIf="promoHref(p) as href"
+                 [href]="href"
+                 target="_blank"
+                 rel="noopener"
+                 class="block h-full w-full relative group"
+                 [attr.aria-label]="p.title || 'Ver promoción'">
+                <img
+                  [src]="p.imageUrl"
+                  [alt]="p.title || 'Promoción'"
+                  class="h-full w-full object-cover"
+                  loading="lazy" />
+
+                <div *ngIf="p.title || p.description || p.ctaLabel"
+                     class="absolute inset-x-3 sm:inset-x-6 bottom-3 sm:bottom-4
+                            rounded-xl bg-black/55 backdrop-blur-sm
+                            px-3 sm:px-4 py-2 sm:py-3 text-white">
+                  <h3 class="text-sm sm:text-base font-semibold line-clamp-1">
+                    {{ p.title || 'Promoción' }}
+                  </h3>
+                  <p *ngIf="p.description"
+                     class="mt-0.5 text-xs sm:text-sm text-slate-100/90 line-clamp-2">
+                    {{ p.description }}
+                  </p>
+                  <span *ngIf="p.ctaLabel"
+                        class="mt-1 inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold text-emerald-200">
+                    {{ p.ctaLabel }}
+                    <span aria-hidden="true">›</span>
+                  </span>
+                </div>
+              </a>
+
+              <div *ngIf="!promoHref(p)"
+                   class="block h-full w-full relative">
+                <img
+                  [src]="p.imageUrl"
+                  [alt]="p.title || 'Promoción'"
+                  class="h-full w-full object-cover"
+                  loading="lazy" />
+
+                <div *ngIf="p.title || p.description"
+                     class="absolute inset-x-3 sm:inset-x-6 bottom-3 sm:bottom-4
+                            rounded-xl bg-black/55 backdrop-blur-sm
+                            px-3 sm:px-4 py-2 sm:py-3 text-white">
+                  <h3 class="text-sm sm:text-base font-semibold line-clamp-1">
+                    {{ p.title || 'Promoción' }}
+                  </h3>
+                  <p *ngIf="p.description"
+                     class="mt-0.5 text-xs sm:text-sm text-slate-100/90 line-clamp-2">
+                    {{ p.description }}
+                  </p>
+                </div>
+              </div>
+            </ng-template>
+          </div>
+        </ng-container>
+      </div>
+
+      <!-- Flechas -->
+      <button type="button"
+              class="hidden sm:grid place-items-center absolute left-3 sm:left-4 top-1/2 -translate-y-1/2
+                     h-10 w-10 rounded-full bg-white/90 hover:bg-white shadow"
+              (click)="prevPromo()"
+              aria-label="Promo anterior">
+        ‹
+      </button>
+
+      <button type="button"
+              class="hidden sm:grid place-items-center absolute right-3 sm:right-4 top-1/2 -translate-y-1/2
+                     h-10 w-10 rounded-full bg-white/90 hover:bg-white shadow"
+              (click)="nextPromo()"
+              aria-label="Siguiente promo">
+        ›
+      </button>
+
+      <!-- Dots -->
+      <div class="absolute bottom-2 sm:bottom-3 inset-x-0 flex justify-center gap-2">
+        <ng-container *ngFor="let _ of activePromos(); let i = index">
+          <button type="button"
+                  class="h-2.5 w-2.5 rounded-full transition"
+                  [ngClass]="i === currentPromo() ? 'bg-white' : 'bg-white/40'"
+                  (click)="goPromo(i)"
+                  [attr.aria-label]="'Ir a la promo ' + (i + 1)">
+          </button>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- ======================================================================================================== -->
 
