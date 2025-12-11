@@ -37,11 +37,10 @@ type EditOffer = Partial<Omit<Offer, 'galleryUrls' | 'tags'>> & {
   tags?: string;
 };
 @Component({
-  selector: 'app-offers-menu',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
-  templateUrl: './offers-menu.component.html',
-  styleUrl: './offers-menu.component.css'
+    selector: 'app-offers-menu',
+    imports: [CommonModule, FormsModule, RouterLink],
+    templateUrl: './offers-menu.component.html',
+    styleUrl: './offers-menu.component.css'
 })
 export class OffersMenuComponent implements OnInit {
 

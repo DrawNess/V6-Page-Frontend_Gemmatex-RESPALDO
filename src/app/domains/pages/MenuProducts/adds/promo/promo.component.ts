@@ -12,11 +12,10 @@ import {
 import { PromoService } from '@shared/services/promo.service';
 import { Promo } from '@shared/models/promo.model';
 @Component({
-  selector: 'app-promo',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
-  templateUrl: './promo.component.html',
-  styleUrl: './promo.component.css'
+    selector: 'app-promo',
+    imports: [CommonModule, FormsModule, ReactiveFormsModule],
+    templateUrl: './promo.component.html',
+    styleUrl: './promo.component.css'
 })
 export class PromoComponent implements OnInit {
     promos: Promo[] = [];

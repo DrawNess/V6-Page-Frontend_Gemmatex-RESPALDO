@@ -11,11 +11,10 @@ type Video = {
 };
 
 @Component({
-  selector: 'app-perfiles-de-color',
-  standalone: true,
-  imports: [CommonModule, RouterLink],
-  templateUrl: './perfiles-de-color.component.html',
-  styleUrl: './perfiles-de-color.component.css'
+    selector: 'app-perfiles-de-color',
+    imports: [CommonModule, RouterLink],
+    templateUrl: './perfiles-de-color.component.html',
+    styleUrl: './perfiles-de-color.component.css'
 })
 export class PerfilesDeColorComponent {
 

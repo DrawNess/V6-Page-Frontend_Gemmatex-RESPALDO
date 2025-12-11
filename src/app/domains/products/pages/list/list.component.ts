@@ -18,11 +18,10 @@ import { ProductComponent } from '@products/components/product/product.component
 
 
 @Component({
-  selector: 'app-list',
-  standalone: true,
-  imports: [CommonModule, RouterLink, ProductComponent],
-  templateUrl: './list.component.html',
-  styleUrls: ['./list.component.css']
+    selector: 'app-list',
+    imports: [CommonModule, RouterLink, ProductComponent],
+    templateUrl: './list.component.html',
+    styleUrls: ['./list.component.css']
 })
 
 export default class ListComponent implements OnInit, OnDestroy {

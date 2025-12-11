@@ -12,11 +12,10 @@ type Servicio = {
 };
 
 @Component({
-  selector: 'app-servicios-main',
-  standalone: true,
-  imports: [CommonModule, RouterLink],
-  templateUrl: './servicios-main.component.html',
-  styleUrl: './servicios-main.component.css'
+    selector: 'app-servicios-main',
+    imports: [CommonModule, RouterLink],
+    templateUrl: './servicios-main.component.html',
+    styleUrl: './servicios-main.component.css'
 })
 export class ServiciosMainComponent {
   hero = {

@@ -25,11 +25,10 @@ type NewSubcategory = {
 };
 
 @Component({
-  selector: 'app-subcategories',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
-  templateUrl: './subcategories.component.html',
-  styleUrl: './subcategories.component.css'
+    selector: 'app-subcategories',
+    imports: [CommonModule, FormsModule, RouterLink],
+    templateUrl: './subcategories.component.html',
+    styleUrl: './subcategories.component.css'
 })
 export class SubcategoriesComponent implements OnInit {
 

@@ -8,11 +8,10 @@ import { Product } from '@shared/models/product.model';
 type Branch = { id: string; name: string; phone: string; address?: string };
 
 @Component({
-  selector: 'app-checkout',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
-  templateUrl: './checkout.component.html',
-  styleUrl: './checkout.component.css'
+    selector: 'app-checkout',
+    imports: [CommonModule, FormsModule, RouterLink],
+    templateUrl: './checkout.component.html',
+    styleUrl: './checkout.component.css'
 })
 export class CheckoutComponent {
 

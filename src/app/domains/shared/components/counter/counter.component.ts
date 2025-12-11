@@ -2,11 +2,10 @@ import { Component, Input, SimpleChanges, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-counter',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './counter.component.html',
-  styleUrls: ['./counter.component.css']
+    selector: 'app-counter',
+    imports: [CommonModule],
+    templateUrl: './counter.component.html',
+    styleUrls: ['./counter.component.css']
 })
 export class CounterComponent {
   @Input({required: true}) duration = 0;

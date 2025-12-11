@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+/* import { RouterLink } from '@angular/router'; */
 import { HttpClient } from '@angular/common/http';
 
 import { OfferService } from '@shared/services/offer.service';
@@ -14,11 +14,10 @@ type Category = { id: number; name: string; slug?: string };
 type Subcategory = { id: number; name: string; slug?: string; categoryId?: number };
 
 @Component({
-  selector: 'app-offers',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
-  templateUrl: './offers.component.html',
-  styleUrl: './offers.component.css'
+    selector: 'app-offers',
+    imports: [CommonModule, FormsModule],
+    templateUrl: './offers.component.html',
+    styleUrl: './offers.component.css'
 })
 export class OffersComponent {
 private offerService = inject(OfferService);

@@ -18,11 +18,10 @@ type HeaderSubcategory = { id: number; name: string; slug?: string };
 
 
 @Component({
-  selector: 'app-header',
-  standalone: true,
-  imports: [CommonModule, RouterLinkWithHref, RouterLinkActive],
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css']
+    selector: 'app-header',
+    imports: [CommonModule, RouterLinkWithHref, RouterLinkActive],
+    templateUrl: './header.component.html',
+    styleUrls: ['./header.component.css']
 })
 export class HeaderComponent {
 

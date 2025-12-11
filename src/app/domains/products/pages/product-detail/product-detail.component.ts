@@ -6,11 +6,10 @@ import { CartService } from '@shared/services/cart.service';
 import { ProductComponent } from '@products/components/product/product.component';
 
 @Component({
-  selector: 'app-product-detail',
-  standalone: true,
-  imports: [CommonModule, ProductComponent],
-  templateUrl: './product-detail.component.html',
-  styleUrls: ['./product-detail.component.css']
+    selector: 'app-product-detail',
+    imports: [CommonModule, ProductComponent],
+    templateUrl: './product-detail.component.html',
+    styleUrls: ['./product-detail.component.css']
 })
 export default class ProductDetailComponent implements OnInit, OnChanges{
 @Input() id?: string;

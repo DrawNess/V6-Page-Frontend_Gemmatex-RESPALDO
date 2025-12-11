@@ -6,11 +6,10 @@ type MenuLink = { to: string | any[]; label: string; desc: string; icon: 'box'|'
 
 type LinkItem = { to: string; label: string; desc: string; emoji?: string };
 @Component({
-  selector: 'app-menu',
-  standalone: true,
-  imports: [CommonModule, RouterLink],
-  templateUrl: './menu.component.html',
-  styleUrl: './menu.component.css'
+    selector: 'app-menu',
+    imports: [CommonModule, RouterLink],
+    templateUrl: './menu.component.html',
+    styleUrl: './menu.component.css'
 })
 export class MenuComponent {
 

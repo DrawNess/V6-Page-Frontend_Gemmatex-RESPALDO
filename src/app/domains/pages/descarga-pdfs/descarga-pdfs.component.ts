@@ -5,11 +5,10 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 type PdfDoc = { file: string; title?: string; brand?: 'EPSON'|'FREESUB'|'GX'|'VINILES'|'SERIGRAFIA'|'AGABE'|'DTF-UV'|'OTROS'; image?: string; };
 
 @Component({
-  selector: 'app-descarga-pdfs',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './descarga-pdfs.component.html',
-  styleUrl: './descarga-pdfs.component.css'
+    selector: 'app-descarga-pdfs',
+    imports: [CommonModule],
+    templateUrl: './descarga-pdfs.component.html',
+    styleUrl: './descarga-pdfs.component.css'
 })
 export class DescargaPdfsComponent {
   private sanitizer = inject(DomSanitizer);

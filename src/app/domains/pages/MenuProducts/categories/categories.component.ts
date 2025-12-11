@@ -14,11 +14,10 @@ type NewCategory = {
 };
 
 @Component({
-  selector: 'app-categories',
-  standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
-  templateUrl: './categories.component.html',
-  styleUrl: './categories.component.css'
+    selector: 'app-categories',
+    imports: [CommonModule, RouterLink, FormsModule],
+    templateUrl: './categories.component.html',
+    styleUrl: './categories.component.css'
 })
 export class CategoriesComponent {
   private http = inject(HttpClient);

@@ -4,11 +4,10 @@ import { RouterLinkWithHref } from '@angular/router';
 import { Product } from '@shared/models/product.model';
 
 @Component({
-  selector: 'app-product',
-  standalone: true,
-  imports: [CommonModule, RouterLinkWithHref],
-  templateUrl: './product.component.html',
-  styleUrls: ['./product.component.css']
+    selector: 'app-product',
+    imports: [CommonModule, RouterLinkWithHref],
+    templateUrl: './product.component.html',
+    styleUrls: ['./product.component.css']
 })
 export class ProductComponent {
   @Input({ required: true }) product!: Product;

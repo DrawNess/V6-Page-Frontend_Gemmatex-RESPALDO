@@ -13,11 +13,10 @@ import { AnnouncementService } from '@shared/services/announcement.service';
 import { Announcement } from '@shared/models/announcement.model';
 
 @Component({
-  selector: 'app-offers-adds',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
-  templateUrl: './offers-adds.component.html',
-  styleUrl: './offers-adds.component.css'
+    selector: 'app-offers-adds',
+    imports: [CommonModule, FormsModule, ReactiveFormsModule],
+    templateUrl: './offers-adds.component.html',
+    styleUrl: './offers-adds.component.css'
 })
 export class OffersAddsComponent {
   announcements: Announcement[] = [];

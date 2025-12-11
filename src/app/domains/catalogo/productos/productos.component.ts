@@ -10,11 +10,10 @@ import { SubcategoryService } from '@shared/services/subcategory.service';
 import { Subcategory } from '@shared/models/subcategory.model';
 
 @Component({
-  selector: 'app-productos',
-  standalone: true,
-  imports: [CommonModule, ProductComponent],
-  templateUrl: './productos.component.html',
-  styleUrl: './productos.component.css'
+    selector: 'app-productos',
+    imports: [CommonModule, ProductComponent],
+    templateUrl: './productos.component.html',
+    styleUrl: './productos.component.css'
 })
 
 export class ProductosComponent {

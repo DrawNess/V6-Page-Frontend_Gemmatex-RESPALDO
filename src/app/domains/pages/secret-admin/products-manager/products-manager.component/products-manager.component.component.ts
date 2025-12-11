@@ -7,11 +7,10 @@ import { Product } from '@shared/models/product.model';
 import { SECRET_BASE } from './../../../../../app.routes';
 
 @Component({
-  selector: 'app-products-manager.component',
-  standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule],
-  templateUrl: './products-manager.component.component.html',
-  styleUrl: './products-manager.component.component.css'
+    selector: 'app-products-manager.component',
+    imports: [CommonModule, RouterLink, ReactiveFormsModule],
+    templateUrl: './products-manager.component.component.html',
+    styleUrl: './products-manager.component.component.css'
 })
 export class ProductsManagerComponentComponent {
 

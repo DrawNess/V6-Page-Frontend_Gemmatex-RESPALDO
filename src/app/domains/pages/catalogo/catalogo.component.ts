@@ -1,6 +1,6 @@
 import { Component, Input, SimpleChanges, inject, signal, ElementRef, ViewChild , computed} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLinkWithHref, ActivatedRoute } from '@angular/router';
+/* import { RouterLinkWithHref, ActivatedRoute } from '@angular/router'; */
 import { ProductComponent } from '@products/components/product/product.component';
 import { Product } from '@shared/models/product.model';
 import { CartService } from '@shared/services/cart.service';
@@ -16,11 +16,10 @@ type PdfDoc = { file: string; title?: string };
 
 
 @Component({
-  selector: 'app-catalogo',
-  standalone: true,
-  imports: [CommonModule, ProductComponent, RouterLinkWithHref],
-  templateUrl: './catalogo.component.html',
-  styleUrl: './catalogo.component.css'
+    selector: 'app-catalogo',
+    imports: [CommonModule, ProductComponent],
+    templateUrl: './catalogo.component.html',
+    styleUrl: './catalogo.component.css'
 })
 export class CatalogoComponent {
   products = signal<Product[]>([]);
@@ -132,7 +131,7 @@ export class CatalogoComponent {
     return this.activeSub() === label;
   }
 
-  
+
 
 
   // productos filtrados finales (texto + categorías + subcategoría manual)
@@ -174,7 +173,7 @@ filteredProducts = computed<Product[]>(() => {
   });
 });
 
-  
+
   // handlers existentes
   onSearch(ev: Event) {
     const val = (ev.target as HTMLInputElement)?.value ?? '';
@@ -317,7 +316,7 @@ clearGx() {
         : 'Formato Pequeño';
   }
 
-  
+
 
 
 

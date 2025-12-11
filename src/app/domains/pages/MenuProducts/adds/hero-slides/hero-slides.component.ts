@@ -13,11 +13,10 @@ import { HeroSlideService } from '@shared/services/hero-slide.service';
 import { HeroSlide } from '@shared/models/hero-slide.model';
 
 @Component({
-  selector: 'app-hero-slides',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
-  templateUrl: './hero-slides.component.html',
-  styleUrl: './hero-slides.component.css'
+    selector: 'app-hero-slides',
+    imports: [CommonModule, FormsModule, ReactiveFormsModule],
+    templateUrl: './hero-slides.component.html',
+    styleUrl: './hero-slides.component.css'
 })
 export class HeroSlidesComponent {
     slides: HeroSlide[] = [];

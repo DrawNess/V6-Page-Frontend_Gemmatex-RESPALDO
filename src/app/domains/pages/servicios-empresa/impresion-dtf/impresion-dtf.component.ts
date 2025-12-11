@@ -7,11 +7,10 @@ type Item = { titulo: string; detalle: string; };
 type Faq = { q: string; a: string; };
 
 @Component({
-  selector: 'app-impresion-dtf',
-  standalone: true,
-  imports: [CommonModule, RouterLink],
-  templateUrl: './impresion-dtf.component.html',
-  styleUrl: './impresion-dtf.component.css'
+    selector: 'app-impresion-dtf',
+    imports: [CommonModule, RouterLink],
+    templateUrl: './impresion-dtf.component.html',
+    styleUrl: './impresion-dtf.component.css'
 })
 export class ImpresionDTFComponent {
    hero = {

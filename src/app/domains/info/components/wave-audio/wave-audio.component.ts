@@ -4,11 +4,10 @@ import { CommonModule } from '@angular/common';
 import WaveSurfer from 'wavesurfer.js';
 
 @Component({
-  selector: 'app-wave-audio',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './wave-audio.component.html',
-  styleUrls: ['./wave-audio.component.css']
+    selector: 'app-wave-audio',
+    imports: [CommonModule],
+    templateUrl: './wave-audio.component.html',
+    styleUrls: ['./wave-audio.component.css']
 })
 export class WaveAudioComponent {
 
