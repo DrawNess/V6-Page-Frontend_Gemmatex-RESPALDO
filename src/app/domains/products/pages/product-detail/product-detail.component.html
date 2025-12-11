@@ -55,7 +55,7 @@
       <!-- Thumbs -->
       <div class="mt-3" *ngIf="(thumbs()?.length || 0) > 1">
         <div class="flex gap-3 overflow-x-auto pb-1">
-          @for (img of thumbs(); track trackByThumb) {
+          @for (img of thumbs(); track trackByThumb($index, img)) {
             <button
               type="button"
               class="w-20 h-20 flex-shrink-0 rounded border-2 overflow-hidden bg-white"

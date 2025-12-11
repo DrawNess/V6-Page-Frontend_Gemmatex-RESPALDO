@@ -59,7 +59,10 @@ export class ServiciosMainComponent {
     }
   ];
 
-  trackById = (_: number, s: Servicio) => s.id;
+  /* trackById = (_: number, s: Servicio) => s.id; */
+  trackById(index: number, item: Servicio) {
+    return item.id;
+  }
 
   waLink(): string {
     const phone = '59162537378';

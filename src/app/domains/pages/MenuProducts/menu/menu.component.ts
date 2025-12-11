@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { Component, inject, DOCUMENT } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 type MenuLink = { to: string | any[]; label: string; desc: string; icon: 'box'|'grid'|'layers'|'tags'|'megaphone'|'image'|'ticket' };

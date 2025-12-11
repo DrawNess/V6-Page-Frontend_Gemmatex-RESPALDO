@@ -81,7 +81,10 @@ export class CatalogoComponent {
   scrollLeft() { this.roulettePause(); this.rouletteTrack?.nativeElement.scrollBy({ left: -this.step(), behavior: 'smooth' }); }
   scrollRight() { this.roulettePause(); this.rouletteTrack?.nativeElement.scrollBy({ left:  this.step(), behavior: 'smooth' }); }
 
-  trackById = (_: number, p: Product) => p.id;
+  /* trackById = (_: number, p: Product) => p.id; */
+  trackById(index: number, item: Product) {
+    return item.id;
+  }
   onCatImgError(e: Event) { (e.target as HTMLImageElement).src = '/assets/placeholders/category.webp'; }
 
   /* ---------------------- BUSCADOR + CATEGORÍAS ---------------------- */

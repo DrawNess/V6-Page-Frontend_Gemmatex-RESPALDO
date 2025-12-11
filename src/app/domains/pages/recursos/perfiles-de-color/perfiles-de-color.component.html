@@ -52,11 +52,11 @@
     </header>
 
     <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
-      @for (v of videos; track trackById) {
+      @for (v of videos; track trackById($index, v)) {
         <article class="group rounded-2xl border border-slate-200 bg-white overflow-hidden card-pop">
           <a [href]="v.link" target="_blank" rel="noopener" class="block relative video-thumb">
            <iframe width="100%" height="100%" [src]="v.insertion" [title]="v.titulo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-           
+
 
             <span class="play-badge" aria-hidden="true"></span>
           </a>

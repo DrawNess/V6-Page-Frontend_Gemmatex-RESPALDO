@@ -79,7 +79,11 @@ export default class ProductDetailComponent implements OnInit, OnChanges{
   }
 
   changeCover(u: string) { this.cover.set(u); }
-  trackByThumb = (_: number, url: string) => url;
+  /* trackByThumb = (_: number, url: string) => url; */
+  trackByThumb(index: number, _img: unknown) {
+    return index;
+  }
+
 
   onCoverError(e: Event) {
     (e.target as HTMLImageElement).src = '/assets/placeholders/product.webp';

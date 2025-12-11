@@ -99,7 +99,11 @@ export class ImpresionDTFComponent {
     this.openFaq = this.openFaq === i ? -1 : i;
   }
 
-  trackByIndex = (i: number) => i;
+  /* trackByIndex = (i: number) => i; */
+  trackByIndex(index: number, _item: unknown) {
+    return index;
+  }
+
 
   waLink(asunto: string = 'Impresión DTF'): string {
     const phone = '59162537378';

@@ -18,7 +18,7 @@ type Video = {
 })
 export class PerfilesDeColorComponent {
 
-  
+
   hero = {
     titulo: 'Recursos y Material de Apoyo',
     subtitulo: 'Videos prácticos y perfiles de color para optimizar tu producción.'
@@ -34,7 +34,10 @@ export class PerfilesDeColorComponent {
     { id: 'CCCCCCCCCCC', titulo: 'Vinil textil: corte y planchado', canal: 'GEMMATEX', duracion: '4:56' }, */
   ];
 
-  trackById = (_: number, v: Video) => v.id;
+  /* trackById = (_: number, v: Video) => v.id; */
+  trackById(index: number, item: { id: string | number } | any) {
+    return item.id ?? index;  // o lo que uses como identificador
+  }
 
   thumbUrl(id: string) {
     return `https://img.youtube.com/vi/${id}/hqdefault.jpg`;

@@ -46,7 +46,7 @@
     </header>
 
     <div class="mt-8 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
-      @for (s of servicios; track trackById) {
+      @for (s of servicios; track trackById($index, s)) {
         <article class="group relative rounded-2xl border border-slate-200 bg-white overflow-hidden card-pop">
           <div class="pointer-events-none absolute inset-0 opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-100"
                style="background:
