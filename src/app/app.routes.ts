@@ -4,7 +4,10 @@ import { NotFoundComponent } from '@info/pages/not-found/not-found.component';
 import { ServicioTecnicoComponent } from './domains/pages/servicios/servicio-tecnico/servicio-tecnico.component';
 import { EncuentranosComponent } from './domains/pages/encuentranos/encuentranos.component';
 import { CatalogoComponent } from './domains/pages/catalogo/catalogo.component';
-import { LoginComponent } from './domains/pages/login/login.component';
+/* import { LoginComponent } from './domains/pages/login/login.component'; */
+
+import { LoginComponent } from './domains/modules/auth/pages/login/login.component';
+
 
 import { ServiciosMainComponent } from './domains/pages/servicios-empresa/servicios-main/servicios-main.component';
 import { ImpresionDTFComponent } from './domains/pages/servicios-empresa/impresion-dtf/impresion-dtf.component';
@@ -125,7 +128,7 @@ export const routes: Routes = [
                 path: `${SECRET_BASE}/categories`,
                 component: CategoriesComponent
             },
-            { 
+            {
                 path: `${SECRET_BASE}/subcategories`,
                 component: SubcategoriesComponent
             },

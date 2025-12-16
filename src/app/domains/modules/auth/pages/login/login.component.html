@@ -1,0 +1,202 @@
+<section class="relative min-h-screen w-full overflow-hidden bg-gradient-to-b from-slate-50 via-slate-50 to-slate-100">
+  <!-- blobs -->
+  <div class="pointer-events-none absolute inset-0 opacity-60 mix-blend-multiply">
+    <div class="absolute -top-24 -left-24 w-[36rem] h-[36rem] rounded-full bg-sky-200 blur-3xl blob"></div>
+    <div class="absolute -bottom-24 -right-28 w-[36rem] h-[36rem] rounded-full bg-fuchsia-200 blur-3xl blob2"></div>
+  </div>
+
+  <!-- overlay suave -->
+  <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,0.7),transparent_45%),radial-gradient(circle_at_80%_100%,rgba(255,255,255,0.65),transparent_45%)]"></div>
+
+  <div class="relative mx-auto flex min-h-screen max-w-7xl items-center justify-center px-4 py-10">
+    <div class="grid w-full grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+      <!-- Branding -->
+      <div class="hidden lg:block">
+        <div class="inline-flex items-center gap-3 rounded-2xl border border-white/60 bg-white/60 backdrop-blur px-4 py-3 shadow-sm">
+          <div class="leading-tight">
+            <p class="text-xs uppercase tracking-widest text-slate-500">Gemmatex</p>
+            <h1 class="text-xl font-extrabold text-slate-900">Panel de clientes</h1>
+          </div>
+        </div>
+
+        <h2 class="mt-8 text-4xl font-extrabold text-slate-900 leading-tight">
+          Bienvenido de nuevo
+        </h2>
+        <p class="mt-3 text-slate-700 max-w-lg">
+          Accede para gestionar pedidos, ver tu historial y postventa.
+        </p>
+
+        <ul class="mt-6 space-y-3 text-slate-700">
+          <li class="flex items-start gap-3">
+            <span class="mt-1 inline-block h-2.5 w-2.5 rounded-full bg-sky-500"></span>
+            <span><b>Historial</b> de pedidos y facturas en un solo lugar.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="mt-1 inline-block h-2.5 w-2.5 rounded-full bg-sky-500"></span>
+            <span><b>Soporte</b> más rápido con tus datos de compra.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="mt-1 inline-block h-2.5 w-2.5 rounded-full bg-sky-500"></span>
+            <span><b>Seguimiento</b> de estado de tu pedido.</span>
+          </li>
+        </ul>
+
+        <div class="mt-10 rounded-3xl border border-white/70 bg-white/65 backdrop-blur p-6 shadow">
+          <h3 class="font-semibold text-slate-900">¿Aún no tienes cuenta?</h3>
+          <p class="text-slate-600 text-sm mt-1">
+            Crea una cuenta en segundos y mantén todo organizado.
+          </p>
+          <a
+            routerLink="/registro"
+            class="mt-4 inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50 shadow-sm"
+          >
+            Crear cuenta
+          </a>
+        </div>
+      </div>
+
+      <!-- Card login -->
+      <div class="mx-auto w-full max-w-md">
+        <div class="relative overflow-hidden rounded-3xl border border-white/70 bg-white/80 backdrop-blur-xl shadow-2xl">
+          <!-- top accent -->
+          <!-- <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600"></div> -->
+
+          <div class="p-7 sm:p-9">
+            <!-- header (visible en mobile también) -->
+            <div class="mb-7 text-center">
+              <div class="mx-auto mb-3 h-12 w-12 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-700 text-white shadow flex items-center justify-center lg:hidden">
+                <span class="font-black tracking-tight">G</span>
+              </div>
+              <h2 class="text-2xl font-bold text-slate-900">Iniciar sesión</h2>
+              <p class="text-sm text-slate-600 mt-1">Ingresa tu correo y contraseña.</p>
+            </div>
+
+            @if (errorMsg) {
+              <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {{ errorMsg }}
+              </div>
+            }
+
+            <form [formGroup]="form" (ngSubmit)="doLogin()" novalidate class="space-y-4">
+              <!-- Email -->
+              <div>
+                <label class="block text-sm font-medium text-slate-700">Correo</label>
+
+                <div class="mt-1 relative">
+                  <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                    <!-- icon -->
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none">
+                      <path d="M4 6h16v12H4V6Z" stroke="currentColor" stroke-width="1.5"/>
+                      <path d="m4 7 8 6 8-6" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                  </span>
+
+                  <input
+                    type="email"
+                    formControlName="email"
+                    class="w-full rounded-xl border bg-white pl-10 pr-3 py-2.5 text-sm outline-none
+                           border-slate-200 focus:border-sky-400 focus:ring-4 focus:ring-sky-100 shadow-sm"
+                    placeholder="correo@empresa.com"
+                    autocomplete="email"
+                  />
+                </div>
+
+                @if (emailCtrl.touched && emailCtrl.invalid) {
+                  <div class="mt-1 text-xs text-red-600">
+                    @if (emailCtrl.errors?.['required']) { <span>El correo es requerido.</span> }
+                    @if (emailCtrl.errors?.['email']) { <span>Ingresa un correo válido.</span> }
+                  </div>
+                }
+              </div>
+
+              <!-- Password -->
+              <div>
+                <label class="block text-sm font-medium text-slate-700">Contraseña</label>
+
+                <div class="mt-1 relative">
+                  <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none">
+                      <path d="M7 11V8a5 5 0 0 1 10 0v3" stroke="currentColor" stroke-width="1.5"/>
+                      <path d="M6.5 11h11a1.5 1.5 0 0 1 1.5 1.5v6A1.5 1.5 0 0 1 17.5 20h-11A1.5 1.5 0 0 1 5 18.5v-6A1.5 1.5 0 0 1 6.5 11Z" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                  </span>
+
+                  <input
+                    [type]="showPassword ? 'text' : 'password'"
+                    formControlName="password"
+                    class="w-full rounded-xl border bg-white pl-10 pr-12 py-2.5 text-sm outline-none
+                           border-slate-200 focus:border-sky-400 focus:ring-4 focus:ring-sky-100 shadow-sm"
+                    placeholder="••••••••"
+                    autocomplete="current-password"
+                  />
+
+                  <button
+                    type="button"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg px-2.5 py-1.5 text-slate-500 hover:bg-slate-100"
+                    (click)="showPassword = !showPassword"
+                    [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                  >
+                    {{ showPassword ? 'Ocultar' : 'Ver' }}
+                  </button>
+                </div>
+
+                @if (passCtrl.touched && passCtrl.invalid) {
+                  <div class="mt-1 text-xs text-red-600">
+                    @if (passCtrl.errors?.['required']) { <span>La contraseña es requerida.</span> }
+                    @if (passCtrl.errors?.['minlength']) { <span>Mínimo 6 caracteres.</span> }
+                  </div>
+                }
+              </div>
+
+              <!-- opciones -->
+              <div class="flex items-center justify-between pt-1">
+                <label class="inline-flex items-center gap-2 text-sm text-slate-700">
+                  <input
+                    type="checkbox"
+                    formControlName="remember"
+                    class="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-300"
+                  />
+                  Recuérdame
+                </label>
+                <a routerLink="/recuperar" class="text-sm text-sky-700 hover:underline">
+                  Olvidé mi contraseña
+                </a>
+              </div>
+
+              <!-- submit -->
+              <button
+                type="submit"
+                class="mt-2 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-sky-600 px-4 py-2.5 text-white font-semibold
+                       hover:brightness-110 focus:outline-none focus-visible:ring-4 focus-visible:ring-sky-200 disabled:opacity-60 shadow-lg shadow-sky-200/40"
+                [disabled]="form.invalid || loading"
+              >
+                @if (!loading) {
+                  <span>Ingresar</span>
+                } @else {
+                  <span class="inline-flex items-center gap-2">
+                    <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="10" stroke="white" stroke-width="4" fill="none" opacity=".25"/>
+                      <path d="M4 12a8 8 0 018-8" stroke="white" stroke-width="4" fill="none"/>
+                    </svg>
+                    Validando…
+                  </span>
+                }
+              </button>
+            </form>
+
+            <div class="mt-6 text-center text-xs text-slate-500">
+              Al ingresar aceptas nuestras políticas de uso y privacidad.
+            </div>
+
+            <p class="mt-5 text-center text-sm text-slate-600 lg:hidden">
+              ¿Sin cuenta?
+              <a routerLink="/registro" class="text-sky-700 hover:underline">Crea una gratis</a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

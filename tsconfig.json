@@ -24,18 +24,13 @@
       "dom"
     ],
     "paths": {
-      "@shared/*": [
-        "./src/app/domains/shared/*"
-      ],
-      "@products/*": [
-        "./src/app/domains/products/*"
-      ],
-      "@info/*": [
-        "./src/app/domains/info/*"
-      ],
-      "@services/*": [
-        "./src/app/domains/pages/sercicios/*"
-      ]
+      "@shared/*": ["./src/app/domains/shared/*"],
+      "@products/*": ["./src/app/domains/products/*"],
+      "@info/*": ["./src/app/domains/info/*"],
+      "@services/*": ["./src/app/domains/pages/sercicios/*"],
+      "@auth/*": ["./src/app/domains/modules/auth/*"],
+      "@environments/*": ["./src/environments/*"],
+      "@models/*": ["./src/app/domains/shared/models/*"]
     }
   },
   "angularCompilerOptions": {

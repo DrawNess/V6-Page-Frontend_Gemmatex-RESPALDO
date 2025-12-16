@@ -51,4 +51,23 @@ private fb = inject(FormBuilder);
       // ejemplo: this.router.navigateByUrl('/');
     }, 1200);
   }
+/*   doLogin() {
+    if (this.form.valid) {
+      this.status = 'loading';
+      const { email, password } = this.form.getRawValue();
+      this.authService.login(email, password)
+      .subscribe({
+        next: () => {
+          this.status = 'success';
+          this.router.navigate(['/app']);
+        },
+        error: () => {
+          this.status = 'failed';
+        }
+      });
+    } else {
+      this.form.markAllAsTouched();
+    }
+  } */
+
 }
