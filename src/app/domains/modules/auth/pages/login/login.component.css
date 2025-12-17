@@ -1,7 +1,7 @@
 @keyframes blob {
   0%, 100% { transform: translate(0,0) scale(1); }
-  33% { transform: translate(18px,-10px) scale(1.05); }
-  66% { transform: translate(-10px,16px) scale(0.97); }
+  33% { transform: translate(14px,-8px) scale(1.04); }
+  66% { transform: translate(-8px,12px) scale(0.98); }
 }
 .blob { animation: blob 12s ease-in-out infinite; }
 .blob2 { animation: blob 12s ease-in-out infinite 2s; }

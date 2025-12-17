@@ -7,6 +7,16 @@ export interface LoginResponse {
   token: string;
   user: any;
 }
+export interface RegisterCustomerDTO {
+  name: string;
+  lastName: string;
+  phone: string;
+  user: {
+    email: string;
+    password: string;
+  };
+}
+
 
 @Injectable({
   providedIn: 'root',
@@ -25,5 +35,20 @@ export class AuthService {
       password
     });
   }
+
+/*   register( name: string, lastName: string, phone: string, email: string, password: string ): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/customer`, {
+      name,
+      lastName,
+      phone,
+      email,
+      password,
+    });
+  } */
+   register(payload: RegisterCustomerDTO): Observable<any> {
+    return this.http.post(`${this.apiUrl}/customers`, payload);
+  }
+
+
 
 }

@@ -6,7 +6,6 @@ import { EncuentranosComponent } from './domains/pages/encuentranos/encuentranos
 import { CatalogoComponent } from './domains/pages/catalogo/catalogo.component';
 /* import { LoginComponent } from './domains/pages/login/login.component'; */
 
-import { LoginComponent } from './domains/modules/auth/pages/login/login.component';
 
 
 import { ServiciosMainComponent } from './domains/pages/servicios-empresa/servicios-main/servicios-main.component';
@@ -26,7 +25,9 @@ import { DescargaPdfsComponent} from './domains/pages/descarga-pdfs/descarga-pdf
 import { ProductosComponent } from './domains/catalogo/productos/productos.component'
 import { OffersComponent } from './domains/catalogo/offers/offers.component'
 
-
+/* LOGIN */
+import { LoginComponent } from './domains/modules/auth/pages/login/login.component';
+import { RegisterComponent } from './domains/modules/auth/pages/register/register.component';
 
 /* RUTA SECRETA --- MENU --- */
 
@@ -51,10 +52,6 @@ export const routes: Routes = [
             {
                 path: '',
                 loadComponent: () => import('./domains/products/pages/list/list.component')
-            },
-            {
-                path: 'login',
-                component: LoginComponent
             },
             {
                 path: 'about',
@@ -151,7 +148,17 @@ export const routes: Routes = [
             {
                 path: `${SECRET_BASE}/menu-adds/promo`,
                 component: PromoComponent
+            },
+            /* LOGIN */
+            {
+                path: 'auth/login',
+                component: LoginComponent
+            },
+            {
+              path: 'auth/register',
+              component: RegisterComponent
             }
+
         ]
     },
     {
