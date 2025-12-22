@@ -1,3 +1,4 @@
+// register.component.ts
 import { Component } from '@angular/core';
 import {
   AbstractControl,
@@ -8,13 +9,13 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { finalize } from 'rxjs/operators';
+import { finalize, switchMap } from 'rxjs/operators';
+import { timer } from 'rxjs';
 
 import { AuthService } from '@shared/services/auth.service';
 
 type RequestStatus = 'init' | 'loading' | 'success' | 'failed';
 
-// validador: password === confirmPassword
 function matchPasswords(a: string, b: string): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const p1 = control.get(a)?.value;
@@ -31,26 +32,28 @@ function matchPasswords(a: string, b: string): ValidatorFn {
 })
 
 export class RegisterComponent {
-    status: RequestStatus = 'init';
+  status: RequestStatus = 'init';
   errorMsg = '';
+
+  // UI
+  submitted = false;
   showPassword = false;
   capsLockOn = false;
 
-  // ✅ clave: solo mostrar errores globales al apretar Registrar
-  submitted = false;
+  // Modal premium
+  showSuccessModal = false;
+  modalTitle = '';
+  modalMsg = '';
 
-  // dinámico
-  pwdScore = 0; // 0..4
+  // Fuerza (si lo sigues usando)
+  pwdScore = 0;
   pwdLabel = 'Débil';
 
   form = this.fb.nonNullable.group(
     {
       name: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required, Validators.minLength(2)]],
-
-      // Bolivia suele ser 8 dígitos: ajusta si quieres
       phone: ['', [Validators.required, Validators.minLength(8)]],
-
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required, Validators.minLength(8)]],
@@ -64,16 +67,14 @@ export class RegisterComponent {
     private router: Router,
     private authService: AuthService
   ) {
-    // Fuerza en vivo
+    // Limpia error backend al editar
+    this.form.valueChanges.subscribe(() => (this.errorMsg = ''));
+
+    // Fuerza en vivo (opcional)
     this.form.controls.password.valueChanges.subscribe((pwd) => {
       const s = this.calcPasswordScore(pwd || '');
       this.pwdScore = s;
       this.pwdLabel = s <= 1 ? 'Débil' : s === 2 ? 'Media' : s === 3 ? 'Buena' : 'Fuerte';
-    });
-
-    // Si el usuario vuelve a editar, limpiamos error del backend
-    this.form.valueChanges.subscribe(() => {
-      this.errorMsg = '';
     });
   }
 
@@ -89,13 +90,11 @@ export class RegisterComponent {
     this.capsLockOn = e.getModifierState?.('CapsLock') ?? false;
   }
 
-  // reglas visuales (puedes ajustarlas)
+  // reglas visuales (opcional)
   hasMinLen(p: string) { return (p ?? '').length >= 8; }
   hasUpper(p: string) { return /[A-Z]/.test(p ?? ''); }
   hasNumber(p: string) { return /\d/.test(p ?? ''); }
   hasSymbol(p: string) { return /[^A-Za-z0-9\s]/.test(p ?? ''); }
-  noSpaces(p: string) { return !/\s/.test(p ?? ''); }
-
   calcPasswordScore(p: string) {
     let s = 0;
     if (this.hasMinLen(p)) s++;
@@ -105,24 +104,22 @@ export class RegisterComponent {
     return s;
   }
 
-  // ✅ error global SOLO cuando submitted = true
   getFormError(): string | null {
     if (!this.submitted) return null;
 
     if (this.f.terms.invalid) return 'Debes aceptar los términos y políticas para continuar.';
     if (this.form.hasError('mismatch')) return 'Las contraseñas no coinciden.';
-
     if (this.f.email.invalid) return 'Revisa el correo.';
     if (this.f.password.invalid) return 'Revisa la contraseña.';
     if (this.f.name.invalid) return 'Revisa el nombre.';
     if (this.f.lastName.invalid) return 'Revisa el apellido.';
     if (this.f.phone.invalid) return 'Revisa el teléfono.';
-
     return null;
   }
 
   private parseApiError(err: any): string {
-    const msg = err?.error?.errors?.message;
+    // Sequelize unique constraint típico
+    const msg = err?.error?.message || err?.error?.errors?.message;
     if (typeof msg === 'string' && msg.trim()) return msg;
 
     const arr = err?.error?.errors?.message || err?.error?.errors || err?.error?.details;
@@ -133,11 +130,13 @@ export class RegisterComponent {
         .join(' | ');
     }
 
+    // fallback
+    if (err?.status === 409) return 'Este correo ya está registrado.';
     return 'No se pudo registrar. Verifica los datos.';
   }
 
   register() {
-    this.submitted = true; // ✅ ahora sí mostramos errores globales
+    this.submitted = true;
     this.errorMsg = '';
 
     if (this.form.invalid) {
@@ -149,7 +148,6 @@ export class RegisterComponent {
 
     const { name, lastName, phone, email, password } = this.form.getRawValue();
 
-    // payload igual a Postman
     const payload = {
       name: name.trim(),
       lastName: lastName.trim(),
@@ -160,17 +158,65 @@ export class RegisterComponent {
       },
     };
 
+    // ✅ Flujo premium:
+    // 1) POST /customers
+    // 2) POST /auth/send-verify-email (con email devuelto por backend)
+    // 3) Modal + esperar 2s + redirect
     this.authService
       .register(payload as any)
-      .pipe(finalize(() => (this.status = 'init')))
+      .pipe(
+        switchMap((res: any) => {
+          const createdEmail = res?.newCustomer?.user?.email || payload.user.email;
+          return this.authService.sendVerifyEmail(createdEmail);
+        }),
+        finalize(() => (this.status = 'init'))
+      )
       .subscribe({
         next: () => {
           this.status = 'success';
-          this.router.navigate(['/auth/verify-email']);
+          this.openSuccessModal(payload.user.email);
+
+          /* timer(2000).subscribe(() => {
+            this.router.navigate(['/email-verified']); // o '/verify-success'
+          }); */
         },
         error: (err) => {
           this.status = 'failed';
-          this.errorMsg = this.parseApiError(err); // ✅ mensaje real backend
+          this.errorMsg = this.parseApiError(err);
+        },
+      });
+  }
+
+  openSuccessModal(email: string) {
+    this.modalTitle = '¡Cuenta creada!';
+    this.modalMsg =
+      `Te enviamos un correo a ${email} para verificar tu cuenta. ` +
+      `Revisa tu bandeja de entrada o la carpeta de spam.`;
+    this.showSuccessModal = true;
+  }
+
+  closeSuccessModal() {
+    this.showSuccessModal = false;
+  }
+
+  goToLogin() {
+    this.router.navigate(['/auth/login']);
+  }
+
+  resendVerification() {
+    const email = this.form.controls.email.value?.trim().toLowerCase();
+    if (!email) return;
+
+    this.status = 'loading';
+    this.authService
+      .sendVerifyEmail(email)
+      .pipe(finalize(() => (this.status = 'init')))
+      .subscribe({
+        next: () => {
+          this.openSuccessModal(email);
+        },
+        error: (err) => {
+          this.errorMsg = this.parseApiError(err);
         },
       });
   }

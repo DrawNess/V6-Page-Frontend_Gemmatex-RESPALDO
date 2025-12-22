@@ -1,0 +1,155 @@
+<section class="min-h-screen w-full bg-gradient-to-b from-slate-50 to-slate-100">
+  <!-- fondo sutil -->
+  <div
+    class="pointer-events-none fixed inset-0 opacity-60"
+    style="background-image: radial-gradient(rgba(0,0,0,0.06) 1px, transparent 1px);
+           background-size: 18px 18px;">
+  </div>
+
+  <div class="relative mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4 py-10">
+    <div class="grid w-full grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+
+      <!-- Lado info -->
+      <section class="hidden lg:block">
+        <p class="text-xs uppercase tracking-[0.22em] text-slate-500">Gemmatex</p>
+        <h1 class="mt-2 text-4xl font-extrabold text-slate-900 leading-tight">
+          Verifica tu correo
+        </h1>
+        <p class="mt-3 text-slate-700 max-w-md">
+          Si tu token expiró o no recibiste el correo, podemos reenviarte un nuevo enlace de verificación.
+        </p>
+
+        <div class="mt-8 flex items-center gap-3 text-sm text-slate-600">
+          <span class="inline-block h-1.5 w-1.5 rounded-full bg-slate-900"></span>
+          <span>Seguridad</span>
+          <span class="text-slate-300">•</span>
+          <span>Acceso</span>
+          <span class="text-slate-300">•</span>
+          <span>Cuenta</span>
+        </div>
+      </section>
+
+      <!-- Card -->
+      <section class="mx-auto w-full max-w-md">
+        <div class="rounded-3xl border border-white/70 bg-white/80 backdrop-blur-xl shadow-2xl">
+          <div class="p-7 sm:p-9">
+
+            <header class="mb-6">
+              <div class="flex items-center gap-3">
+                <img
+                  src="https://peru-crane-813567.hostingersite.com/Logos/Logo%20gemmatex%20azul.png"
+                  alt="Gemmatex"
+                  class="h-8 w-auto"
+                />
+              </div>
+
+              <h2 class="mt-4 text-2xl font-bold text-slate-900">Reenviar verificación</h2>
+              <p class="mt-1 text-sm text-slate-600">
+                Ingresa tu correo y te enviaremos un nuevo link.
+              </p>
+            </header>
+
+            <!-- Error -->
+            @if (errorMsg) {
+              <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {{ errorMsg }}
+              </div>
+            }
+
+            <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700">Correo</label>
+                <input
+                  type="email"
+                  formControlName="email"
+                  autocomplete="email"
+                  placeholder="correo@empresa.com"
+                  class="mt-1 w-full rounded-xl border bg-white px-3 py-2.5 text-sm outline-none
+                         border-slate-200 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 shadow-sm"
+                />
+
+                @if (f.email.touched && f.email.invalid) {
+                  <p class="mt-1 text-xs text-red-600">
+                    @if (f.email.errors?.['required']) { <span>El correo es requerido.</span> }
+                    @if (f.email.errors?.['email']) { <span>Ingresa un correo válido.</span> }
+                  </p>
+                }
+              </div>
+
+              <button
+                type="submit"
+                class="mt-2 inline-flex w-full items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-white font-semibold
+                       hover:bg-slate-800 focus:outline-none focus-visible:ring-4 focus-visible:ring-slate-200 disabled:opacity-60"
+                [disabled]="loading"
+              >
+                @if (!loading) {
+                  <span>Reenviar enlace</span>
+                } @else {
+                  <span class="inline-flex items-center gap-2">
+                    <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="10" stroke="white" stroke-width="4" fill="none" opacity=".25"/>
+                      <path d="M4 12a8 8 0 018-8" stroke="white" stroke-width="4" fill="none"/>
+                    </svg>
+                    Enviando…
+                  </span>
+                }
+              </button>
+            </form>
+
+            <div class="mt-6 text-center text-sm text-slate-600">
+              ¿Ya verificaste?
+              <a routerLink="/auth/login" class="font-semibold text-slate-900 hover:underline">Inicia sesión</a>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- MODAL premium -->
+  @if (showModal) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center px-4">
+      <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" (click)="closeModal()"></div>
+
+      <div class="relative w-full max-w-md rounded-3xl bg-white shadow-2xl border border-slate-200 overflow-hidden">
+        <div class="p-6">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-2xl bg-emerald-50 flex items-center justify-center">
+              <span class="text-emerald-700 text-lg">✓</span>
+            </div>
+            <div>
+              <p class="text-sm text-slate-500">Listo</p>
+              <h3 class="text-lg font-bold text-slate-900">Correo enviado</h3>
+            </div>
+          </div>
+
+          <p class="mt-4 text-sm text-slate-600">
+            Te enviamos un enlace de verificación. Revisa tu bandeja de entrada y también “Spam/Promociones”.
+          </p>
+
+          <div class="mt-5 flex flex-col sm:flex-row gap-2">
+            <button
+              type="button"
+              class="inline-flex w-full items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-white font-semibold
+                     hover:bg-slate-800 focus:outline-none focus-visible:ring-4 focus-visible:ring-slate-200"
+              (click)="goLogin()"
+            >
+              Iniciar sesión
+            </button>
+
+            <button
+              type="button"
+              class="inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-900 font-semibold
+                     hover:bg-slate-50 focus:outline-none focus-visible:ring-4 focus-visible:ring-slate-200"
+              (click)="closeModal()"
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</section>

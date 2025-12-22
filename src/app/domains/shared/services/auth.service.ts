@@ -45,10 +45,25 @@ export class AuthService {
       password,
     });
   } */
-   register(payload: RegisterCustomerDTO): Observable<any> {
+
+  register(payload: RegisterCustomerDTO): Observable<any> {
     return this.http.post(`${this.apiUrl}/customers`, payload);
   }
 
+  sendVerifyEmail(email: string) {
+    return this.http.post(`${this.apiUrl}/auth/send-verify-email`, { email });
+  }
 
+  verifyEmail(token: string) {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/auth/verify-email`, { token });
+  }
+
+  recoverPassword(email: string) {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/auth/recover-password`, { email });
+  }
+
+  changePassword(token: string, newPassword: string) {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/auth/change-password`, { token, newPassword });
+  }
 
 }

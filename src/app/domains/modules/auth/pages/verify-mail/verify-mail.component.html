@@ -1,0 +1,62 @@
+<section class="min-h-screen w-full bg-gradient-to-b from-slate-50 to-slate-100">
+  <div class="pointer-events-none fixed inset-0 opacity-60"
+       style="background-image: radial-gradient(rgba(0,0,0,0.06) 1px, transparent 1px);
+              background-size: 18px 18px;">
+  </div>
+
+  <div class="relative mx-auto flex min-h-screen max-w-xl items-center justify-center px-4 py-10">
+    <div class="w-full rounded-3xl border border-white/70 bg-white/80 backdrop-blur-xl shadow-2xl">
+      <div class="p-7 sm:p-9">
+
+        <p class="text-xs uppercase tracking-[0.22em] text-slate-500">Gemmatex</p>
+        <h1 class="mt-2 text-2xl font-bold text-slate-900">Verificación de correo</h1>
+        <p class="mt-1 text-sm text-slate-600">Estamos confirmando tu cuenta.</p>
+
+        <div class="mt-6 rounded-2xl border border-slate-200 bg-white px-4 py-4">
+          @if (status === 'loading') {
+            <div class="flex items-center gap-2 text-slate-700">
+              <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity=".25"/>
+                <path d="M4 12a8 8 0 018-8" stroke="currentColor" stroke-width="4" fill="none"/>
+              </svg>
+              <span class="text-sm">{{ msg }}</span>
+            </div>
+          }
+
+          @if (status === 'success') {
+            <div class="text-sm text-emerald-700">
+              <p class="font-semibold">Listo</p>
+              <p class="mt-1">{{ msg }}</p>
+              <!-- <p class="mt-2 text-xs text-slate-500">Redirigiendo a inicio de sesión…</p> -->
+            </div>
+          }
+
+          @if (status === 'error') {
+            <div class="text-sm text-red-700">
+              <p class="font-semibold">⚠️ No se pudo verificar</p>
+              <p class="mt-1">{{ msg }}</p>
+
+              <div class="mt-4 flex flex-col sm:flex-row gap-2">
+                <button
+                  type="button"
+                  class="inline-flex w-full items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-white font-semibold
+                         hover:bg-slate-800 focus:outline-none focus-visible:ring-4 focus-visible:ring-slate-200"
+                  (click)="goLogin()">
+                  Ir a iniciar sesión
+                </button>
+
+                <a
+                  routerLink="/auth/verify-request"
+                  class="inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-900 font-semibold
+                         hover:bg-slate-50 focus:outline-none focus-visible:ring-4 focus-visible:ring-slate-200">
+                  Reenviar correo
+                </a>
+              </div>
+            </div>
+          }
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>

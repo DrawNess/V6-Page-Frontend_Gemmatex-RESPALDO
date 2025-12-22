@@ -28,6 +28,11 @@ import { OffersComponent } from './domains/catalogo/offers/offers.component'
 /* LOGIN */
 import { LoginComponent } from './domains/modules/auth/pages/login/login.component';
 import { RegisterComponent } from './domains/modules/auth/pages/register/register.component';
+import { RecoveryComponent } from './domains/modules/auth/pages/recovery/recovery.component';
+import { ForgotPasswordComponent } from './domains/modules/auth/pages/forgot-password/forgot-password.component';
+import { VerifySuccessComponent } from '@auth/pages/verify-success/verify-success.component';
+import { VerifyMailComponent } from '@auth/pages/verify-mail/verify-mail.component';
+import { VerifyRequestComponent } from '@auth/pages/verify-request/verify-request.component'
 
 /* RUTA SECRETA --- MENU --- */
 
@@ -157,8 +162,27 @@ export const routes: Routes = [
             {
               path: 'auth/register',
               component: RegisterComponent
+            },
+            {
+              path: 'auth/recovery',
+              component: RecoveryComponent
+            },
+            {
+              path: 'resetPassword',
+              component: ForgotPasswordComponent
+            },
+            {
+              path: 'verify-success',
+              component: VerifySuccessComponent
+            },
+            {
+              path: 'verifyEmail',
+              component: VerifyMailComponent
+            },
+            {
+              path: 'auth/verify-request',
+              component: VerifyRequestComponent
             }
-
         ]
     },
     {
