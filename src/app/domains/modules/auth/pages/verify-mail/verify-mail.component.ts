@@ -7,7 +7,7 @@ import { AuthService } from '@shared/services/auth.service';
 type Status = 'init' | 'loading' | 'success' | 'error';
 @Component({
   selector: 'app-verify-mail',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './verify-mail.component.html',
   styleUrl: './verify-mail.component.css',
 })

@@ -121,8 +121,8 @@ export const routes: Routes = [
             {
                 path: 'ofertas',
                 component: OffersComponent
-            }
-            ,{
+            },
+            {
                 path: `${SECRET_BASE}/menu`,
                 component: MenuComponent
             },

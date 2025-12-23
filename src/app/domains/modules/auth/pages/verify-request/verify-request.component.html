@@ -11,7 +11,6 @@
 
       <!-- Lado info -->
       <section class="hidden lg:block">
-        <p class="text-xs uppercase tracking-[0.22em] text-slate-500">Gemmatex</p>
         <h1 class="mt-2 text-4xl font-extrabold text-slate-900 leading-tight">
           Verifica tu correo
         </h1>
@@ -35,7 +34,8 @@
           <div class="p-7 sm:p-9">
 
             <header class="mb-6">
-              <div class="flex items-center gap-3">
+              <!-- Logo -->
+              <div class="flex items-center justify-center sm:justify-start">
                 <img
                   src="https://peru-crane-813567.hostingersite.com/Logos/Logo%20gemmatex%20azul.png"
                   alt="Gemmatex"
@@ -53,6 +53,13 @@
             @if (errorMsg) {
               <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                 {{ errorMsg }}
+              </div>
+            }
+
+            <!-- Mensaje cuando ya fue enviado (solo 1 vez) -->
+            @if (sentOnce && status === 'success') {
+              <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+                Ya enviamos un correo de verificación. Revisa “Spam/Promociones”.
               </div>
             }
 
@@ -78,13 +85,14 @@
 
               <button
                 type="submit"
-                class="mt-2 inline-flex w-full items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-white font-semibold
-                       hover:bg-slate-800 focus:outline-none focus-visible:ring-4 focus-visible:ring-slate-200 disabled:opacity-60"
-                [disabled]="loading"
+                class="mt-2 inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-white font-semibold
+                       hover:bg-blue-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-200 disabled:opacity-60
+                       shadow-lg shadow-blue-200/40"
+                [disabled]="loading || sentOnce"
               >
-                @if (!loading) {
+                @if (!loading && !sentOnce) {
                   <span>Reenviar enlace</span>
-                } @else {
+                } @else if (loading) {
                   <span class="inline-flex items-center gap-2">
                     <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24">
                       <circle cx="12" cy="12" r="10" stroke="white" stroke-width="4" fill="none" opacity=".25"/>
@@ -92,6 +100,8 @@
                     </svg>
                     Enviando…
                   </span>
+                } @else {
+                  <span>Correo ya enviado</span>
                 }
               </button>
             </form>
@@ -108,7 +118,7 @@
     </div>
   </div>
 
-  <!-- MODAL premium -->
+  <!-- MODAL premium (aparece luego de 2s) -->
   @if (showModal) {
     <div class="fixed inset-0 z-50 flex items-center justify-center px-4">
       <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" (click)="closeModal()"></div>

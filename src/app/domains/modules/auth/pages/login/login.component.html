@@ -1,4 +1,4 @@
-<main class="min-h-screen w-full bg-gradient-to-b from-slate-50 to-slate-100 text-pink-500">
+<main class="min-h-screen w-full bg-gradient-to-b from-slate-50 to-slate-100 ">
   <!-- fondo sutil (sin “ruido visual”) -->
   <div
     class="pointer-events-none fixed inset-0 opacity-60"
@@ -11,12 +11,13 @@
 
       <!-- Izquierda: solo bienvenida -->
       <section class="hidden lg:block">
-        <p class="text-xs uppercase tracking-[0.22em] text-slate-500">Gemmatex</p>
-        <h1 class="mt-2 text-4xl font-extrabold text-slate-900 leading-tight">
-          Bienvenido de nuevo
+        <!-- <p class="text-xs uppercase tracking-[0.22em] text-slate-500">Gemmatex</p> -->
+        <h1 class="mt-2 text-4xl uppercase font-extrabold tracking-[0.22em] text-slate-900 leading-tight text-blue-600">
+          Bienvenido
         </h1>
         <p class="mt-3 text-slate-700 max-w-md">
-          Inicia sesión para acceder a tu panel de clientes.
+          Inicia sesión para acceder a tu panel de cliente
+          .
         </p>
 
         <div class="mt-8 flex items-center gap-3 text-sm text-slate-600">
@@ -44,6 +45,46 @@
                 {{ errorMsg }}
               </div>
             }
+            @if (errorCode === 'EMAIL_NOT_VERIFIED') {
+              <div class="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                <div class="flex items-start gap-3">
+                  <div class="mt-0.5">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+
+                  <div class="flex-1">
+                    <p class="font-semibold">Tu correo aún no está verificado</p>
+                    <p class="mt-1 text-amber-800/90">
+                      Para continuar, verifica tu correo. Si no te llegó el email, vuelve a solicitarlo.
+                    </p>
+
+                    <div class="mt-3 flex flex-wrap gap-2">
+                      <a
+                        [routerLink]="['/auth/verify-request']"
+                        [queryParams]="{ email: form.controls.email.value || '' }"
+                        class="inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-white font-semibold
+                              hover:bg-blue-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-200"
+                      >
+                        Ir a verificar mi correo
+                      </a>
+
+                      <button
+                        type="button"
+                        class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-slate-900 font-semibold
+                              hover:bg-slate-50"
+                        (click)="focusEmail()"
+                      >
+                        Cambiar correo
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+
+
 
             <form [formGroup]="form" (ngSubmit)="doLogin()" novalidate class="space-y-4">
               <!-- Email -->
@@ -122,8 +163,9 @@
               <!-- submit -->
               <button
                 type="submit"
-                class="mt-2 inline-flex w-full items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-white font-semibold
-                       hover:bg-slate-800 focus:outline-none focus-visible:ring-4 focus-visible:ring-slate-200 disabled:opacity-60"
+                class="mt-2 inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-white font-semibold
+                       hover:bg-blue-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-200 disabled:opacity-60
+                       shadow-lg shadow-blue-200/40"
                 [disabled]="form.invalid || loading"
               >
                 @if (!loading) {

@@ -19,6 +19,10 @@ export class LoginComponent {
 
   status: RequestStatus = 'init';
   errorMsg = '';
+  errorCode: 'EMAIL_NOT_VERIFIED' | null = null;
+  infoMsg = '';
+  resendLoading = false;
+
   showPassword = false;
   capsLockOn = false;
 
@@ -35,7 +39,7 @@ export class LoginComponent {
     private title: Title,
     private meta: Meta
   ) {
-    // ✅ SEO básico
+    // SEO básico
     this.title.setTitle('Iniciar sesión | Gemmatex');
     this.meta.updateTag({
       name: 'description',
@@ -61,6 +65,9 @@ export class LoginComponent {
 
   doLogin() {
     this.errorMsg = '';
+    this.infoMsg = '';
+    this.errorCode = null;
+
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -81,9 +88,47 @@ export class LoginComponent {
         },
         error: (err) => {
           this.status = 'failed';
-          this.errorMsg = err?.error?.message || 'Credenciales inválidas.';
+          /* this.errorMsg = err?.error?.message || 'Credenciales inválidas.'; */
+
+          const msg = err?.error?.message || err?.error?.errors?.message;
+
+          if (msg === 'EMAIL_NOT_VERIFIED') {
+            this.errorCode = 'EMAIL_NOT_VERIFIED';
+            this.errorMsg = '';
+            return;
+          }
+          this.errorMsg = 'Credenciales inválidas o error de servidor.';
         },
       });
   }
 
+  resendVerification() {
+    this.infoMsg = '';
+    this.resendLoading = true;
+
+    const email = (this.form.controls.email.value || '').trim().toLowerCase();
+    if (!email) {
+      this.resendLoading = false;
+      this.infoMsg = 'Ingresa tu correo arriba para reenviar.';
+      return;
+    }
+
+    this.authService.sendVerifyEmail(email).subscribe({
+      next: () => {
+        this.infoMsg = 'Listo. Si el correo existe, te llegará un enlace en unos segundos.';
+        this.resendLoading = false;
+      },
+      error: () => {
+        // aunque falle, por seguridad mostramos genérico
+        this.infoMsg = 'Listo. Si el correo existe, te llegará un enlace en unos segundos.';
+        this.resendLoading = false;
+      }
+    });
+  }
+
+  focusEmail() {
+    const el = document.querySelector<HTMLInputElement>('input[formControlName="email"]');
+    el?.focus();
+    el?.select();
+  }
 }
