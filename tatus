@@ -1,0 +1,174 @@
+[33mcommit c062be2c5bcf0f0049df5bdd421a8d1a3805d015[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Tue Dec 23 12:24:37 2025 -0400
+
+    Arreglo de color, palabras que no tienen sentido. Tabmien cambios en el login para verificacion de correo. Se puso mas para que no se reenvie muchas veces.
+
+[33mcommit f3021ae31cdbf45e60f8a7bb978c8f348cddf083[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Mon Dec 22 18:32:01 2025 -0400
+
+    verificacion de mail
+
+[33mcommit 22c24e0e80de6684ca1815826460ff49613a9efb[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Wed Dec 17 18:30:58 2025 -0400
+
+    Se realizo la pagina de login y registro.
+
+[33mcommit 857c13d166abed2b919ca94312a8fb51e12b7117[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Tue Dec 16 18:29:09 2025 -0400
+
+    Inicio de login de la pagina.
+
+[33mcommit b5ad7c22655bfbbe32dbe0418d2e84a5965abcab[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Thu Dec 11 18:19:08 2025 -0400
+
+    Ya listo, actualizado con angular V20. Nos quedamos con esta por el momento
+
+[33mcommit a0d9c2871b7fd2603b4bb5d532dab0a614ea382d[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Thu Dec 11 18:11:07 2025 -0400
+
+    chore: upgrade Angular to v20
+
+[33mcommit 3c3c950a2ada79970b0085ef2c8488e2928a08fb[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Thu Dec 11 10:46:09 2025 -0400
+
+    Arreglamos modulos que no se usan, y vamos a actualizar a angular 20
+
+[33mcommit 68dc49bbad879eda7b31fbba0cf92be278eef8d8[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Thu Dec 11 10:12:30 2025 -0400
+
+    chore: upgrade Angular to v18 and new build system
+
+[33mcommit 7eb61e0f706b5ac04cbb46cd0b6ad45e4b8bf89f[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Thu Dec 11 09:51:09 2025 -0400
+
+    Actualizacion con npx ng update @angular/cli@17 @angular/core@17
+
+[33mcommit ce63fe461d36b40dbbc2f7baa32dc95b331053ec[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Sat Nov 22 12:25:27 2025 -0400
+
+    CAMBIOS: Anadimos la parte de promos. Se puso por si acaso para poner texto o no poner nada. Tambien los menus listos. La parte de anuncios tambien se modifico un borde pequeno.
+
+[33mcommit 6afdc0a84452eb724424dc9f015c80b9246b15da[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Fri Nov 21 17:58:28 2025 -0400
+
+    CAMBIOS: MENU ANNOUNCMENTS, PROMOS ARREGLO DE EL HERO, Falta anadir la seccion de promos para que renderise, esto en list.component
+
+[33mcommit 720879868960dd15bfb03251931426564e0eee48[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Fri Nov 21 12:22:29 2025 -0400
+
+    Se arreglo el menu de productos, ahora no se anadira aca, si no directo por postman
+
+[33mcommit 70dfa14ff32467985bc6ab28d9a9e943241f1e83[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Wed Nov 12 10:04:51 2025 -0400
+
+    Pagina sin auth, terminada - Falta arreglar menu productos y para marketing[
+    [
+
+[33mcommit 866c7739ded16a8c8e93b16affe85f72197e4441[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Thu Oct 23 14:26:06 2025 -0400
+
+    Se arreglo el detalle de los productos@
+
+[33mcommit ed8eec81cab2a5ed87460d04e3b40574bd8324b2[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Wed Oct 22 17:45:01 2025 -0400
+
+    Se añadio productos aleatorios y ademas el lugar para ubicar la tienda
+
+[33mcommit 9fb7482408e5941768a3c190a9b53a71b4748c31[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Mon Oct 20 01:49:26 2025 -0400
+
+    Cambio de la los endpoints por http://gemmatex.store:3000/api/v1
+
+[33mcommit cd157b883239d8a9fdce36a0f6feac47e483540c[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Mon Oct 20 00:25:59 2025 -0400
+
+    Terminado añadimos los menus
+
+[33mcommit 84ef5432c1752e8080a0bf3161f9c53f35d287ff[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Wed Oct 15 14:59:53 2025 -0400
+
+    Se arreglaron detalles de header. Ahora se continuara arreglo de la pagina principal
+
+[33mcommit 576f32e6d5f7160f04921c47a25cc2bc9558efc1[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Tue Oct 14 16:12:28 2025 -0400
+
+    Se completo la pagina e ofertas, seguimos con arreglo de el header.
+
+[33mcommit de55ce45b0d69da794fd81a3e4e2b52e1e5aa766[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Tue Oct 14 14:53:06 2025 -0400
+
+    Casi listo para la entrega, falta la parte de offertas
+
+[33mcommit b188e3953e69ea106568fd3a44607dd683988d11[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Mon Oct 13 15:56:40 2025 -0400
+
+    Cambios en header responsive, mejora de colores. Se arreglo el manejo de las categorias y el link a cada categoria.
+
+[33mcommit 8fc900916828e4389cbc5ec6800bf8fae53df112[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Sun Oct 12 16:00:32 2025 -0400
+
+    Ultimo commit pagina terminada, se continuara en otro proyecto.
+
+[33mcommit 246809a1a9580d0c7551ece823e156f2d94a56bb[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Tue Sep 23 09:31:53 2025 -0400
+
+    Se cambio la publicidad de papeles.
+
+[33mcommit 391cf97f50bd23046e044e4fda46c2c9e76b6374[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Fri Sep 19 16:40:25 2025 -0400
+
+    Terminamos todo lo pedido, hasta el filtro. Ness encargarse de arreglar la basde de datos con datos correctos xdxd.
+
+[33mcommit 72fc0899643edcac8769bf92ba16c45ab6b4acf8[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Fri Sep 19 12:48:16 2025 -0400
+
+    Se realizo la pagina responsiva, lista para uso en celulares. Se mejorara posteriormente.
+
+[33mcommit 6d27b1267d7bbf2607317972629a5f6440bdbaec[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Tue Sep 16 11:12:06 2025 -0400
+
+    Commit ready to upload Github
+
+[33mcommit 154db2b3ec6a48a1d9a8b3b93a7b41babfa9b9e2[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Sat Sep 6 07:12:28 2025 -0400
+
+    Presentacion 6 de septiembre de 2025, Aumento
+
+[33mcommit dcf7c7253b70a2fdf13da5be456072d2966c5ac8[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Sat Sep 6 06:22:48 2025 -0400
+
+    Terminando muchas cosas
+
+[33mcommit ae3eb100226b9e308a3587ba5c0e9708321ece8f[m
+Author: DrawNess <partunax4830@proton.me>
+Date:   Thu Sep 4 08:05:19 2025 -0400
+
+    Primer Commit

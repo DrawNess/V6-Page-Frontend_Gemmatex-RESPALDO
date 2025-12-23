@@ -160,28 +160,28 @@ export const routes: Routes = [
                 component: LoginComponent
             },
             {
-              path: 'auth/register',
-              component: RegisterComponent
+                path: 'auth/register',
+                component: RegisterComponent
             },
             {
-              path: 'auth/recovery',
-              component: RecoveryComponent
+                path: 'auth/recovery',
+                component: RecoveryComponent
             },
             {
-              path: 'resetPassword',
-              component: ForgotPasswordComponent
+                path: 'resetPassword',
+                component: ForgotPasswordComponent
             },
             {
-              path: 'verify-success',
-              component: VerifySuccessComponent
+                path: 'verify-success',
+                component: VerifySuccessComponent
             },
             {
-              path: 'verifyEmail',
-              component: VerifyMailComponent
+                path: 'verifyEmail',
+                component: VerifyMailComponent
             },
             {
-              path: 'auth/verify-request',
-              component: VerifyRequestComponent
+                path: 'auth/verify-request',
+                component: VerifyRequestComponent
             }
         ]
     },

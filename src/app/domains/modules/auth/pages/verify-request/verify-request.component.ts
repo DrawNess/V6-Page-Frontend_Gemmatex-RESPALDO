@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -14,16 +14,13 @@ type Status = 'init' | 'loading' | 'success' | 'error';
   templateUrl: './verify-request.component.html',
   styleUrl: './verify-request.component.css',
 })
-export class VerifyRequestComponent {
+export class VerifyRequestComponent implements OnDestroy {
   status: Status = 'init';
   errorMsg = '';
   showModal = false;
 
-  sentOnce = false;
-
-  private sentKey(email: string) {
-    return `gemmatex-verify-email-sent-${email}`;
-  }
+  cooldownSeconds = 0;
+  private cooldownTimer: any;
 
   form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -35,6 +32,7 @@ export class VerifyRequestComponent {
     private router: Router,
     private route: ActivatedRoute
   ) {
+    // limpiar error al escribir
     this.form.valueChanges.subscribe(() => (this.errorMsg = ''));
 
     // Prefill desde /auth/verify-request?email=...
@@ -44,8 +42,12 @@ export class VerifyRequestComponent {
 
     if (qpEmail) {
       this.form.controls.email.setValue(qpEmail);
-      this.sentOnce = sessionStorage.getItem(this.sentKey(qpEmail)) === '1';
+      this.loadCooldown(qpEmail);
     }
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.cooldownTimer);
   }
 
   get loading() {
@@ -56,47 +58,73 @@ export class VerifyRequestComponent {
     return this.form.controls;
   }
 
+  // ---- Cooldown helpers ----
+  private cooldownKey(email: string) {
+    return `gemmatex_verify_cooldown_until:${email}`;
+  }
+
+  private startCooldown(seconds: number) {
+    this.cooldownSeconds = seconds;
+    clearInterval(this.cooldownTimer);
+
+    this.cooldownTimer = setInterval(() => {
+      this.cooldownSeconds = Math.max(0, this.cooldownSeconds - 1);
+      if (this.cooldownSeconds === 0) clearInterval(this.cooldownTimer);
+    }, 1000);
+  }
+
+  private loadCooldown(email: string) {
+    const until = Number(sessionStorage.getItem(this.cooldownKey(email)) || '0');
+    const diff = Math.ceil((until - Date.now()) / 1000);
+    if (diff > 0) this.startCooldown(diff);
+  }
+
+  private setCooldown(email: string, seconds: number) {
+    const until = Date.now() + seconds * 1000;
+    sessionStorage.setItem(this.cooldownKey(email), String(until));
+    this.startCooldown(seconds);
+  }
+
+  // ---- Main submit ----
   submit() {
     this.errorMsg = '';
     this.showModal = false;
-
-    const email = this.form.getRawValue().email.trim().toLowerCase();
-
-        // ✅ si ya se envió una vez, no permitir otra
-    if (email && sessionStorage.getItem(this.sentKey(email)) === '1') {
-      this.sentOnce = true;
-      this.status = 'success';
-      this.errorMsg = '';
-      // modal premium opcional (si quieres)
-      this.showModalAfterDelay();
-      return;
-    }
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
+    const email = this.form.getRawValue().email.trim().toLowerCase();
+
+    // Si está en cooldown: bloquear
+    const until = Number(sessionStorage.getItem(this.cooldownKey(email)) || '0');
+    if (until > Date.now()) {
+      this.loadCooldown(email);
+      this.errorMsg = `Espera ${this.cooldownSeconds}s para reenviar.`;
+      return;
+    }
+
     this.status = 'loading';
-    /* const email = this.form.getRawValue().email.trim().toLowerCase(); */
 
     this.authService
       .sendVerifyEmail(email)
-      .pipe(finalize(() => (this.status = 'init')))
+      .pipe(
+        finalize(() => {
+          // no pisar success/error
+          if (this.status === 'loading') this.status = 'init';
+        })
+      )
       .subscribe({
         next: () => {
-          // premium: abre modal + deja 2s
-          this.showModal = true;
           this.status = 'success';
 
-          //Marcado como 1 vez enviado
-          sessionStorage.setItem(this.sentKey(email), '1');
+          // ✅ cooldown 40s
+          this.setCooldown(email, 40);
 
-          this.showModalAfterDelay();
-
+          // ✅ premium: abrir modal luego de 2s
           setTimeout(() => {
-            // opcional: mandarlo al login luego de 2s
-            // this.router.navigate(['/auth/login']);
+            this.showModal = true;
           }, 2000);
         },
         error: (err) => {
@@ -109,20 +137,12 @@ export class VerifyRequestComponent {
       });
   }
 
-  private showModalAfterDelay() {
-    setTimeout(() => {
-      this.showModal = true;
-    }, 2000);
-  }
-
   closeModal() {
     this.showModal = false;
   }
 
   goLogin() {
-    /* this.router.navigate(['/auth/login']); */
-        const email = this.form.getRawValue().email?.trim().toLowerCase() || '';
-    // opcional: pasar el email al login
+    const email = this.form.getRawValue().email?.trim().toLowerCase() || '';
     this.router.navigate(['/auth/login'], { queryParams: { email } });
   }
 

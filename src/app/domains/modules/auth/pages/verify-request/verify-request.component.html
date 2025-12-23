@@ -3,8 +3,8 @@
   <div
     class="pointer-events-none fixed inset-0 opacity-60"
     style="background-image: radial-gradient(rgba(0,0,0,0.06) 1px, transparent 1px);
-           background-size: 18px 18px;">
-  </div>
+           background-size: 18px 18px;"
+  ></div>
 
   <div class="relative mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4 py-10">
     <div class="grid w-full grid-cols-1 lg:grid-cols-2 gap-10 items-center">
@@ -15,7 +15,7 @@
           Verifica tu correo
         </h1>
         <p class="mt-3 text-slate-700 max-w-md">
-          Si tu token expiró o no recibiste el correo, podemos reenviarte un nuevo enlace de verificación.
+          Si tu token expiró o no recibiste el correo, te reenviamos un nuevo enlace.
         </p>
 
         <div class="mt-8 flex items-center gap-3 text-sm text-slate-600">
@@ -35,13 +35,13 @@
 
             <header class="mb-6">
               <!-- Logo -->
-              <div class="flex items-center justify-center sm:justify-start">
+              <!-- <div class="flex items-center justify-center sm:justify-start">
                 <img
                   src="https://peru-crane-813567.hostingersite.com/Logos/Logo%20gemmatex%20azul.png"
                   alt="Gemmatex"
                   class="h-8 w-auto"
                 />
-              </div>
+              </div> -->
 
               <h2 class="mt-4 text-2xl font-bold text-slate-900">Reenviar verificación</h2>
               <p class="mt-1 text-sm text-slate-600">
@@ -53,13 +53,6 @@
             @if (errorMsg) {
               <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                 {{ errorMsg }}
-              </div>
-            }
-
-            <!-- Mensaje cuando ya fue enviado (solo 1 vez) -->
-            @if (sentOnce && status === 'success') {
-              <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
-                Ya enviamos un correo de verificación. Revisa “Spam/Promociones”.
               </div>
             }
 
@@ -88,9 +81,9 @@
                 class="mt-2 inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-white font-semibold
                        hover:bg-blue-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-200 disabled:opacity-60
                        shadow-lg shadow-blue-200/40"
-                [disabled]="loading || sentOnce"
+                [disabled]="loading || cooldownSeconds > 0"
               >
-                @if (!loading && !sentOnce) {
+                @if (!loading && cooldownSeconds === 0) {
                   <span>Reenviar enlace</span>
                 } @else if (loading) {
                   <span class="inline-flex items-center gap-2">
@@ -101,14 +94,22 @@
                     Enviando…
                   </span>
                 } @else {
-                  <span>Correo ya enviado</span>
+                  <span>Reenviar en {{ cooldownSeconds }}s</span>
                 }
               </button>
+
+              @if (cooldownSeconds > 0) {
+                <p class="text-xs text-slate-500">
+                  Por seguridad, puedes reenviar el correo cada 40 segundos.
+                </p>
+              }
             </form>
 
             <div class="mt-6 text-center text-sm text-slate-600">
               ¿Ya verificaste?
-              <a routerLink="/auth/login" class="font-semibold text-slate-900 hover:underline">Inicia sesión</a>
+              <a routerLink="/auth/login" class="font-semibold text-slate-900 hover:underline">
+                Inicia sesión
+              </a>
             </div>
 
           </div>
@@ -118,7 +119,7 @@
     </div>
   </div>
 
-  <!-- MODAL premium (aparece luego de 2s) -->
+  <!-- MODAL premium -->
   @if (showModal) {
     <div class="fixed inset-0 z-50 flex items-center justify-center px-4">
       <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" (click)="closeModal()"></div>
