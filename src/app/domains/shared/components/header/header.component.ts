@@ -29,7 +29,7 @@ export class HeaderComponent {
   private cartService = inject(CartService);
   cart = this.cartService.cart;
   total = this.cartService.total;
-  
+
 
 private readonly categorySvc = inject(CategoryService);
 /* private readonly router = inject(Router); */
@@ -164,7 +164,7 @@ ngOnInit() {
     this.animate = false;               // resetea a estado inicial
     setTimeout(() => this.animate = true, 60); // dispara otra vez
   }, 8000); // cada 8s
-  
+
   this.router.events
       .pipe(filter(e => e instanceof NavigationEnd))
       .subscribe(() => {
@@ -232,7 +232,7 @@ subsMap: Record<typeof this.activeCat, Array<{ label: string; link: any[]; desc?
     ev.preventDefault(); // no navegar, abrir/cerrar panel
     this.isMegaOpen = !this.isMegaOpen;
   }
-  
+
   closeMega() { this.isMegaOpen = false; }
   setActive(key: typeof this.activeCat) { this.activeCat = key; }
   visibleSubs() { return this.subsMap[this.activeCat] ?? []; }
@@ -367,6 +367,6 @@ toggleCatAccordion(cat: HeaderCategory) {
 }
 
 
-  
+
 
 }
