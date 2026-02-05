@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { SECRET_BASE } from './../../../../../app.routes';
+import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
 
 @Component({
     selector: 'app-menu-secret.component',
@@ -10,5 +10,5 @@ import { SECRET_BASE } from './../../../../../app.routes';
     styleUrl: './menu-secret.component.component.css'
 })
 export class MenuSecretComponentComponent {
-  base = `/${SECRET_BASE}`;
+  base = `/${ROUTE_CONSTANTS.SECRET_BASE}`;
 }

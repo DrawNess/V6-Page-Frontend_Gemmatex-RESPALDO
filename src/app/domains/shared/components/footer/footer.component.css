@@ -1,0 +1,262 @@
+/* Footer Container con gradiente de fondo */
+.footer-container {
+  background: linear-gradient(135deg, #1a3d8f 0%, #0B2A7A 50%, #05102b 100%);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Efecto de fondo pulsante antes del footer */
+.footer-container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 50% 50%, rgba(76, 111, 255, 0.15) 0%, transparent 50%);
+  animation: pulse-glow 8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.1) rotate(180deg);
+    opacity: 0.6;
+  }
+}
+
+/* Patrón de puntos decorativo */
+.dot-pattern {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+  opacity: 0.4;
+  z-index: 0;
+}
+
+/* Líneas decorativas diagonales */
+.diagonal-lines {
+  background: linear-gradient(
+    -45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.02) 30%,
+    rgba(255, 255, 255, 0.02) 50%,
+    transparent 50%
+  );
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Título del footer con línea inferior animada */
+.footer-title {
+  font-weight: 700;
+  font-size: 1.125rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  position: relative;
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .footer-title {
+    text-align: left;
+  }
+}
+
+.footer-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 3px;
+/*   background: linear-gradient(90deg, #4C6FFF, #A9C5FF); */
+  border-radius: 2px;
+  animation: expand-line 0.6s ease-out forwards;
+}
+
+@media (min-width: 1024px) {
+  .footer-title::after {
+    left: 0;
+    transform: translateX(0);
+  }
+}
+
+@keyframes expand-line {
+  from { width: 0; }
+  to { width: 40px; }
+}
+
+/* Items de ubicación con animación */
+.location-item {
+  opacity: 0;
+  animation: fade-in-up 0.6s ease-out forwards;
+  transition: all 0.3s ease;
+}
+
+.location-item:hover {
+  transform: translateX(4px);
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Efecto glow en iconos al hover */
+.icon-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  background: radial-gradient(circle, #4C6FFF 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 50%;
+}
+
+.location-item:hover .icon-wrapper::before {
+  opacity: 0.3;
+}
+
+.icon-wrapper img {
+  filter: drop-shadow(0 0 8px rgba(76, 111, 255, 0.3));
+}
+
+/* Links con subrayado animado */
+.footer-link {
+  position: relative;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: #A9C5FF;
+  transition: width 0.3s ease;
+}
+
+.footer-link:hover::after {
+  width: 100%;
+}
+
+/* Logo con efecto hover */
+.logo-container {
+  position: relative;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.logo-container::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  background: radial-gradient(circle, rgba(76, 111, 255, 0.2) 0%, transparent 70%);
+  border-radius: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.logo-container:hover {
+  transform: scale(1.05) rotate(-1deg);
+}
+
+.logo-container:hover::before {
+  opacity: 1;
+}
+
+.logo-container img {
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+}
+
+/* Cajas de contacto con backdrop blur */
+.contact-box {
+  backdrop-filter: blur(10px);
+}
+
+/* Label de contacto */
+.contact-label {
+  color: white;
+}
+
+/* Logo de partner mejorado */
+.partner-logo:hover {
+  box-shadow: 0 12px 32px rgba(76, 111, 255, 0.25);
+}
+
+/* Botones de redes sociales con efecto glow */
+.social-link {
+  position: relative;
+  backdrop-filter: blur(10px);
+}
+
+.social-link::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #4C6FFF 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.social-link:hover::before {
+  opacity: 0.4;
+}
+
+.social-link img {
+  filter: drop-shadow(0 2px 8px rgba(76, 111, 255, 0.4));
+  transition: transform 0.3s ease;
+}
+
+.social-link:hover img {
+  transform: scale(1.1);
+}
+
+/* Animación de entrada para secciones */
+.footer-section {
+  opacity: 0;
+  animation: fade-in 0.8s ease-out forwards;
+}
+
+.footer-section:nth-child(1) { animation-delay: 0.1s; }
+.footer-section:nth-child(2) { animation-delay: 0.2s; }
+.footer-section:nth-child(3) { animation-delay: 0.3s; }
+.footer-section:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fade-in {
+  to { opacity: 1; }
+}
+
+/* Copyright */
+.copyright {
+  letter-spacing: 0.5px;
+}
+
+/* Ajustes responsive para centrado en móvil */
+@media (max-width: 1023px) {
+  .footer-section {
+    text-align: center;
+  }
+
+  .location-item {
+    justify-content: center;
+  }
+}

@@ -4,7 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angula
 import { RouterLink } from '@angular/router';
 import { ProductService } from '@shared/services/product.service';
 import { Product } from '@shared/models/product.model';
-import { SECRET_BASE } from './../../../../../app.routes';
+import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
 
 @Component({
     selector: 'app-products-manager.component',
@@ -60,7 +60,7 @@ export class ProductsManagerComponentComponent {
     });
   });
 
-  base = `/${SECRET_BASE}/menu-secreto`;
+  base = `/${ROUTE_CONSTANTS.SECRET_BASE}/${ROUTE_CONSTANTS.ADMIN.MENU_SECRETO}`;
 
   constructor() { this.load(); }
 

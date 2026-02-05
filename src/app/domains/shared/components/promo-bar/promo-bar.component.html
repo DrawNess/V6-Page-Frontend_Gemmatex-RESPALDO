@@ -1,24 +1,62 @@
 <section
   class="sticky bottom-0 z-[40] w-full
-         bg-[#1E2041]/95 text-white backdrop-blur
+         bg-[#1E2041]/95 text-white backdrop-blur-md
          border-t border-white/10 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.5)]"
 >
   <div class="mx-auto max-w-7xl px-4">
-    <div class="h-9 sm:h-10 flex items-center justify-center">
-      <p class="font-extrabold tracking-wide text-center text-[10px] sm:text-xs md:text-sm leading-tight">
-        <ng-container *ngFor="let ch of chars; let i = index">
+    <div class="h-10 sm:h-11 flex items-center">
+
+      <div class="flex-1 flex items-center justify-center">
+        <p
+          class="font-extrabold text-center
+                 text-[10px] sm:text-xs md:text-sm"
+          style="letter-spacing: 0.1em;"
+        >
+          <ng-container *ngFor="let ch of chars; let i = index">
+            <span
+              class="inline align-middle select-none opacity-0 translate-y-2
+                     transition-all ease-out will-change-trannsform will-change-opacity"
+              [style.transitionDuration.ms]="animate ? 550 : 0"
+              [style.transitionDelay.ms]="animate ? i * 25 : 0"
+              [ngClass]="{ 'opacity-100 translate-y-0': animate }"
+              [class.mr-2]="ch === ' '"
+              [class.sm:mr-3]="ch === ' '"
+            >
+              {{ ch === ' ' ? '' : ch }}
+            </span>
+          </ng-container>
+        </p>
+      </div>
+
+      <!-- REDES SOCIALES A LA DERECHA -->
+      <div class="hidden sm:flex items-center gap-2 md:gap-3 ml-4">
+        <a
+          *ngFor="let social of socialLinks"
+          [href]="social.url"
+          target="_blank"
+          rel="noopener"
+          [attr.aria-label]="social.ariaLabel"
+          class="social-icon-mini group relative flex items-center justify-center
+                 w-7 h-7 md:w-8 md:h-8 rounded-full
+                 bg-white/5 border border-white/10
+                 hover:bg-white/10 hover:border-white/20 hover:scale-110
+                 transition-all duration-300"
+        >
           <span
-            class="align-middle select-none opacity-0 translate-y-2 transition-all ease-out will-change-transform will-change-opacity"
-            [style.transitionDuration.ms]="animate ? 550 : 0"
-            [style.transitionDelay.ms]="animate ? i * 25 : 0"
-            [ngClass]="{ 'opacity-100 translate-y-0': animate }"
-            [class.w-2]="ch === ' '"
-            [class.sm:w-3]="ch === ' '"
-          >
-            {{ ch === ' ' ? '\u00A0' : ch }}
-          </span>
-        </ng-container>
-      </p>
+            class="absolute inset-0 rounded-full
+                   bg-gradient-to-br from-[#4C6FFF]/20 to-transparent
+                   transition-opacity duration-300"
+          ></span>
+
+          <img
+            [src]="social.icon"
+            [alt]="social.name"
+            class="relative z-10 w-3.5 h-3.5 md:w-4 md:h-4
+                   brightness-0 invert opacity-80 group-hover:opacity-100 transition-opacity"
+          />
+        </a>
+      </div>
+
     </div>
   </div>
 </section>

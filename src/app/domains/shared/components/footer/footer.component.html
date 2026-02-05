@@ -1,162 +1,120 @@
-<footer class="relative text-white overflow-hidden">
-  <!-- Fondo moderno (azul con gradiente) -->
-  <div class="absolute inset-0 bg-gradient-to-b from-blue-900 via-[#0B2A7A] to-[#07153F]"></div>
+<footer class="footer-container relative text-white overflow-hidden">
+  <!-- Contenido principal -->
+  <div class="relative z-10 py-16 lg:py-20">
+    <div class="container mx-auto px-4 lg:px-6">
 
-  <!-- Glow suave arriba -->
-  <div class="absolute inset-x-0 -top-20 h-40 bg-gradient-to-b from-[#4C6FFF]/25 to-transparent blur-2xl"></div>
-
-  <!-- Contenido -->
-  <div class="relative py-12">
-    <div class="container mx-auto px-4">
-
-      <!-- Grid principal (sin cajas) -->
+      <!-- Grid principal -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
 
-        <!-- Logo -->
-        <div class="flex flex-col items-center lg:items-start">
-          <a href="" class="inline-block">
+        <!-- Logo y descripción -->
+        <div class="footer-section flex flex-col items-center lg:items-start gap-6">
+          <a href="" class="logo-container inline-block">
             <img
-              src="https://peru-crane-813567.hostingersite.com/Logos/Nuevo%20Logo%20Completo%20Blanco.png"
+              [src]="logoUrl"
               alt="Logo Gemmatex"
-              class="w-60 mb-4 transition-transform duration-300 hover:scale-105"
+              class="w-60 max-w-full"
             >
           </a>
-
         </div>
 
         <!-- Sucursales -->
-        <div>
-          <h3 class="text-lg font-bold mb-5 text-center lg:text-left pb-2 border-b border-white/20">
-            Sucursales
-          </h3>
-
-          <ul class="space-y-4 text-sm text-white/85">
-            <li class="flex items-start gap-3">
-              <img src="https://peru-crane-813567.hostingersite.com/Logos/Iconos/ubicacion-blanco.webp" alt="Ubicación" class="w-5 mt-1 opacity-90">
-              <a href="https://goo.gl/maps/do7Hp1SowhjupSrX6"
-                 class="hover:text-[#A9C5FF] transition-colors underline-offset-4 hover:underline">
-                Casa Matriz LA PAZ: Av. Illampu esquina Graneros N.º 682.
-              </a>
-            </li>
-
-            <li class="flex items-start gap-3">
-              <img src="https://peru-crane-813567.hostingersite.com/Logos/Iconos/ubicacion-blanco.webp" alt="Ubicación" class="w-5 mt-1 opacity-90">
-              <a href="https://maps.app.goo.gl/YjqQhsZbnFX9Ra3L6"
-                 class="hover:text-[#A9C5FF] transition-colors underline-offset-4 hover:underline">
-                Cochabamba: Av. Aroma entre calle 16 de julio y Av. Oquendo.
-              </a>
-            </li>
-
-            <li class="flex items-start gap-3">
-              <img src="https://peru-crane-813567.hostingersite.com/Logos/Iconos/ubicacion-blanco.webp" alt="Ubicación" class="w-5 mt-1 opacity-90">
-              <a href="https://goo.gl/maps/EyVSdMvaQMJREoWF6"
-                 class="hover:text-[#A9C5FF] transition-colors underline-offset-4 hover:underline">
-                El Alto CEIBO: Zona 16 de julio, Calle René Dorado N°200.
-              </a>
-            </li>
-
-            <li class="flex items-start gap-3">
-              <img src="https://peru-crane-813567.hostingersite.com/Logos/Iconos/ubicacion-blanco.webp" alt="Ubicación" class="w-5 mt-1 opacity-90">
-              <a href="https://maps.app.goo.gl/FCK113zY5iUNCrtn9"
-                 class="hover:text-[#A9C5FF] transition-colors underline-offset-4 hover:underline">
-                El Alto Satélite: Av. Panorámica frente al canal RTP.
-              </a>
-            </li>
-
-            <li class="flex items-start gap-3">
-              <img src="https://peru-crane-813567.hostingersite.com/Logos/Iconos/ubicacion-blanco.webp" alt="Ubicación" class="w-5 mt-1 opacity-90">
-              <a href="#"
-                 class="hover:text-[#A9C5FF] transition-colors underline-offset-4 hover:underline">
-                Santa Cruz: Calle Isabela Católica Nº275.
+        <div class="footer-section">
+          <h3 class="footer-title">Sucursales</h3>
+          <ul class="space-y-5">
+            <li *ngFor="let location of locations; let i = index"
+                class="location-item flex items-start gap-3.5"
+                [style.animation-delay.s]="(i + 1) * 0.1">
+              <div class="icon-wrapper flex-shrink-0 w-5 h-5 relative">
+                <img [src]="locationIcon"
+                     [alt]="'Ubicación ' + location.name"
+                     class="w-full h-full object-contain">
+              </div>
+              <a [href]="location.mapUrl"
+                 class="footer-link text-white/90 hover:text-[#A9C5FF] transition-colors leading-relaxed"
+                 target="_blank"
+                 rel="noopener">
+                <strong class="font-semibold">{{ location.name }}:</strong> {{ location.address }}
               </a>
             </li>
           </ul>
         </div>
 
-        <!-- ✅ Contactos (centrado) -->
-        <div class="flex flex-col items-center text-center">
-          <h3 class="text-lg font-bold mb-5 pb-2 w-full border-b border-white/20">
-            Contactos
-          </h3>
+        <!-- Contactos -->
+        <div class="footer-section">
+          <h3 class="footer-title">Contactos</h3>
+          <div class="space-y-5">
 
-          <ul class="space-y-4 text-sm text-white/85 w-full">
-            <li>
-              <p class="font-semibold text-white">Email</p>
-              <a href="mailto:info@gemmatex.com.bo"
-                 class="hover:text-[#A9C5FF] transition-colors underline-offset-4 hover:underline">
-                info&#64;gemmatex.com.bo
+            <!-- Email -->
+            <div class="contact-box rounded-xl p-5 bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.06] hover:border-[#A9C5FF]/20 transition-all duration-300 hover:-translate-y-0.5">
+              <span class="contact-label block text-xs uppercase tracking-wider font-semibold mb-2">
+                Email
+              </span>
+              <a [href]="'mailto:' + email"
+                 class="footer-link text-white/85 text-sm">
+                {{ email }}
               </a>
-            </li>
+            </div>
 
-            <li>
-              <p class="font-semibold text-white">Teléfonos</p>
-              <p>LPZ: <a href="tel:+59171926087" class="hover:text-[#A9C5FF] transition-colors underline-offset-4 hover:underline">+591 71926087</a></p>
-              <p>CBBA: <a href="tel:+59162537431" class="hover:text-[#A9C5FF] transition-colors underline-offset-4 hover:underline">+591 62537431</a></p>
-              <p>SCRZ: <a href="tel:+59163565431" class="hover:text-[#A9C5FF] transition-colors underline-offset-4 hover:underline">+591 63565431</a></p>
-            </li>
-          </ul>
+            <!-- Teléfonos -->
+            <div class="contact-box rounded-xl p-5 bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.06] hover:border-[#A9C5FF]/20 transition-all duration-300 hover:-translate-y-0.5">
+              <span class="contact-label block text-xs uppercase tracking-wider font-semibold mb-3">
+                Teléfonos
+              </span>
+              <div class="space-y-2 text-sm text-white/85">
+                <div *ngFor="let phone of phones">
+                  <strong class="text-white">{{ phone.city }}:</strong>
+                  <a [href]="phone.link"
+                     class="footer-link hover:text-[#A9C5FF] transition-colors ml-1">
+                    {{ phone.number }}
+                  </a>
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
 
-        <!-- ✅ Trabajamos (centrado) -->
-        <div class="flex flex-col items-center text-center">
-          <h3 class="text-lg font-bold mb-5 pb-2 w-full border-b border-white/20">
-            Trabajamos
-          </h3>
-
-          <ul class="space-y-4 flex flex-col items-center">
-            <li>
+        <!-- Trabajamos con -->
+        <div class="footer-section">
+          <h3 class="footer-title">Trabajamos con</h3>
+          <div class="flex flex-col items-center gap-6">
+            <a href="#" class="partner-logo inline-block transition-all duration-400 hover:-translate-y-1 hover:scale-105">
               <img
-                src="https://peru-crane-813567.hostingersite.com/Logos/Marcas/logo%20Epson.png"
+                [src]="epsonLogo"
                 alt="EPSON"
-                class="w-24 transition-transform duration-300 hover:scale-105"
+                class="w-[100px] h-auto block"
               >
-            </li>
-          </ul>
+            </a>
+          </div>
         </div>
+
       </div>
 
-      <!-- Separador -->
-      <div class="mt-10 border-t border-white/15 pt-8">
+      <!-- Divider -->
+      <div class="footer-divider h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-10"></div>
 
-        <!-- Redes Sociales (modernas: halo al hover) -->
-        <div class="flex justify-center gap-7 mb-6">
-          <a href="https://www.facebook.com/profile.php?id=100076372653530"
-             class="group relative rounded-full p-2 transition hover:bg-white/10">
-            <span class="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition
-                         shadow-[0_0_40px_10px_rgba(120,160,255,0.25)]"></span>
-            <img src="https://peru-crane-813567.hostingersite.com/Logos/Iconos/Facebook%20blanco.png"
-                 alt="Facebook" class="relative w-9 transition-transform group-hover:scale-110">
-          </a>
+      <!-- Redes sociales y copyright -->
+      <div class="flex flex-col items-center gap-8">
 
-          <a href="https://www.tiktok.com/@gemmatextv"
-             class="group relative rounded-full p-2 transition hover:bg-white/10">
-            <span class="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition
-                         shadow-[0_0_40px_10px_rgba(120,160,255,0.25)]"></span>
-            <img src="https://peru-crane-813567.hostingersite.com/Logos/Iconos/tiktok%20blanco.png"
-                 alt="TikTok" class="relative w-9 transition-transform group-hover:scale-110">
-          </a>
-
-          <a href="https://www.youtube.com/@GemmatexTV"
-             class="group relative rounded-full p-2 transition hover:bg-white/10">
-            <span class="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition
-                         shadow-[0_0_40px_10px_rgba(120,160,255,0.25)]"></span>
-            <img src="https://peru-crane-813567.hostingersite.com/Logos/Iconos/Youtube%20blanco.png"
-                 alt="YouTube" class="relative w-9 transition-transform group-hover:scale-110">
-          </a>
-
-          <a href="https://www.facebook.com/profile.php?id=100076372653530"
-             class="group relative rounded-full p-2 transition hover:bg-white/10">
-            <span class="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition
-                         shadow-[0_0_40px_10px_rgba(120,160,255,0.25)]"></span>
-            <img src="https://peru-crane-813567.hostingersite.com/Logos/Iconos/messager%20blanco.png"
-                 alt="Messenger" class="relative w-9 transition-transform group-hover:scale-110">
+        <!-- Redes sociales -->
+        <div class="flex gap-5 flex-wrap justify-center">
+          <a *ngFor="let social of socialLinks"
+             [href]="social.url"
+             class="social-link w-12 h-12 rounded-full flex items-center justify-center bg-white/[0.08] border border-white/10 hover:bg-white/[0.15] hover:border-[#A9C5FF]/40 transition-all duration-400 hover:-translate-y-1 hover:scale-110"
+             target="_blank"
+             rel="noopener"
+             [attr.aria-label]="social.ariaLabel">
+            <img [src]="social.icon"
+                 [alt]="social.name"
+                 class="w-6 h-6 object-contain">
           </a>
         </div>
 
         <!-- Copyright -->
-        <p class="text-center text-sm text-white/70">
-          © Copyright Gemmatex 2025.
+        <p class="copyright text-center text-sm text-white/60 font-light tracking-wide">
+          © Copyright Gemmatex {{ currentYear }} • Todos los derechos reservados
         </p>
+
       </div>
 
     </div>

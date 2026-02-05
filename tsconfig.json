@@ -29,6 +29,7 @@
       "@info/*": ["./src/app/domains/info/*"],
       "@services/*": ["./src/app/domains/pages/sercicios/*"],
       "@auth/*": ["./src/app/domains/modules/auth/*"],
+      "@core/*": ["./src/app/core/*"],
       "@environments/*": ["./src/environments/*"],
       "@models/*": ["./src/app/domains/shared/models/*"]
     }

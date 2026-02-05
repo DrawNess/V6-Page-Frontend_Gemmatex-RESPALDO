@@ -137,64 +137,6 @@
 </div>
 
   </div>
-  <!-- Mensaje * NO SOLO TE VENDEMOS EL PRODUCTO, TE ENSENIAMOS A UTILIZARLO -->
-<section class="w-full bg-[#1E2041] text-white h-12">
-  <div class="">
-    <div class="flex items-center justify-center sm:py-3">
-      <p class="font-extrabold tracking-wide text-center text-xs sm:text-sm md:text-base leading-tight">
-        <ng-container *ngFor="let ch of chars; let i = index">
-          <span
-            class="align-middle select-none
-                   opacity-0 translate-y-2
-                   transition-all ease-out
-                   will-change-transform will-change-opacity"
-            [style.transitionDuration.ms]="animate ? 600 : 0"
-            [style.transitionDelay.ms]="animate ? i * 35 : 0"
-            [ngClass]="{ 'opacity-100 translate-y-0': animate }"
-            [class.w-2]="ch === ' '"
-            [class.sm:w-3]="ch === ' '"
-          >
-            {{ ch === ' ' ? '\u00A0' : ch }}
-          </span>
-        </ng-container>
-      </p>
-    </div>
-  </div>
-    <div class="flex items-center gap-2">
-       <!-- Botón menú (móvil) -->
-<!--     <button
-      class="lg:hidden inline-flex items-center justify-center h-10 w-10 rounded-xl
-             border border-slate-300 text-slate-700 bg-white hover:bg-slate-50
-             shadow-sm active:scale-95 transition"
-      (click)="openSheet()"
-      aria-label="Abrir menú móvil"
-    >
-      <svg viewBox="0 0 24 24" class="h-6 w-6" fill="currentColor">
-        <path d="M4 7h16v2H4zm0 4h16v2H4zm0 4h16v2H4z"/>
-      </svg>
-    </button> -->
-
-    <!-- Carrito -->
-    <!-- <button
-      class="relative p-2 bg-blue-100 hover:bg-blue-200 border border-blue-300
-             text-blue-800 rounded-full shadow transition active:scale-95"
-      (click)="toogleSideMenu()" aria-label="Abrir carrito"
-    >
-      <span
-        class="absolute -top-1 -left-1 w-5 h-5 bg-blue-700 text-white text-xs font-semibold
-               rounded-full flex items-center justify-center shadow-md"
-      >
-        {{ cart().length }}
-      </span>
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-           stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/>
-      </svg>
-    </button> -->
-
-  </div>
-</section>
 
 <!-- Subnav de Categorías (desktop) -->
 <nav class="hidden lg:block border-t border-slate-200 bg-white/80 backdrop-blur">
