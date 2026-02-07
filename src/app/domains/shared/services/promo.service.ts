@@ -2,6 +2,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Promo } from '@shared/models/promo.model';
+import { environment } from '@environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,7 @@ import { Promo } from '@shared/models/promo.model';
 export class PromoService {
 
   private http = inject(HttpClient);
-  private base = 'https://gemmatex.store/api/v1/promos';
+  private base = `${environment.API_URL}/promos`;
 
   constructor() { }
 

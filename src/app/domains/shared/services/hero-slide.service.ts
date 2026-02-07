@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { HeroSlide } from '@shared/models/hero-slide.model';
+import { environment } from '@environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ export class HeroSlideService {
   constructor() { }
 
   private http = inject(HttpClient);
-  private base = 'https://gemmatex.store/api/v1/hero-slides';
+  private base = `${environment.API_URL}/hero-slides`;
 
 /*   getAll() {
     return this.http.get<HeroSlide[]>(`${this.base}/hero-slides`);

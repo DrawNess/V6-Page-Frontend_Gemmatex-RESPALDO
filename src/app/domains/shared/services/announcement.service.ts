@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Announcement } from '@shared/models/announcement.model';
+import { environment } from '@environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,7 @@ export class AnnouncementService {
 
   constructor() { }
   private http = inject(HttpClient);
-  private base = 'https://gemmatex.store/api/v1/announcements';
+  private base = `${environment.API_URL}/announcements`;
 
   // GET /announcements
   getAll(params?: { activeNow?: boolean }) {

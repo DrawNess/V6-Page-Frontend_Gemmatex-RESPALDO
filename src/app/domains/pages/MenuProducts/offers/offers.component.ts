@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 
 import { Offer } from '@shared/models/offer.model';
+import { environment } from '@environments/environment';
 
 type SortKey =
   | 'id' | 'name' | 'brand'
@@ -41,8 +42,7 @@ type NewOffer = {
 export class OffersComponent implements OnInit{
 
     private http = inject(HttpClient);
-  private readonly BASE = 'https://gemmatex.store/api/v1';
-  // private readonly BASE = 'http://localhost:3000/api/v1';
+  private readonly BASE = environment.API_URL;
 
   // Estado base
   loading = signal(false);

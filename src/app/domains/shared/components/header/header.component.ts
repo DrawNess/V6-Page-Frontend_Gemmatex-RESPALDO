@@ -43,6 +43,7 @@ headerCategories = signal<Category[]>([]);
 
   openMenu: string | null = null;
   private closeTimer: any = null;
+  desktopMenuOpen = false;
 
   onEnter(menu: string) {
     if (this.closeTimer) clearTimeout(this.closeTimer);
@@ -59,6 +60,18 @@ headerCategories = signal<Category[]>([]);
     ev.preventDefault(); // soporte para móviles
     if (this.closeTimer) clearTimeout(this.closeTimer);
     this.openMenu = this.openMenu === menu ? null : menu;
+  }
+
+  toggleDesktopMenu() {
+    this.desktopMenuOpen = !this.desktopMenuOpen;
+    if (!this.desktopMenuOpen) {
+      this.openMenu = null;
+    }
+  }
+
+  closeDesktopMenu() {
+    this.desktopMenuOpen = false;
+    this.openMenu = null;
   }
 
   // Opcional: mini-cart lateral
@@ -168,6 +181,8 @@ ngOnInit() {
   this.router.events
       .pipe(filter(e => e instanceof NavigationEnd))
       .subscribe(() => {
+        this.desktopMenuOpen = false;
+        this.openMenu = null;
         setTimeout(() => {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }, 0);

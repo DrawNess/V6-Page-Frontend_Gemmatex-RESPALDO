@@ -2,13 +2,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Product } from '../models/product.model';
+import { environment } from '@environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
   private http = inject(HttpClient);
-  private base = 'https://gemmatex.store/api/v1/products';
+  private base = `${environment.API_URL}/products`;
 
   constructor() { }
     // GET /products?categoryId=...
@@ -30,7 +31,7 @@ export class ProductService {
   }
 
   getProductos() {
-    return this.http.get<Product[]>(`https://gemmatex.store/api/v1/products`);
+    return this.http.get<Product[]>(this.base);
   }
 
 

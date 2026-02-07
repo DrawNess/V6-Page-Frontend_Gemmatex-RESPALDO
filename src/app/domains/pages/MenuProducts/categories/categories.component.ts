@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 
 import { Category } from '@shared/models/category.model';
+import { environment } from '@environments/environment';
 
 type NewCategory = {
   name: string;
@@ -23,8 +24,7 @@ export class CategoriesComponent {
   private http = inject(HttpClient);
 
   // Cambia aquí si quieres apuntar a local
-  private readonly BASE = 'https://gemmatex.store/api/v1';
-  // private readonly BASE = 'http://localhost:3000/api/v1';
+  private readonly BASE = environment.API_URL;
 
   // Estado
   loading = signal(false);

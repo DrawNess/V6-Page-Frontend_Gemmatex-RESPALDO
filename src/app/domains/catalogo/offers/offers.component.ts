@@ -7,6 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { OfferService } from '@shared/services/offer.service';
 import { Offer } from '@shared/models/offer.model';
 import { CartService } from '@shared/services/cart.service';
+import { environment } from '@environments/environment';
 
 type SortKey = 'best' | 'discount' | 'priceAsc' | 'priceDesc';
 
@@ -23,6 +24,7 @@ export class OffersComponent {
 private offerService = inject(OfferService);
   private cartService  = inject(CartService);
   private http         = inject(HttpClient);
+  private readonly API_BASE = environment.API_URL;
 
   offers  = signal<Offer[]>([]);
   loading = signal<boolean>(true);
@@ -60,7 +62,7 @@ private offerService = inject(OfferService);
 
   // --- CATEGORÍAS / SUBCATEGORÍAS -----------------------------------------
   private loadCategories() {
-    this.http.get<Category[]>('http://localhost:3000/api/v1/categories')
+    this.http.get<Category[]>(`${this.API_BASE}/categories`)
       .subscribe({
         next: (cats) => this.categories.set(cats ?? []),
         error: (e) => console.error('categories error', e)
@@ -70,7 +72,7 @@ private offerService = inject(OfferService);
   private loadSubcategories(catId: number) {
     // cache simple
     if (this.subcatsMap().has(catId)) return;
-    this.http.get<Subcategory[]>(`http://localhost:3000/api/v1/categories/${catId}/subcategories`)
+    this.http.get<Subcategory[]>(`${this.API_BASE}/categories/${catId}/subcategories`)
       .subscribe({
         next: (subs) => {
           const map = new Map(this.subcatsMap());

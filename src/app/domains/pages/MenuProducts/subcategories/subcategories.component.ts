@@ -6,6 +6,7 @@ import { RouterLink } from '@angular/router';
 
 import { Category } from '@shared/models/category.model';
 import { Subcategory } from '@shared/models/subcategory.model';
+import { environment } from '@environments/environment';
 
 type SortKey = 'id' | 'name' | 'slug' | 'category' | 'createdAt';
 type SortDir = 'asc' | 'desc';
@@ -33,8 +34,7 @@ type NewSubcategory = {
 export class SubcategoriesComponent implements OnInit {
 
   private http = inject(HttpClient);
-  private readonly BASE = 'https://gemmatex.store/api/v1';
-  // private readonly BASE = 'http://localhost:3000/api/v1';
+  private readonly BASE = environment.API_URL;
 
   // Estado
   loading = signal(false);
@@ -352,7 +352,6 @@ export class SubcategoriesComponent implements OnInit {
   }
 
 }
-
 
 
 
