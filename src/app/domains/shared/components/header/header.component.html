@@ -157,46 +157,46 @@
       </div>
     </div>
   }
-  <!-- Dropdown del menú principal estilo Sinch -->
+  <!-- Dropdown del menú principal -->
   @if (desktopMenuOpen) {
     <div class="absolute left-0 right-0 top-full z-[55] animate-dropdown">
       <div class="bg-white border-b border-slate-200 shadow-lg">
         <div class="mx-auto max-w-7xl px-8 py-12">
 
-          <div class="grid grid-cols-5 gap-12">
+          <div class="grid grid-cols-4 gap-12">
 
             <!-- Columna 1: Inicio -->
-            <div>
+<!--             <div>
               <h3 class="text-sm font-semibold text-slate-900 mb-4">Inicio</h3>
               <ul class="space-y-3">
                 <li>
-                <a routerLink="/" (click)="closeDesktopMenu()"
-                   class="text-sm text-slate-600 hover:text-[#0B5ED7] transition-colors flex items-start">
+                  <a routerLink="/" (click)="closeDesktopMenu()"
+                    class="text-sm text-slate-600 hover:text-slate-900 transition-colors flex items-start">
                     <span>Página principal</span>
                   </a>
                 </li>
               </ul>
-            </div>
+            </div> -->
 
             <!-- Columna 2: Empresa -->
             <div>
               <h3 class="text-sm font-semibold text-slate-900 mb-4">Empresa</h3>
               <ul class="space-y-3">
                 <li>
-                <a routerLink="/empresa/sobre-nosotros" (click)="closeDesktopMenu()"
-                   class="text-sm text-slate-600 hover:text-[#0B5ED7] transition-colors">
+                  <a routerLink="/empresa/sobre-nosotros" (click)="closeDesktopMenu()"
+                    class="text-sm text-slate-600 hover:text-slate-900 transition-colors">
                     Sobre nosotros
                   </a>
                 </li>
                 <li>
-                <a routerLink="/empresa/sobre-nosotros" (click)="closeDesktopMenu()"
-                   class="text-sm text-slate-600 hover:text-[#0B5ED7] transition-colors">
+                  <a routerLink="/empresa/sobre-nosotros" (click)="closeDesktopMenu()"
+                    class="text-sm text-slate-600 hover:text-slate-900 transition-colors">
                     Misión y visión
                   </a>
                 </li>
                 <li>
-                <a routerLink="/empresa/sobre-nosotros" (click)="closeDesktopMenu()"
-                   class="text-sm text-slate-600 hover:text-[#0B5ED7] transition-colors">
+                  <a routerLink="/empresa/sobre-nosotros" (click)="closeDesktopMenu()"
+                    class="text-sm text-slate-600 hover:text-slate-900 transition-colors">
                     Valores
                   </a>
                 </li>
@@ -208,20 +208,20 @@
               <h3 class="text-sm font-semibold text-slate-900 mb-4">Recursos</h3>
               <ul class="space-y-3">
                 <li>
-                <a href="https://www.youtube.com/@GemmatexTV" (click)="closeDesktopMenu()"
-                   class="text-sm text-slate-600 hover:text-[#0B5ED7] transition-colors">
+                  <a href="https://www.youtube.com/@GemmatexTV" (click)="closeDesktopMenu()"
+                    class="text-sm text-slate-600 hover:text-slate-900 transition-colors">
                     Videos
                   </a>
                 </li>
                 <li>
-                <a routerLink="/recursos/perfiles-de-color" (click)="closeDesktopMenu()"
-                   class="text-sm text-slate-600 hover:text-[#0B5ED7] transition-colors">
+                  <a routerLink="/recursos/perfiles-de-color" (click)="closeDesktopMenu()"
+                    class="text-sm text-slate-600 hover:text-slate-900 transition-colors">
                     Perfiles de color
                   </a>
                 </li>
                 <li>
-                <a routerLink="/descargas/sublimacion" (click)="closeDesktopMenu()"
-                   class="text-sm text-slate-600 hover:text-[#0B5ED7] transition-colors">
+                  <a routerLink="/descargas/sublimacion" (click)="closeDesktopMenu()"
+                    class="text-sm text-slate-600 hover:text-slate-900 transition-colors">
                     Guías de sublimación
                   </a>
                 </li>
@@ -233,8 +233,8 @@
               <h3 class="text-sm font-semibold text-slate-900 mb-4">Sucursales</h3>
               <ul class="space-y-3">
                 <li>
-                <a routerLink="/encuentranos" (click)="closeDesktopMenu()"
-                   class="text-sm text-slate-600 hover:text-[#0B5ED7] transition-colors">
+                  <a routerLink="/encuentranos" (click)="closeDesktopMenu()"
+                    class="text-sm text-slate-600 hover:text-slate-900 transition-colors">
                     Encuentra tu tienda
                   </a>
                 </li>
@@ -259,8 +259,8 @@
 
           <!-- Footer del dropdown - Ofertas -->
           <div class="mt-10 pt-6 border-t border-slate-200">
-          <a routerLink="/ofertas" (click)="closeDesktopMenu()"
-             class="inline-flex items-center text-sm font-medium text-[#0B5ED7] hover:text-[#0a4fb8] transition-colors group">
+            <a routerLink="/ofertas" (click)="closeDesktopMenu()"
+              class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors group">
               Ver todas las ofertas destacadas
               <span class="ml-2 group-hover:translate-x-1 transition-transform">→</span>
             </a>
