@@ -28,6 +28,7 @@ export class HeaderComponent {
   private cartService = inject(CartService);
   cart = this.cartService.cart;
   total = this.cartService.total;
+  searchOpen = false;
 
   private readonly categorySvc = inject(CategoryService);
   private router = inject(Router);
@@ -35,6 +36,13 @@ export class HeaderComponent {
 
   toogleSideMenu() {
     this.hideSideMenu.update(prevState => !prevState);
+  }
+
+  toggleSearch() {
+    this.searchOpen = !this.searchOpen;
+  }
+  closeSearch() {
+    this.searchOpen = false;
   }
 
   private closeTimer: any = null;
@@ -109,6 +117,7 @@ export class HeaderComponent {
       .pipe(filter(e => e instanceof NavigationEnd))
       .subscribe(() => {
         this.desktopMenuOpen = false;
+        this.searchOpen = false;
         setTimeout(() => {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }, 0);
