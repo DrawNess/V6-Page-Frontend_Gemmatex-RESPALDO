@@ -28,5 +28,8 @@ export interface Product {
   created_at: string;
   updated_at: string;
   subcategory?: Subcategory;
+  /** Selecciones locales cuando el producto admite variantes (ej. tintas por color) */
+  selectedColor?: string;
+  selectedPrinter?: string;
   /* category: 1; */
 }

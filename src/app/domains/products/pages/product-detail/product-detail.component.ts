@@ -33,6 +33,29 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
   private destroyRef = inject(DestroyRef);
   private lastLoadedId: string | null = null;
 
+  // variantes tintas
+  readonly printerOptions: Array<{
+    id: string;
+    label: string;
+    description: string;
+    colors: string[];
+  }> = [
+    {
+      id: 'f6470',
+      label: 'F6470 · 4 colores',
+      description: 'Tintas estándar (C, M, Y, K)',
+      colors: ['Cian (C)', 'Magenta (M)', 'Amarillo (Y)', 'Negro (K)']
+    },
+    {
+      id: 'f6470h',
+      label: 'F6470H · 6 colores',
+      description: 'Color - 2x1600ml (C, M, Y, K, LC, LM)',
+      colors: ['Cian (C)', 'Magenta (M)', 'Amarillo (Y)', 'Negro (K)', 'Cian Claro (LC)', 'Magenta Claro (LM)']
+    }
+  ];
+  selectedPrinterId = signal<string | null>(null);
+  selectedColor = signal<string | null>(null);
+
   // estado principal
   product = signal<Product | null>(null);
 
@@ -46,6 +69,12 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
     () => this.cover() || this.product()?.imageUrl || '/assets/placeholders/product.webp'
   );
   readonly productTags = computed(() => this.product()?.tags ?? []);
+  readonly isInkProduct = computed(() => this.isInkSubcategory(this.product()));
+  readonly availableColors = computed<string[]>(() => {
+    const id = this.selectedPrinterId();
+    const opt = this.printerOptions.find(o => o.id === id);
+    return opt?.colors ?? [];
+  });
   isAdding = signal(false);
   added = signal(false);
   private addAnimTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -71,6 +100,7 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
     this.product.set(null);
     this.cover.set('');
     this.thumbs.set([]);
+    this.resetInkSelections();
 
     this.productService.getOne(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -79,6 +109,7 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
         this.product.set(p || null);
         this.buildGallery(p);
         this.loadSimilar(p);
+        this.setupInkSelections(p);
       },
       error: (err) => {
         console.error('Error cargando producto', err);
@@ -131,7 +162,15 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
     const p = this.product();
     if (!p) return;
 
-    this.cartService.addToCart(p);
+    const enriched: Product = this.isInkProduct()
+      ? {
+          ...p,
+          selectedPrinter: this.selectedPrinterLabel(),
+          selectedColor: this.selectedColor() || undefined
+        }
+      : p;
+
+    this.cartService.addToCart(enriched);
     this.triggerAddAnimation();
   }
   addToCartDirect(p: Product) {
@@ -209,6 +248,56 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
 
   // trackBy
   trackById = (_: number, p: Product) => p.id;
+
+  // ——— Tintas helpers
+  private isInkSubcategory(p?: Product | null): boolean {
+    const sub =
+      (p as any)?.subcategory?.name ??
+      (p as any)?.subcategory?.slug ??
+      (p as any)?.subcategory ??
+      '';
+    return String(sub).toLowerCase().includes('tinta');
+  }
+
+  private resetInkSelections() {
+    this.selectedPrinterId.set(null);
+    this.selectedColor.set(null);
+  }
+
+  private setupInkSelections(p?: Product | null) {
+    if (!this.isInkSubcategory(p)) {
+      this.resetInkSelections();
+      return;
+    }
+
+    const defaultPrinter = this.printerOptions[0];
+    if (!this.selectedPrinterId()) {
+      this.selectedPrinterId.set(defaultPrinter.id);
+    }
+
+    const colors = this.availableColors() as string[];
+    const currentColor = this.selectedColor();
+    if (!currentColor || !colors.includes(currentColor)) {
+      this.selectedColor.set(colors[0] ?? null);
+    }
+  }
+
+  selectPrinter(id: string) {
+    this.selectedPrinterId.set(id);
+    const colors = this.availableColors() as string[];
+    if (colors.length && !colors.includes(this.selectedColor() || '')) {
+      this.selectedColor.set(colors[0]);
+    }
+  }
+
+  selectColor(color: string) {
+    this.selectedColor.set(color);
+  }
+
+  selectedPrinterLabel(): string {
+    const id = this.selectedPrinterId();
+    return this.printerOptions.find(o => o.id === id)?.label ?? '';
+  }
 
   ngOnDestroy(): void {
     if (this.addAnimTimeout) clearTimeout(this.addAnimTimeout);
