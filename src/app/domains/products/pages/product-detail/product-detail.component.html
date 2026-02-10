@@ -1,123 +1,196 @@
-<div class="w-full max-w-7xl mx-auto px-4 py-6 grid grid-cols-12 gap-8">
+<div class="w-full max-w-7xl mx-auto px-4 py-6">
 
-  <!-- IZQUIERDA: meta -->
-  <aside class="col-span-12 lg:col-span-3 space-y-4">
-    <div class="rounded-lg border bg-white p-4">
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-semibold px-2 py-0.5 rounded-full"
-              [class.bg-green-100]="(product()?.stock ?? 0) > 0"
-              [class.text-green-700]="(product()?.stock ?? 0) > 0"
-              [class.bg-red-100]="(product()?.stock ?? 0) === 0"
-              [class.text-red-700]="(product()?.stock ?? 0) === 0">
-          {{ (product()?.stock ?? 0) > 0 ? 'En stock' : 'Agotado' }}
-        </span>
-        <span class="text-xs text-gray-500">SKU: {{ product()?.sku || '—' }}</span>
-      </div>
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-      <dl class="text-sm text-gray-700 grid grid-cols-1 gap-2">
-        <div class="flex justify-between">
-          <dt class="text-gray-500">MARCA</dt>
-          <dd class="font-medium">{{ product()?.brand || '—' }}</dd>
+    <!-- IZQUIERDA: Galería (7 cols) -->
+    <div class="lg:col-span-7 space-y-3">
+      <!-- Imagen principal -->
+      <div class="relative rounded-xl overflow-hidden bg-slate-50 border border-slate-200">
+        <div class="aspect-square flex items-center justify-center p-6">
+          <img
+            [src]="selectedImage()"
+            [alt]="product()?.name || 'Producto'"
+            class="max-h-full max-w-full object-contain"
+            (error)="onCoverError($event)"
+          />
         </div>
-        <div class="flex justify-between">
-          <dt class="text-gray-500">Unidad</dt>
-          <dd class="font-medium">{{ product()?.unitOfMeasure || '—' }}</dd>
-        </div>
-        <div class="flex justify-between">
-          <dt class="text-gray-500">Dimensiones</dt>
-          <dd class="font-medium">{{ product()?.dimensions || '—' }}</dd>
-        </div>
-      </dl>
-    </div>
 
-    <div class="rounded-lg border bg-white p-4" *ngIf="(product()?.tags?.length || 0) > 0">
-      <p class="text-sm font-semibold mb-2">Etiquetas</p>
-      <div class="flex flex-wrap gap-2">
-        @for (t of product()?.tags; track t) {
-          <span class="text-xs px-2 py-1 rounded-full border bg-gray-50 text-gray-700">{{ t }}</span>
-        }
-      </div>
-    </div>
-  </aside>
-
-  <!-- CENTRO: galería -->
-  <section class="col-span-12 lg:col-span-6">
-    <div class="rounded-lg border bg-white p-3">
-      <div class="w-full aspect-square flex items-center justify-center overflow-hidden rounded bg-white">
-        <img
-          [src]="cover() || product()?.imageUrl"
-          [alt]="product()?.name || 'Producto'"
-          class="max-h-full max-w-full object-contain"
-          (error)="onCoverError($event)"
-        />
-      </div>
-
-      <!-- Thumbs -->
-      <div class="mt-3" *ngIf="(thumbs()?.length || 0) > 1">
-        <div class="flex gap-3 overflow-x-auto pb-1">
-          @for (img of thumbs(); track trackByThumb($index, img)) {
-            <button
-              type="button"
-              class="w-20 h-20 flex-shrink-0 rounded border-2 overflow-hidden bg-white"
-              [class.border-blue-500]="img === (cover() || product()?.imageUrl)"
-              [class.border-gray-200]="img !== (cover() || product()?.imageUrl)"
-              (click)="changeCover(img)"
-            >
-              <img [src]="img" alt="miniatura" class="w-full h-full object-cover"
-                   (error)="onThumbError($event)" loading="lazy" />
-            </button>
-          }
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- DERECHA: info principal -->
-  <aside class="col-span-12 lg:col-span-3 space-y-4">
-    <div class="rounded-lg border bg-white p-4">
-      <h1 class="text-2xl lg:text-3xl font-semibold text-gray-900">{{ product()?.name }}</h1>
-
-      <p class="text-sm text-gray-600 mt-2">
-        {{ product()?.description }}
-      </p>
-
-      <!-- Precio -->
-      <!-- <div class="mt-4 flex items-end gap-3">
-        <ng-container *ngIf="(product()?.discountPrice ?? 0) > 0; else noDiscount">
-          <span class="text-3xl font-bold text-gray-900">
-            {{ product()?.discountPrice | currency:'BOB':'symbol-narrow':'1.2-2' }}
+        <!-- Badge de stock -->
+        <div class="absolute top-3 left-4">
+          <span class="px-2.5 py-1 rounded-lg text-xs font-medium backdrop-blur-sm shadow-sm"
+                [class.bg-green-500]="!isOutOfStock()"
+                [class.bg-red-500]="isOutOfStock()"
+                class="text-white">
+            {{ isOutOfStock() ? 'Agotado' : 'En stock' }}
           </span>
-          <span class="text-lg line-through text-gray-400">
-            {{ product()?.price | currency:'BOB':'symbol-narrow':'1.2-2' }}
-          </span>
-        </ng-container>
-        <ng-template #noDiscount>
-          <span class="text-3xl font-bold text-gray-900">
-            {{ product()?.price | currency:'BOB':'symbol-narrow':'1.2-2' }}
-          </span>
-        </ng-template>
-      </div> -->
+        </div>
+      </div>
 
-      <!-- CTA -->
-      <div class="mt-5 space-y-2">
+      <!-- Miniaturas -->
+      <div class="flex gap-2 overflow-x-auto pb-1" *ngIf="(thumbs()?.length || 0) > 1">
         <button
-          class="w-full inline-flex items-center justify-center text-white bg-blue-600 hover:bg-blue-700
-                 font-medium rounded-lg px-4 py-3 transition"
-          (click)="addToCart()"
-          [disabled]="(product()?.stock ?? 0) === 0"
+          *ngFor="let img of thumbs(); trackBy: trackByThumb"
+          type="button"
+          class="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all"
+          [class.border-blue-600]="img === selectedImage()"
+          [class.border-slate-200]="img !== selectedImage()"
+          [class.opacity-60]="img !== selectedImage()"
+          [class.hover:opacity-100]="img !== selectedImage()"
+          (click)="changeCover(img)"
         >
-          {{ (product()?.stock ?? 0) === 0 ? 'Agotado' : 'Añadir al carrito' }}
+          <img [src]="img" alt="miniatura" class="w-full h-full object-cover bg-slate-100"
+               (error)="onThumbError($event)" loading="lazy" />
         </button>
       </div>
 
-      <div class="mt-4 text-xs text-gray-500 space-y-1">
-        <p>Actualizado: {{ product()?.created_at | date:'short' }}</p>
-        <p>ID: {{ product()?.id }}</p>
+      <!-- Descripción completa (mobile: arriba, desktop: abajo de galería) -->
+      <div class="lg:block bg-white rounded-xl border border-slate-200 p-5">
+        <h3 class="text-sm font-semibold text-slate-900 mb-3">Descripción del producto</h3>
+        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+          {{ product()?.description || 'Sin descripción disponible.' }}
+        </p>
+      </div>
+
+      <!-- Especificaciones técnicas -->
+      <div class="bg-white rounded-xl border border-slate-200 p-5">
+        <h3 class="text-sm font-semibold text-slate-900 mb-4">Especificaciones técnicas</h3>
+        <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+          <div class="flex justify-between py-2 border-b border-slate-100">
+            <span class="text-slate-500">Marca</span>
+            <span class="font-medium text-slate-900">{{ product()?.brand || '—' }}</span>
+          </div>
+          <div class="flex justify-between py-2 border-b border-slate-100">
+            <span class="text-slate-500">SKU</span>
+            <span class="font-medium text-slate-900">{{ product()?.sku || '—' }}</span>
+          </div>
+          <div class="flex justify-between py-2 border-b border-slate-100">
+            <span class="text-slate-500">Unidad</span>
+            <span class="font-medium text-slate-900">{{ product()?.unitOfMeasure || '—' }}</span>
+          </div>
+          <div class="flex justify-between py-2 border-b border-slate-100">
+            <span class="text-slate-500">Dimensiones</span>
+            <span class="font-medium text-slate-900">{{ product()?.dimensions || '—' }}</span>
+          </div>
+          <div class="flex justify-between py-2 border-b border-slate-100">
+            <span class="text-slate-500">Stock</span>
+            <span class="font-medium text-slate-900">{{ product()?.stock ?? 0 }} unidades</span>
+          </div>
+          <div class="flex justify-between py-2 border-b border-slate-100">
+            <span class="text-slate-500">ID</span>
+            <span class="font-medium text-slate-900">#{{ product()?.id }}</span>
+          </div>
+        </div>
       </div>
     </div>
-  </aside>
-</div>
 
+    <!-- DERECHA: Info de compra (5 cols - sticky) -->
+    <div class="lg:col-span-5">
+      <div class="lg:sticky lg:top-6 space-y-4">
+
+        <!-- Card principal de compra -->
+        <div class="bg-white rounded-xl border border-slate-200 p-5">
+
+          <!-- Título y marca -->
+          <div class="mb-4">
+            <p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
+              {{ product()?.brand || 'Marca' }}
+            </p>
+            <h1 class="text-xl font-bold text-slate-900 leading-tight">
+              {{ product()?.name }}
+            </h1>
+          </div>
+
+          <!-- Precio -->
+          <div class="bg-slate-50 rounded-lg p-4 mb-4">
+            <p class="text-xs text-slate-500 mb-1">Precio</p>
+            <div class="flex items-baseline gap-2 flex-wrap">
+              <ng-container *ngIf="(product()?.discountPrice ?? 0) > 0; else noDiscount">
+                <span class="text-3xl font-bold text-slate-900">
+                  {{ product()?.discountPrice | currency:'BOB':'symbol-narrow':'1.2-2' }}
+                </span>
+                <span class="text-lg line-through text-slate-400">
+                  {{ product()?.price | currency:'BOB':'symbol-narrow':'1.2-2' }}
+                </span>
+                <span class="px-2 py-0.5 bg-red-500 text-white text-xs font-bold rounded">
+                  OFERTA
+                </span>
+              </ng-container>
+              <ng-template #noDiscount>
+                <span class="text-3xl font-bold text-slate-900">
+                  {{ product()?.price | currency:'BOB':'symbol-narrow':'1.2-2' }}
+                </span>
+              </ng-template>
+            </div>
+          </div>
+
+          <!-- Botón de compra con animación simple y segura en clics repetidos -->
+          <button
+            class="cart-btn relative w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold
+                   rounded-lg px-5 py-3.5 transition-all duration-200
+                   disabled:bg-slate-300 disabled:cursor-not-allowed
+                   flex items-center justify-center gap-2 overflow-hidden"
+            (click)="addToCart()"
+            [disabled]="isOutOfStock()"
+            [class.btn-adding]="isAdding()"
+            [class.btn-added]="added()"
+          >
+            <span class="cart-btn__icon">🛒</span>
+            <span class="transition-all duration-200" [class.scale-95]="isAdding()">
+              {{
+                isOutOfStock()
+                  ? 'Producto agotado'
+                  : added()
+                    ? '¡Añadido!'
+                    : 'Añadir al carrito'
+              }}
+            </span>
+            <span *ngIf="isAdding()" class="cart-pulse"></span>
+          </button>
+
+          <!-- Info adicional -->
+          <div class="mt-4 pt-4 border-t border-slate-100 space-y-2">
+            <div class="flex items-center gap-2 text-xs text-slate-500">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span>Envío disponible a todo el país</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-slate-500">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span>Garantía del fabricante</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-slate-500">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span>Soporte técnico incluido</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Etiquetas -->
+        <div class="bg-white rounded-xl border border-slate-200 p-5" *ngIf="(product()?.tags?.length || 0) > 0">
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Categorías</p>
+          <div class="flex flex-wrap gap-2">
+            <span
+              *ngFor="let t of product()?.tags"
+              class="px-2.5 py-1 text-xs font-medium rounded-md bg-slate-100 text-slate-700">
+              {{ t }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Meta info -->
+        <div class="text-xs text-slate-400">
+          Actualizado: {{ product()?.created_at | date:'short' }}
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
 <!-- SIMILARES -->
 <section class="w-full max-w-7xl mx-auto px-4 pb-10" *ngIf="(similar()?.length) ">
   <div class="mt-2 flex items-center justify-between gap-3">

@@ -24,3 +24,32 @@
   from { transform: translateY(24px); opacity: .98; }
   to   { transform: translateY(0);    opacity: 1; }
 }
+.cart-badge {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.badge-bump {
+  animation: badge-bump 0.45s ease;
+}
+
+@keyframes badge-bump {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.18) translateY(-2px); }
+  60% { transform: scale(0.96) translateY(0); }
+  100% { transform: scale(1); }
+}
+
+.cart-pop {
+  display: none;
+}
+
+.cart-grow {
+  animation: cart-grow 0.35s ease;
+}
+
+@keyframes cart-grow {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.08); }
+  60% { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}

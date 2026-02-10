@@ -1,21 +1,37 @@
-import { Component, Input, inject, signal, computed, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  Input,
+  OnChanges,
+  OnInit,
+  OnDestroy,
+  SimpleChanges,
+  computed,
+  inject,
+  signal
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductService } from '@shared/services/product.service';
 import { Product } from '@shared/models/product.model';
 import { CartService } from '@shared/services/cart.service';
 import { ProductComponent } from '@products/components/product/product.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
     selector: 'app-product-detail',
     imports: [CommonModule, ProductComponent],
     templateUrl: './product-detail.component.html',
-    styleUrls: ['./product-detail.component.css']
+    styleUrls: ['./product-detail.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
-export default class ProductDetailComponent implements OnInit, OnChanges{
-@Input() id?: string;
+export default class ProductDetailComponent implements OnInit, OnChanges, OnDestroy {
+  @Input() id?: string;
 
   private productService = inject(ProductService);
   private cartService = inject(CartService);
+  private destroyRef = inject(DestroyRef);
+  private lastLoadedId: string | null = null;
 
   // estado principal
   product = signal<Product | null>(null);
@@ -23,6 +39,17 @@ export default class ProductDetailComponent implements OnInit, OnChanges{
   // galería
   cover  = signal<string>('');
   thumbs = signal<string[]>([]);
+
+  // derivados
+  readonly isOutOfStock = computed(() => (this.product()?.stock ?? 0) === 0);
+  readonly selectedImage = computed(
+    () => this.cover() || this.product()?.imageUrl || '/assets/placeholders/product.webp'
+  );
+  readonly productTags = computed(() => this.product()?.tags ?? []);
+  isAdding = signal(false);
+  added = signal(false);
+  private addAnimTimeout: ReturnType<typeof setTimeout> | null = null;
+  private rafId: number | null = null;
 
   // similares
   similar = signal<Product[]>([]);
@@ -38,11 +65,16 @@ export default class ProductDetailComponent implements OnInit, OnChanges{
   }
 
   private loadProduct(id: string) {
+    if (!id || id === this.lastLoadedId) return;
+
+    this.lastLoadedId = id;
     this.product.set(null);
     this.cover.set('');
     this.thumbs.set([]);
 
-    this.productService.getOne(id).subscribe({
+    this.productService.getOne(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (p) => {
         this.product.set(p || null);
         this.buildGallery(p);
@@ -58,31 +90,33 @@ export default class ProductDetailComponent implements OnInit, OnChanges{
   // ——— Galería
   private buildGallery(p?: Product | null) {
     const base = p?.imageUrl ? [p.imageUrl] : [];
-    let gal: string[] = [];
+    const gallery = this.parseGallery((p as any)?.galleryUrls);
 
-    const raw = (p as any)?.galleryUrls;
-    if (Array.isArray(raw)) {
-      gal = raw.filter(Boolean);
-    } else if (typeof raw === 'string' && raw.trim()) {
-      try {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) gal = parsed.filter(Boolean);
-        else gal = raw.split(/[,\n;|]+/).map((s: string) => s.trim()).filter(Boolean);
-      } catch {
-        gal = raw.split(/[,\n;|]+/).map((s: string) => s.trim()).filter(Boolean);
-      }
-    }
-
-    const all = [...base, ...gal.filter(u => !base.includes(u))];
+    const all = [...base, ...gallery.filter(u => !base.includes(u))];
     this.thumbs.set(all);
     if (all.length) this.cover.set(all[0]);
   }
 
-  changeCover(u: string) { this.cover.set(u); }
-  /* trackByThumb = (_: number, url: string) => url; */
-  trackByThumb(index: number, _img: unknown) {
-    return index;
+  private parseGallery(raw: unknown): string[] {
+    if (Array.isArray(raw)) return raw.filter(Boolean).map(String);
+    if (typeof raw !== 'string' || !raw.trim()) return [];
+
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed.filter(Boolean).map(String);
+    } catch {
+      // continuar con split
+    }
+
+    return raw
+      .split(/[,\n;|]+/)
+      .map((s: string) => s.trim())
+      .filter(Boolean)
+      .map(String);
   }
+
+  changeCover(u: string) { this.cover.set(u); }
+  trackByThumb = (_: number, img: string) => img;
 
 
   onCoverError(e: Event) {
@@ -95,17 +129,43 @@ export default class ProductDetailComponent implements OnInit, OnChanges{
   // ——— CTA
   addToCart() {
     const p = this.product();
-    if (p) this.cartService.addToCart(p);
+    if (!p) return;
+
+    this.cartService.addToCart(p);
+    this.triggerAddAnimation();
   }
   addToCartDirect(p: Product) {
     if (p) this.cartService.addToCart(p);
+  }
+
+  private triggerAddAnimation() {
+    // reiniciar estados para permitir múltiples clics seguidos
+    this.isAdding.set(false);
+    this.added.set(false);
+
+    if (this.addAnimTimeout) {
+      clearTimeout(this.addAnimTimeout);
+      this.addAnimTimeout = null;
+    }
+
+    this.rafId = requestAnimationFrame(() => {
+      this.rafId = null;
+      this.isAdding.set(true);
+      this.added.set(true);
+      this.addAnimTimeout = setTimeout(() => {
+        this.isAdding.set(false);
+        this.added.set(false);
+      }, 900);
+    });
   }
 
   // ——— Similares
   private loadSimilar(p?: Product | null) {
     if (!p) { this.similar.set([]); return; }
 
-    this.productService.getProductos().subscribe({
+    this.productService.getProductos()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (items) => {
         const list = (items || []).filter(x => x && x.id !== p.id);
 
@@ -149,5 +209,19 @@ export default class ProductDetailComponent implements OnInit, OnChanges{
 
   // trackBy
   trackById = (_: number, p: Product) => p.id;
+
+  ngOnDestroy(): void {
+    if (this.addAnimTimeout) clearTimeout(this.addAnimTimeout);
+    if (this.rafId !== null) cancelAnimationFrame(this.rafId);
+  }
+
+  getDiscountPercent(): number {
+  const price = this.product()?.price ?? 0;
+  const discount = this.product()?.discountPrice ?? 0;
+  if (price > 0 && discount > 0) {
+    return Math.round(((price - discount) / price) * 100);
+  }
+  return 0;
+}
 
 }

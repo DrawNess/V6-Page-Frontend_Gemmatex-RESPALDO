@@ -1,0 +1,47 @@
+/* Botón con microinteracción de carrito */
+.cart-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.cart-btn__icon {
+  display: inline-flex;
+  transform: translateX(-4px);
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.cart-btn.btn-adding .cart-btn__icon {
+  transform: translateX(0);
+}
+
+.cart-btn.btn-added {
+  background: linear-gradient(135deg, #16a085, #1abc9c);
+  color: #0f172a;
+}
+
+@keyframes cart-bounce {
+  0% { transform: translateY(0) scale(1); }
+  35% { transform: translateY(-4px) scale(1.02); }
+  70% { transform: translateY(2px) scale(0.99); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+.cart-btn.btn-adding {
+  animation: cart-bounce 0.45s ease;
+  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.25);
+}
+
+.cart-pulse {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.25), transparent 60%);
+  animation: cart-pulse 0.9s ease;
+  pointer-events: none;
+}
+
+@keyframes cart-pulse {
+  0% { opacity: 0.5; transform: scale(0.9); }
+  70% { opacity: 0.25; transform: scale(1.05); }
+  100% { opacity: 0; transform: scale(1.1); }
+}

@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, effect, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Product } from '../../models/product.model';
 import { CartService } from '../../services/cart.service';
@@ -22,13 +22,19 @@ type HeaderSubcategory = { id: number; name: string; slug?: string };
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnDestroy {
 
   hideSideMenu = signal(true);
   private cartService = inject(CartService);
   cart = this.cartService.cart;
   total = this.cartService.total;
   searchOpen = false;
+  badgeBump = signal(false);
+  cartPop = signal(false);
+  private bumpTimer: ReturnType<typeof setTimeout> | null = null;
+  private popTimer: ReturnType<typeof setTimeout> | null = null;
+  private prevCount = signal<number>(0);
+  readonly cartCount = computed(() => this.cart()?.length ?? 0);
 
   private readonly categorySvc = inject(CategoryService);
   private router = inject(Router);
@@ -211,5 +217,36 @@ export class HeaderComponent {
 
   closeCat() {
     this.openCatId = null;
+  }
+
+  private triggerCartFeedback() {
+    this.badgeBump.set(false);
+    this.cartPop.set(false);
+    if (this.bumpTimer) clearTimeout(this.bumpTimer);
+    if (this.popTimer) clearTimeout(this.popTimer);
+
+    // next frame para reiniciar animación
+    requestAnimationFrame(() => {
+      this.badgeBump.set(true);
+      this.cartPop.set(true);
+      this.bumpTimer = setTimeout(() => this.badgeBump.set(false), 450);
+      this.popTimer = setTimeout(() => this.cartPop.set(false), 900);
+    });
+  }
+
+  constructor() {
+    effect(() => {
+      const current = this.cartCount();
+      const prev = this.prevCount();
+      if (current > prev) {
+        this.triggerCartFeedback();
+      }
+      this.prevCount.set(current);
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.bumpTimer) clearTimeout(this.bumpTimer);
+    if (this.popTimer) clearTimeout(this.popTimer);
   }
 }
