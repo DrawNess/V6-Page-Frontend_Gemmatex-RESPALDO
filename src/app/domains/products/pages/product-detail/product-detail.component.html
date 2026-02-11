@@ -1,250 +1,262 @@
-<div class="w-full max-w-7xl mx-auto px-4 py-6">
+<div class="relative w-full min-h-screen bg-white text-slate-800 overflow-hidden">
 
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+  <!-- Contenedor principal -->
+  <div class="relative z-20 max-w-[1600px] mx-auto px-6 py-8">
 
-    <!-- IZQUIERDA: Galería (7 cols) -->
-    <div class="lg:col-span-7 space-y-3">
-      <!-- Imagen principal -->
-      <div class="relative rounded-xl overflow-hidden bg-slate-50 border border-slate-200">
-        <div class="aspect-square flex items-center justify-center p-6">
-          <img
-            [src]="selectedImage()"
-            [alt]="product()?.name || 'Producto'"
-            class="max-h-full max-w-full object-contain"
-            (error)="onCoverError($event)"
-          />
-        </div>
+    <!-- Breadcrumb estilo gaming -->
+<!--     <nav class="flex items-center gap-2 text-[11px] text-slate-500 mb-4 font-semibold uppercase tracking-[0.15em]">
+      <a routerLink="/" class="hover:text-slate-900 transition">Inicio</a>
+      <span class="text-slate-300">/</span>
+      <a routerLink="/productos" class="hover:text-slate-900 transition">Productos</a>
+      <span class="text-slate-300">/</span>
+      <span class="text-sky-700">{{ product()?.name }}</span>
+    </nav> -->
 
-        <!-- Badge de stock -->
-        <div class="absolute top-3 left-4">
-          <span class="px-2.5 py-1 rounded-lg text-xs font-medium backdrop-blur-sm shadow-sm"
-                [class.bg-green-500]="!isOutOfStock()"
-                [class.bg-red-500]="isOutOfStock()"
-                class="text-white">
-            {{ isOutOfStock() ? 'Agotado' : 'En stock' }}
-          </span>
-        </div>
-      </div>
+    <div class="grid grid-cols-12 gap-6 items-start">
 
-      <!-- Miniaturas -->
-      <div class="flex gap-2 overflow-x-auto pb-1" *ngIf="(thumbs()?.length || 0) > 1">
-        <button
-          *ngFor="let img of thumbs(); trackBy: trackByThumb"
-          type="button"
-          class="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all"
-          [class.border-blue-600]="img === selectedImage()"
-          [class.border-slate-200]="img !== selectedImage()"
-          [class.opacity-60]="img !== selectedImage()"
-          [class.hover:opacity-100]="img !== selectedImage()"
-          (click)="changeCover(img)"
-        >
-          <img [src]="img" alt="miniatura" class="w-full h-full object-cover bg-slate-100"
-               (error)="onThumbError($event)" loading="lazy" />
-        </button>
-      </div>
+      <!-- ============ COLUMNA IZQUIERDA: Stats y detalles ============ -->
+      <div class="col-span-12 lg:col-span-3 space-y-4">
 
-      <!-- Descripción completa (mobile: arriba, desktop: abajo de galería) -->
-      <div class="lg:block bg-white rounded-xl border border-slate-200 p-5">
-        <h3 class="text-sm font-semibold text-slate-900 mb-3">Descripción del producto</h3>
-        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
-          {{ product()?.description || 'Sin descripción disponible.' }}
-        </p>
-      </div>
-
-      <!-- Especificaciones técnicas -->
-      <div class="bg-white rounded-xl border border-slate-200 p-5">
-        <h3 class="text-sm font-semibold text-slate-900 mb-4">Especificaciones técnicas</h3>
-        <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
-          <div class="flex justify-between py-2 border-b border-slate-100">
-            <span class="text-slate-500">Marca</span>
-            <span class="font-medium text-slate-900">{{ product()?.brand || '—' }}</span>
+        <!-- Nombre y marca -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+          <div class="flex items-center gap-2 mb-3">
+            <!-- <div class="w-9 h-9 bg-gradient-to-br from-sky-500/20 to-slate-300/40 rounded-lg flex items-center justify-center border border-slate-200">
+              <span class="text-xs font-bold text-slate-800">{{ product()?.brand?.charAt(0) || 'M' }}</span>
+            </div> -->
+            <span class="text-xs text-slate-500 uppercase tracking-wider">{{ product()?.brand || 'Marca' }}</span>
           </div>
-          <div class="flex justify-between py-2 border-b border-slate-100">
-            <span class="text-slate-500">SKU</span>
-            <span class="font-medium text-slate-900">{{ product()?.sku || '—' }}</span>
-          </div>
-          <div class="flex justify-between py-2 border-b border-slate-100">
-            <span class="text-slate-500">Unidad</span>
-            <span class="font-medium text-slate-900">{{ product()?.unitOfMeasure || '—' }}</span>
-          </div>
-          <div class="flex justify-between py-2 border-b border-slate-100">
-            <span class="text-slate-500">Dimensiones</span>
-            <span class="font-medium text-slate-900">{{ product()?.dimensions || '—' }}</span>
-          </div>
-          <div class="flex justify-between py-2 border-b border-slate-100">
-            <span class="text-slate-500">Stock</span>
-            <span class="font-medium text-slate-900">{{ product()?.stock ?? 0 }} unidades</span>
-          </div>
-          <div class="flex justify-between py-2 border-b border-slate-100">
-            <span class="text-slate-500">ID</span>
-            <span class="font-medium text-slate-900">#{{ product()?.id }}</span>
+
+          <h1 class="text-2xl font-black text-slate-900 leading-tight mb-2">
+            {{ product()?.name }}
+          </h1>
+
+          <div class="flex items-center gap-2 text-xs">
+            <span class="px-2 py-1 bg-slate-100 rounded text-slate-700 border border-slate-200">
+              SKU: {{ product()?.sku || '—' }}
+            </span>
+            <span class="px-2 py-1 rounded "
+                  [class.bg-emerald-50]="!isOutOfStock()"
+                  [class.text-emerald-600]="!isOutOfStock()"
+                  [class.bg-rose-50]="isOutOfStock()"
+                  [class.text-rose-600]="isOutOfStock()"
+                  class="border border-slate-200 px-2 py-1 rounded text-xs font-bold">
+              {{ isOutOfStock() ? 'AGOTADO' : 'EN STOCK' }}
+            </span>
           </div>
         </div>
+
+        <!-- Stats principales -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+              <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+            </svg>
+            Especificaciones
+          </h3>
+
+          <div class="space-y-3">
+            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <span class="text-xs text-slate-500">Unidad</span>
+              <span class="text-sm font-semibold text-slate-900">{{ product()?.unitOfMeasure || '—' }}</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <span class="text-xs text-slate-500">Dimensiones</span>
+              <span class="text-sm font-semibold text-slate-900">{{ product()?.dimensions || '—' }}</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <span class="text-xs text-slate-500">Stock</span>
+              <span class="text-sm font-bold text-emerald-600">{{ product()?.stock ?? 0 }} unidades</span>
+            </div>
+          </div>
+        </div>
+
       </div>
-    </div>
 
-    <!-- DERECHA: Info de compra (5 cols - sticky) -->
-    <div class="lg:col-span-5">
-      <div class="lg:sticky lg:top-6 space-y-4">
+      <!-- ============ COLUMNA CENTRAL: Imagen del producto ============ -->
+      <div class="col-span-12 lg:col-span-6 flex flex-col items-center justify-center py-10">
 
-        <!-- Card principal de compra -->
-        <div class="bg-white rounded-xl border border-slate-200 p-5">
+        <!-- Imagen principal con efectos -->
+        <div class="relative group">
+          <!-- Glow effect -->
+          <div class="absolute -inset-8 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.08),transparent_60%)] rounded-[28px] blur-2xl opacity-80"></div>
 
-          <!-- Título y marca -->
-          <div class="mb-4">
-            <p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
-              {{ product()?.brand || 'Marca' }}
-            </p>
-            <h1 class="text-xl font-bold text-slate-900 leading-tight">
-              {{ product()?.name }}
-            </h1>
+          <!-- Imagen -->
+          <div class="relative z-10">
+            <img
+              [src]="selectedImage()"
+              [alt]="product()?.name || 'Producto'"
+              class="max-w-full h-auto max-h-[560px] object-contain drop-shadow-md transition-transform duration-400"
+              (error)="onCoverError($event)"
+            />
           </div>
 
-          <!-- Precio -->
-<!--           <div class="bg-slate-50 rounded-lg p-4 mb-4">
-            <p class="text-xs text-slate-500 mb-1">Precio</p>
-            <div class="flex items-baseline gap-2 flex-wrap">
+          <!-- Badge de descuento flotante -->
+<!--           <div *ngIf="(product()?.discountPrice ?? 0) > 0"
+               class="absolute top-2 right-2 z-20">
+            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+              -{{ getDiscountPercent() }}% OFF
+            </span>
+          </div> -->
+        </div>
+
+        <!-- Miniaturas -->
+        <div class="mt-8 flex gap-3 justify-center" *ngIf="(thumbs()?.length || 0) > 1">
+          <button
+            *ngFor="let img of thumbs(); trackBy: trackByThumb"
+            type="button"
+            class="group relative w-20 h-20 rounded-xl overflow-hidden border-2 transition-all"
+            [class.border-sky-500]="img === selectedImage()"
+            [class.shadow-lg]="img === selectedImage()"
+            [class.shadow-sky-200]="img === selectedImage()"
+            [class.border-slate-200]="img !== selectedImage()"
+            [class.opacity-60]="img !== selectedImage()"
+            [class.hover:opacity-100]="img !== selectedImage()"
+            [class.hover:border-slate-300]="img !== selectedImage()"
+            (click)="changeCover(img)"
+          >
+            <img [src]="img" alt="miniatura"
+                 class="w-full h-full object-cover bg-slate-100"
+                 (error)="onThumbError($event)" loading="lazy" />
+                 @if (img === selectedImage()) {
+                   <div class="absolute inset-0 bg-sky-100/60 backdrop-blur-[1px]"></div>
+                 }
+          </button>
+        </div>
+
+        <!-- Descripción centrada -->
+        <div class="mt-10 w-full max-w-3xl text-center">
+          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Descripción</h3>
+          <p class="text-sm text-slate-700 leading-relaxed">
+            {{ product()?.description || 'Sin descripción disponible.' }}
+          </p>
+        </div>
+      </div>
+
+      <!-- ============ COLUMNA DERECHA: Precio y compra ============ -->
+      <div class="col-span-12 lg:col-span-3 space-y-4">
+
+        <!-- Precio destacado -->
+        <div class="relative overflow-hidden bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+          <div class="relative">
+            <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Precio de venta</p>
+            <div class="flex items-baseline gap-2 mb-1">
               <ng-container *ngIf="(product()?.discountPrice ?? 0) > 0; else noDiscount">
-                <span class="text-3xl font-bold text-slate-900">
+                <span class="text-3xl font-black text-slate-900">
                   {{ product()?.discountPrice | currency:'BOB':'symbol-narrow':'1.2-2' }}
                 </span>
-                <span class="text-lg line-through text-slate-400">
+                <span class="text-base line-through text-slate-400">
                   {{ product()?.price | currency:'BOB':'symbol-narrow':'1.2-2' }}
-                </span>
-                <span class="px-2 py-0.5 bg-red-500 text-white text-xs font-bold rounded">
-                  OFERTA
                 </span>
               </ng-container>
               <ng-template #noDiscount>
-                <span class="text-3xl font-bold text-slate-900">
+                <span class="text-3xl font-black text-slate-900">
                   {{ product()?.price | currency:'BOB':'symbol-narrow':'1.2-2' }}
                 </span>
               </ng-template>
             </div>
-          </div> -->
+          </div>
+        </div>
 
-          <!-- Variantes de tintas (solo subcategoría Tintas) -->
-          <div *ngIf="isInkProduct()" class="mb-4 space-y-3">
+        <!-- Botón de compra -->
+        <button
+          class="cart-btn relative w-full bg-[#2563EB] hover:bg-[#1d4ed8]
+                 text-white font-semibold text-base rounded-xl px-5 py-3 transition-all duration-150
+                 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed
+                 flex items-center justify-center gap-2 shadow-sm hover:shadow-md
+                 border border-[#2563EB]"
+          (click)="addToCart()"
+          [disabled]="isOutOfStock()"
+          [class.btn-adding]="isAdding()"
+          [class.btn-added]="added()"
+        >
+          <span class="transition-all duration-150" [class.scale-95]="isAdding()">
+            {{
+              isOutOfStock()
+                ? 'AGOTADO'
+                : added()
+                  ? '¡AÑADIDO!'
+                  : 'AÑADIR AL CARRITO'
+            }}
+          </span>
+          <span *ngIf="isAdding()" class="cart-pulse"></span>
+        </button>
+
+        <!-- Beneficios -->
+        <div class="space-y-2">
+          <div class="flex items-start gap-3 p-3 rounded-xl border border-slate-200">
+            <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+            </svg>
             <div>
-              <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">Clase de impresora</p>
-              <div class="flex flex-wrap gap-2">
-                <button
-                  *ngFor="let opt of printerOptions"
-                  type="button"
-                  class="px-3 py-2 rounded-lg border text-left transition-all"
-                  [class.border-blue-600]="opt.id === selectedPrinterId()"
-                  [class.bg-blue-50]="opt.id === selectedPrinterId()"
-                  [class.border-slate-200]="opt.id !== selectedPrinterId()"
-                  (click)="selectPrinter(opt.id)"
-                >
-                  <div class="text-sm font-semibold text-slate-900">{{ opt.label }}</div>
-                  <div class="text-[11px] text-slate-500">{{ opt.description }}</div>
-                </button>
-              </div>
+              <p class="text-xs font-semibold text-slate-900 ">Envío a todo el pais.</p>
             </div>
+          </div>
 
+          <div class="flex items-start gap-3 p-3 rounded-xl border border-slate-200">
+            <svg class="w-5 h-5 text-sky-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
             <div>
-              <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">Color</p>
-              <div class="flex flex-wrap gap-2">
-                <button
-                  *ngFor="let c of availableColors()"
-                  type="button"
-                  class="px-3 py-2 rounded-full border text-sm transition-all"
-                  [class.border-blue-600]="c === selectedColor()"
-                  [class.bg-blue-50]="c === selectedColor()"
-                  [class.border-slate-200]="c !== selectedColor()"
-                  (click)="selectColor(c)"
-                >
-                  {{ c }}
-                </button>
-              </div>
-            </div>
-
-            <div class="text-xs text-slate-500 flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span>Selección actual: {{ selectedPrinterLabel() }} · {{ selectedColor() || 'Elige un color' }}</span>
+              <p class="text-xs font-semibold text-slate-900">Garantía oficial</p>
             </div>
           </div>
 
-          <!-- Botón de compra con animación simple y segura en clics repetidos -->
-          <button
-            class="cart-btn relative w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-sm
-                   rounded-lg px-4 py-3 transition-all duration-200
-                   disabled:bg-slate-300 disabled:cursor-not-allowed
-                   flex items-center justify-center gap-2 overflow-hidden"
-            (click)="addToCart()"
-            [disabled]="isOutOfStock()"
-            [class.btn-adding]="isAdding()"
-            [class.btn-added]="added()"
-          >
-            <!-- <span class="cart-btn__icon">🛒</span> -->
-            <span class="transition-all duration-200" [class.scale-95]="isAdding()">
-              {{
-                isOutOfStock()
-                  ? 'Producto agotado'
-                  : added()
-                    ? '¡Añadido!'
-                    : 'Añadir al carrito'
-              }}
-            </span>
-            <span *ngIf="isAdding()" class="cart-pulse"></span>
-          </button>
-
-          <!-- Info adicional -->
-          <div class="mt-4 pt-4 border-t border-slate-100 space-y-2">
-            <div class="flex items-center gap-2 text-xs text-slate-500">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-              </svg>
-              <span>Envío disponible a todo el país</span>
-            </div>
-            <div class="flex items-center gap-2 text-xs text-slate-500">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-              <span>Garantía del fabricante</span>
-            </div>
-            <div class="flex items-center gap-2 text-xs text-slate-500">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-              <span>Soporte técnico incluido</span>
+          <div class="flex items-start gap-3 p-3 rounded-xl border border-slate-200">
+            <svg class="w-5 h-5 text-indigo-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0z"/>
+            </svg>
+            <div>
+              <p class="text-xs font-semibold text-slate-900">Soporte técnico</p>
             </div>
           </div>
         </div>
 
-        <!-- Etiquetas -->
-        <div class="bg-white rounded-xl border border-slate-200 p-5" *ngIf="(product()?.tags?.length || 0) > 0">
-          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Categorías</p>
-          <div class="flex flex-wrap gap-2">
-            <span
-              *ngFor="let t of product()?.tags"
-              class="px-2.5 py-1 text-xs font-medium rounded-md bg-slate-100 text-slate-700">
-              {{ t }}
-            </span>
-          </div>
+        <!-- Tags a la derecha -->
+        <div *ngIf="(product()?.tags?.length || 0) > 0" class="flex flex-wrap gap-2 mt-2">
+          <span
+            *ngFor="let t of product()?.tags"
+            class="px-3 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+            {{ t }}
+          </span>
         </div>
 
-        <!-- Meta info -->
-        <div class="text-xs text-slate-400">
-          Actualizado: {{ product()?.created_at | date:'short' }}
+        <!-- Info adicional -->
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+          <p class="text-xs text-slate-500">
+            Última actualización: {{ product()?.updated_at | date:'mediumDate' }}
+          </p>
         </div>
-
       </div>
+
     </div>
   </div>
 </div>
-<!-- SIMILARES -->
-<section class="w-full max-w-7xl mx-auto px-4 pb-10" *ngIf="(similar()?.length) ">
-  <div class="mt-2 flex items-center justify-between gap-3">
-    <h2 class="text-xl sm:text-2xl font-extrabold text-[#0511F2]">Productos similares</h2>
-  </div>
 
-  <div class="mt-4 grid gap-5 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-8">
-    <app-product
-      *ngFor="let p of similar(); trackBy: trackById"
-      [product]="p"
-      (addToCart)="addToCartDirect($event)">
-    </app-product>
-  </div>
-</section>
+<!-- Productos similares  -->
+@if(similar().length){
+  <section class="relative bg-white py-12 border-t border-slate-200">
+    <div class="max-w-[1600px] mx-auto px-6">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-black text-slate-900 uppercase tracking-wider">
+          Productos relacionados
+        </h2>
+  <!--       <a routerLink="/productos"
+          class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-900 text-xs font-semibold rounded-lg transition flex items-center gap-2 border border-slate-200 shadow-sm">
+          Ver todos
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+          </svg>
+        </a> -->
+      </div>
+
+      <div class="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8">
+        <app-product
+          *ngFor="let p of similar(); trackBy: trackById"
+          [product]="p"
+          (addToCart)="addToCartDirect($event)">
+        </app-product>
+      </div>
+    </div>
+  </section>
+}
