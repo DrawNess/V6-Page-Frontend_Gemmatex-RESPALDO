@@ -136,6 +136,43 @@
       <!-- ============ COLUMNA DERECHA: Precio y compra ============ -->
       <div class="col-span-12 lg:col-span-3 space-y-4">
 
+        <!-- Variantes de color para tintas (siempre muestra las 6) -->
+        <div *ngIf="isInkProduct()" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+          <div class="mb-4">
+            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
+              Colores disponibles
+            </h3>
+            <p class="text-xs text-slate-400">
+              Color actual: <span class="font-semibold text-slate-700">{{ selectedColor() || inkColorLabel(product()!) }}</span>
+            </p>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <a
+              *ngFor="let color of availableColors(); trackBy: trackByColor"
+              [routerLink]="variantForColor(color)?.id && variantForColor(color)?.id !== product()?.id ? ['/product', variantForColor(color)!.id] : null"
+              class="ink-variant-btn"
+              [class.is-active]="color === selectedColor() || variantForColor(color)?.id === product()?.id"
+              [class.is-disabled]="!variantForColor(color)"
+              [attr.aria-disabled]="!variantForColor(color) ? true : null"
+              (click)="variantForColor(color) ? null : selectColor(color)"
+            >
+              <span class="ink-swatch"
+                    [style.background-color]="variantForColor(color) ? inkSwatch(variantForColor(color)!) : swatchForColor(color)"
+                    [class.is-light]="(variantForColor(color) ? inkSwatch(variantForColor(color)!) : swatchForColor(color)) === '#f8fafc'">
+              </span>
+              <span class="ink-label">{{ variantForColor(color) ? inkColorLabel(variantForColor(color)!) : color }}</span>
+            </a>
+          </div>
+
+          <div class="mt-4 text-[11px] text-slate-500 flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Los colores pueden variar según tu pantalla
+          </div>
+        </div>
+
         <!-- Precio destacado -->
         <div class="relative overflow-hidden bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
           <div class="relative">

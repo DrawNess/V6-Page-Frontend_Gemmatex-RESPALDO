@@ -1,4 +1,4 @@
-import { Component, inject, signal, effect, computed  } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 
@@ -31,10 +31,13 @@ private route = inject(ActivatedRoute);
   // filtros
   search = signal('');
   selectedSubs = signal<Set<number>>(new Set<number>());
+  private initialSubId: number | null = null;
 
   ngOnInit() {
     this.route.queryParamMap.subscribe((qp) => {
       const categoryId = qp.get('categoryId');
+      const subcategoryId = qp.get('subcategoryId');
+      this.initialSubId = subcategoryId ? Number(subcategoryId) : null;
       this.load(categoryId);
     });
   }
@@ -59,7 +62,10 @@ private route = inject(ActivatedRoute);
       this.subcategoryService
         .getByCategory(categoryId)
         .subscribe({
-          next: (subs) => this.subcategories.set(subs ?? []),
+          next: (subs) => {
+            this.subcategories.set(subs ?? []);
+            this.applyInitialSub();
+          },
           error: () => this.subcategories.set([]),
           complete: () => this.loading.set(false),
         });
@@ -70,7 +76,18 @@ private route = inject(ActivatedRoute);
         error: () => this.error.set('No se pudo cargar productos'),
         complete: () => this.loading.set(false),
       });
+      this.applyInitialSub();
     }
+  }
+
+  private applyInitialSub() {
+    if (this.initialSubId && this.subcategories().some(s => s.id === this.initialSubId)) {
+      this.selectedSubs.set(new Set([this.initialSubId]));
+    }
+  }
+
+  private productSubId(p: Product): number | null {
+    return Number((p as any).subcategoryId ?? (p as any).subcategory?.id ?? NaN) || null;
   }
 
   // filtro combinado
@@ -92,9 +109,10 @@ private route = inject(ActivatedRoute);
             .toLowerCase()
             .includes(txt);
 
+      const subId = this.productSubId(p);
       const bySub = !subSet.size
         ? true
-        : subSet.has(Number((p as any).subcategoryId));
+        : subId !== null && subSet.has(subId);
 
       return byText && bySub;
     });
@@ -119,8 +137,8 @@ private route = inject(ActivatedRoute);
             .toLowerCase()
             .includes(txt);
       if (!byText) continue;
-      const sid = Number((p as any).subcategoryId);
-      if (map.has(sid)) map.set(sid, (map.get(sid) ?? 0) + 1);
+      const sid = this.productSubId(p);
+      if (sid !== null && map.has(sid)) map.set(sid, (map.get(sid) ?? 0) + 1);
     }
     return map;
   });

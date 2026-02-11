@@ -12,6 +12,7 @@ import {
   signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { ProductService } from '@shared/services/product.service';
 import { Product } from '@shared/models/product.model';
 import { CartService } from '@shared/services/cart.service';
@@ -20,7 +21,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
     selector: 'app-product-detail',
-    imports: [CommonModule, ProductComponent],
+    imports: [CommonModule, ProductComponent, RouterLink],
     templateUrl: './product-detail.component.html',
     styleUrls: ['./product-detail.component.css'],
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -33,27 +34,20 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
   private destroyRef = inject(DestroyRef);
   private lastLoadedId: string | null = null;
 
-  // variantes tintas
-  readonly printerOptions: Array<{
-    id: string;
-    label: string;
-    description: string;
-    colors: string[];
-  }> = [
-    {
-      id: 'f6470',
-      label: 'F6470 · 4 colores',
-      description: 'Tintas estándar (C, M, Y, K)',
-      colors: ['Cian (C)', 'Magenta (M)', 'Amarillo (Y)', 'Negro (K)']
-    },
-    {
-      id: 'f6470h',
-      label: 'F6470H · 6 colores',
-      description: 'Color - 2x1600ml (C, M, Y, K, LC, LM)',
-      colors: ['Cian (C)', 'Magenta (M)', 'Amarillo (Y)', 'Negro (K)', 'Cian Claro (LC)', 'Magenta Claro (LM)']
-    }
+  // ordenado de más específico a más genérico para evitar que todo matchee como Negro
+  private readonly inkColors = [
+    { label: 'Fluor Yellow', swatch: '#fef08a', variants: ['fluor-yellow', 'fluor y', 'fy', 'fluorescente-amarillo', 'amarillo-fluor', '(fy)', 'fy)', '(fy'] },
+    { label: 'Fluor Pink', swatch: '#fb7185', variants: ['fluor-pink', 'fp', 'fluorescente-rosa', 'rosa-fluor', 'pink-fluor', '(fp)', 'fp)', '(fp'] },
+    { label: 'Light Cian', swatch: '#67e8f9', variants: ['light-cian', 'light-cyan', 'lc', 'cian-claro', '(lc)', 'lc)', '(lc'] },
+    { label: 'Light Magenta', swatch: '#f472b6', variants: ['light-magenta', 'lm', 'magenta-claro', '(lm)', 'lm)', '(lm'] },
+    { label: 'Cian', swatch: '#0ea5e9', variants: ['cian', 'cyan', '(c)', 'c)'] },
+    { label: 'Magenta', swatch: '#e11d48', variants: ['magenta', '(m)', 'm)'] },
+    { label: 'Amarillo', swatch: '#eab308', variants: ['amarillo', 'yellow', '(y)', 'y)'] },
+    { label: 'Blanco', swatch: '#f8fafc', variants: ['blanco', 'white', 'wh', 'w'] },
+    { label: 'Negro', swatch: '#0f172a', variants: ['negro', 'black', 'bk', 'k', 'hdk', 'hd-k'] },
   ];
-  selectedPrinterId = signal<string | null>(null);
+  private readonly inkColorTokens = new Set(this.inkColors.flatMap(c => c.variants.map(v => v.toLowerCase())));
+
   selectedColor = signal<string | null>(null);
 
   // estado principal
@@ -71,9 +65,33 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
   readonly productTags = computed(() => this.product()?.tags ?? []);
   readonly isInkProduct = computed(() => this.isInkSubcategory(this.product()));
   readonly availableColors = computed<string[]>(() => {
-    const id = this.selectedPrinterId();
-    const opt = this.printerOptions.find(o => o.id === id);
-    return opt?.colors ?? [];
+    const canonicalSix = ['Negro', 'Cian', 'Magenta', 'Amarillo', 'Fluor Pink', 'Fluor Yellow'];
+    const order = [
+      ...canonicalSix,
+      'Light Cian',
+      'Light Magenta',
+      'Blanco',
+      'Gris'
+    ];
+
+    const bucket = new Set<string>();
+
+    // colores detectados de variantes agrupadas (si existen)
+    this.inkVariants()
+      .map(v => this.detectInkColor(v).label)
+      .filter(Boolean)
+      .forEach(c => bucket.add(c));
+
+    // asegurar los 6 básicos siempre presentes
+    canonicalSix.forEach(c => bucket.add(c));
+
+    const sorted = Array.from(bucket).sort((a, b) => {
+      const ia = order.indexOf(a);
+      const ib = order.indexOf(b);
+      return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+    });
+
+    return sorted;
   });
   isAdding = signal(false);
   added = signal(false);
@@ -82,6 +100,9 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
 
   // similares
   similar = signal<Product[]>([]);
+  // variantes de tinta (mismo modelo, distinto color)
+  inkVariants = signal<Product[]>([]);
+  trackByColor = (_: number, c: string) => c;
 
   ngOnInit() {
     if (this.id) this.loadProduct(this.id);
@@ -110,6 +131,7 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
         this.buildGallery(p);
         this.loadSimilar(p);
         this.setupInkSelections(p);
+        this.loadInkVariants(p);
       },
       error: (err) => {
         console.error('Error cargando producto', err);
@@ -165,7 +187,6 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
     const enriched: Product = this.isInkProduct()
       ? {
           ...p,
-          selectedPrinter: this.selectedPrinterLabel(),
           selectedColor: this.selectedColor() || undefined
         }
       : p;
@@ -246,7 +267,6 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
     });
   }
 
-  // trackBy
   trackById = (_: number, p: Product) => p.id;
 
   // ——— Tintas helpers
@@ -260,7 +280,6 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
   }
 
   private resetInkSelections() {
-    this.selectedPrinterId.set(null);
     this.selectedColor.set(null);
   }
 
@@ -270,23 +289,17 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
       return;
     }
 
-    const defaultPrinter = this.printerOptions[0];
-    if (!this.selectedPrinterId()) {
-      this.selectedPrinterId.set(defaultPrinter.id);
+    const detectedColor = p ? this.detectInkColor(p).label : null;
+    const colors = this.availableColors() as string[];
+
+    const currentColor = this.selectedColor();
+    if (detectedColor && colors.includes(detectedColor)) {
+      this.selectedColor.set(detectedColor);
+      return;
     }
 
-    const colors = this.availableColors() as string[];
-    const currentColor = this.selectedColor();
     if (!currentColor || !colors.includes(currentColor)) {
       this.selectedColor.set(colors[0] ?? null);
-    }
-  }
-
-  selectPrinter(id: string) {
-    this.selectedPrinterId.set(id);
-    const colors = this.availableColors() as string[];
-    if (colors.length && !colors.includes(this.selectedColor() || '')) {
-      this.selectedColor.set(colors[0]);
     }
   }
 
@@ -294,10 +307,15 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
     this.selectedColor.set(color);
   }
 
-  selectedPrinterLabel(): string {
-    const id = this.selectedPrinterId();
-    return this.printerOptions.find(o => o.id === id)?.label ?? '';
+  inkColorLabel(p: Product): string { return this.detectInkColor(p).label; }
+  inkSwatch(p: Product): string { return this.detectInkColor(p).swatch; }
+  variantForColor(color: string): Product | null {
+    return this.inkVariants().find(v => this.detectInkColor(v).label === color) ?? null;
   }
+  swatchForColor(color: string): string {
+    return this.inkColors.find(c => c.label === color)?.swatch ?? '#e2e8f0';
+  }
+
 
   ngOnDestroy(): void {
     if (this.addAnimTimeout) clearTimeout(this.addAnimTimeout);
@@ -312,5 +330,74 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
   }
   return 0;
 }
+
+  // ——— Ink grouping helpers
+  private inkBaseKey(p?: Product | null): string | null {
+    if (!p) return null;
+    const source = (p.slug || p.name || '').toLowerCase();
+    if (!source) return null;
+
+    // normalizamos, eliminando paréntesis y signos
+    const cleaned = source.replace(/[^a-z0-9]+/g, ' ');
+    const tokens = cleaned.split(/\s+/).filter(Boolean);
+
+    const filtered = tokens.filter(t => {
+      if (this.inkColorTokens.has(t)) return false;
+      if (/^t\d{3,}/.test(t)) return false; // códigos Epson tipo T7413
+      if (/^\d+ml$/.test(t) || t === 'ml' || /^\d+$/.test(t)) return false; // volumen
+      return true;
+    });
+
+    if (!filtered.length) return null;
+    return filtered.join('-');
+  }
+
+  private detectInkColor(p: Product) {
+    const haystack = `${p.name || ''} ${p.slug || ''} ${p.sku || ''}`.toLowerCase();
+    for (const color of this.inkColors) {
+      if (color.variants.some(v => haystack.includes(v))) {
+        return color;
+      }
+    }
+    return { label: 'Color', swatch: '#94a3b8', variants: [] };
+  }
+
+  private colorOrder(p: Product): number {
+    const label = this.detectInkColor(p).label;
+    const idx = this.inkColors.findIndex(c => c.label === label);
+    return idx === -1 ? 999 : idx;
+  }
+
+  private loadInkVariants(p?: Product | null) {
+    if (!this.isInkSubcategory(p)) { this.inkVariants.set([]); return; }
+
+    const baseKey = this.inkBaseKey(p);
+    if (!baseKey) { this.inkVariants.set([]); return; }
+
+    this.productService.getProductos()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (items) => {
+          const variants = (items || [])
+            .filter(x => !!x && this.isInkSubcategory(x) && this.inkBaseKey(x) === baseKey)
+            .sort((a, b) => this.colorOrder(a) - this.colorOrder(b));
+          this.inkVariants.set(variants);
+          this.refreshSelectedColor(p);
+        },
+        error: () => this.inkVariants.set([])
+      });
+  }
+
+  private refreshSelectedColor(current?: Product | null) {
+    const colors = this.availableColors();
+    const detected = current ? this.detectInkColor(current).label : null;
+    if (detected && colors.includes(detected)) {
+      this.selectedColor.set(detected);
+      return;
+    }
+    if (!colors.includes(this.selectedColor() || '')) {
+      this.selectedColor.set(colors[0] ?? null);
+    }
+  }
 
 }
