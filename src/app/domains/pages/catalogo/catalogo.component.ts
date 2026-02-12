@@ -1,6 +1,6 @@
 import { Component, Input, SimpleChanges, inject, signal, ElementRef, ViewChild , computed} from '@angular/core';
 import { CommonModule } from '@angular/common';
-/* import { RouterLinkWithHref, ActivatedRoute } from '@angular/router'; */
+import { ActivatedRoute } from '@angular/router';
 import { ProductComponent } from '@products/components/product/product.component';
 import { Product } from '@shared/models/product.model';
 import { CartService } from '@shared/services/cart.service';
@@ -24,6 +24,7 @@ type PdfDoc = { file: string; title?: string };
 export class CatalogoComponent {
   products = signal<Product[]>([]);
   categories = signal<Category[]>([]);
+  private route = inject(ActivatedRoute);
   private cartService = inject(CartService);
   private productService = inject(ProductService);
   private categoryService = inject(CategoryService);
@@ -39,7 +40,15 @@ export class CatalogoComponent {
   private rouletteTimer: any = null;
   private rouletteIntervalMs = 2200;
 
-  ngOnInit() { this.getCategories(); }
+  ngOnInit() {
+    this.route.queryParamMap.subscribe((qp) => {
+      const q = (qp.get('q') || '').trim();
+      const catId = qp.get('categoryId');
+      this.search.set(q);
+      this.selectedCats.set(catId ? new Set([Number(catId)]) : new Set());
+    });
+    this.getCategories();
+  }
   ngOnChanges(_: SimpleChanges) { this.getProducts(); }
   ngAfterViewInit() { setTimeout(() => this.rouletteResume(), 0); }
   ngOnDestroy() { this.roulettePause(); }
@@ -411,7 +420,6 @@ docTitle2(d: PdfDoc) {
 
 
 }
-
 
 
 

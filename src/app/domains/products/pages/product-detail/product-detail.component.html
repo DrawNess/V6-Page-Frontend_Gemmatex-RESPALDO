@@ -126,7 +126,7 @@
 
         <!-- Descripción centrada -->
         <div class="mt-10 w-full max-w-3xl text-center">
-          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Descripción</h3>
+          <h3 class="text-lg font-bold text-slate-500 uppercase tracking-wider mb-3">Descripción</h3>
           <p class="text-sm text-slate-700 leading-relaxed">
             {{ product()?.description || 'Sin descripción disponible.' }}
           </p>
@@ -137,41 +137,92 @@
       <div class="col-span-12 lg:col-span-3 space-y-4">
 
         <!-- Variantes de color para tintas (siempre muestra las 6) -->
-        <div *ngIf="isInkProduct()" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-          <div class="mb-4">
-            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
-              Colores disponibles
-            </h3>
-            <p class="text-xs text-slate-400">
-              Color actual: <span class="font-semibold text-slate-700">{{ selectedColor() || inkColorLabel(product()!) }}</span>
-            </p>
-          </div>
+<!-- Variantes de color MEJORADO -->
+<div *ngIf="isInkProduct()" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+  <div class="flex items-center justify-between mb-3">
+    <h3 class="text-xs font-bold text-slate-700">
+      Color: <span class="text-slate-900">{{ selectedColor() || inkColorLabel(product()!) }}</span>
+    </h3>
+    <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-medium rounded">
+      {{ availableColors().length }} disponibles
+    </span>
+  </div>
 
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            <a
-              *ngFor="let color of availableColors(); trackBy: trackByColor"
-              [routerLink]="variantForColor(color)?.id && variantForColor(color)?.id !== product()?.id ? ['/product', variantForColor(color)!.id] : null"
-              class="ink-variant-btn"
-              [class.is-active]="color === selectedColor() || variantForColor(color)?.id === product()?.id"
-              [class.is-disabled]="!variantForColor(color)"
-              [attr.aria-disabled]="!variantForColor(color) ? true : null"
-              (click)="variantForColor(color) ? null : selectColor(color)"
-            >
-              <span class="ink-swatch"
-                    [style.background-color]="variantForColor(color) ? inkSwatch(variantForColor(color)!) : swatchForColor(color)"
-                    [class.is-light]="(variantForColor(color) ? inkSwatch(variantForColor(color)!) : swatchForColor(color)) === '#f8fafc'">
-              </span>
-              <span class="ink-label">{{ variantForColor(color) ? inkColorLabel(variantForColor(color)!) : color }}</span>
-            </a>
-          </div>
+  <div class="grid grid-cols-3 gap-2.5">
+    <a
+      *ngFor="let color of availableColors(); trackBy: trackByColor"
+      [routerLink]="variantForColor(color)?.id && variantForColor(color)?.id !== product()?.id ? ['/product', variantForColor(color)!.id] : null"
+      class="group relative aspect-square rounded-xl transition-all duration-200"
+      [class.scale-105]="color === selectedColor() || variantForColor(color)?.id === product()?.id"
+      [class.opacity-40]="!variantForColor(color)"
+      [class.cursor-pointer]="variantForColor(color)"
+      [class.cursor-not-allowed]="!variantForColor(color)"
+      [class.hover:scale-110]="variantForColor(color) && (color !== selectedColor() && variantForColor(color)?.id !== product()?.id)"
+      (click)="variantForColor(color) ? null : selectColor(color)"
+      [title]="color + (variantForColor(color) ? '' : ' - No disponible')"
+    >
+      <!-- Círculo de color -->
+      <div
+        class="w-full h-full rounded-xl border-2 flex items-center justify-center shadow-sm transition-shadow"
+        [style.background-color]="variantForColor(color) ? inkSwatch(variantForColor(color)!) : swatchForColor(color)"
+        [class.border-blue-500]="color === selectedColor() || variantForColor(color)?.id === product()?.id"
+        [class.shadow-lg]="color === selectedColor() || variantForColor(color)?.id === product()?.id"
+        [class.shadow-blue-200]="color === selectedColor() || variantForColor(color)?.id === product()?.id"
+        [class.border-slate-300]="(color !== selectedColor() && variantForColor(color)?.id !== product()?.id) &&
+                                   ((variantForColor(color) ? inkSwatch(variantForColor(color)!) : swatchForColor(color)) === '#f8fafc')"
+        [class.border-slate-200]="(color !== selectedColor() && variantForColor(color)?.id !== product()?.id) &&
+                                   ((variantForColor(color) ? inkSwatch(variantForColor(color)!) : swatchForColor(color)) !== '#f8fafc')"
+      >
+        <!-- Iniciales del color -->
+        <span
+          class="text-sm font-black select-none transition-transform group-hover:scale-110"
+          [class.text-slate-700]="isLightColor(variantForColor(color) ? inkSwatch(variantForColor(color)!) : swatchForColor(color))"
+          [class.text-white]="!isLightColor(variantForColor(color) ? inkSwatch(variantForColor(color)!) : swatchForColor(color))"
+        >
+          {{ getColorInitials(color) }}
+        </span>
+      </div>
 
-          <div class="mt-4 text-[11px] text-slate-500 flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            Los colores pueden variar según tu pantalla
-          </div>
-        </div>
+      <!-- Ring exterior para seleccionado -->
+      <div
+        *ngIf="color === selectedColor() || variantForColor(color)?.id === product()?.id"
+        class="absolute -inset-1 border-2 border-blue-600 rounded-xl pointer-events-none"
+      ></div>
+
+      <!-- Check para seleccionado -->
+      <div
+        *ngIf="color === selectedColor() || variantForColor(color)?.id === product()?.id"
+        class="absolute -top-1.5 -right-1.5 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center shadow-lg z-10 animate-in zoom-in duration-200"
+      >
+        <svg class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+
+      <!-- X para no disponible -->
+      <div
+        *ngIf="!variantForColor(color)"
+        class="absolute inset-0 flex items-center justify-center bg-slate-900/30 rounded-xl backdrop-blur-[2px]"
+      >
+        <svg class="w-7 h-7 text-white drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </div>
+    </a>
+  </div>
+
+  <!-- Nota sobre colores -->
+  <div class="mt-3 pt-3 border-t border-slate-200">
+    <div class="flex items-start gap-2">
+      <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <p class="text-[11px] text-slate-500 leading-relaxed">
+        Los colores pueden variar según tu pantalla
+      </p>
+    </div>
+  </div>
+</div>
 
         <!-- Precio destacado -->
         <div class="relative overflow-hidden bg-white rounded-2xl p-5 shadow-sm border border-slate-200">

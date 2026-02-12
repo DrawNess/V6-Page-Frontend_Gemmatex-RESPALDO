@@ -8,6 +8,12 @@ import { CategoryService } from '@shared/services/category.service';
 import { ProductComponent } from '@products/components/product/product.component';
 import { SubcategoryService } from '@shared/services/subcategory.service';
 import { Subcategory } from '@shared/models/subcategory.model';
+import {
+  cleanInkName,
+  colorOrder,
+  inkBaseKey,
+  isInkSubcategory
+} from '@shared/utils/ink-utils';
 
 @Component({
     selector: 'app-productos',
@@ -17,7 +23,7 @@ import { Subcategory } from '@shared/models/subcategory.model';
 })
 
 export class ProductosComponent {
-private route = inject(ActivatedRoute);
+  private route = inject(ActivatedRoute);
   private productService = inject(ProductService);
   private categoryService = inject(CategoryService);
   private subcategoryService = inject(SubcategoryService);
@@ -25,6 +31,7 @@ private route = inject(ActivatedRoute);
   // estado
   products = signal<Product[]>([]);
   subcategories = signal<Subcategory[]>([]);
+  currentCategory = signal<string | null>(null);
   loading = signal(false);
   error = signal<string | null>(null);
 
@@ -37,6 +44,8 @@ private route = inject(ActivatedRoute);
     this.route.queryParamMap.subscribe((qp) => {
       const categoryId = qp.get('categoryId');
       const subcategoryId = qp.get('subcategoryId');
+      const q = (qp.get('q') || '').trim();
+      this.search.set(q);
       this.initialSubId = subcategoryId ? Number(subcategoryId) : null;
       this.load(categoryId);
     });
@@ -48,6 +57,7 @@ private route = inject(ActivatedRoute);
     this.products.set([]);
     this.subcategories.set([]);
     this.selectedSubs.set(new Set());
+    this.currentCategory.set(null);
 
     if (categoryId) {
       // Productos de la categoría
@@ -69,6 +79,12 @@ private route = inject(ActivatedRoute);
           error: () => this.subcategories.set([]),
           complete: () => this.loading.set(false),
         });
+
+      // Nombre de categoría
+      this.categoryService.getOne(categoryId).subscribe({
+        next: (cat) => this.currentCategory.set(cat?.name ?? null),
+        error: () => this.currentCategory.set(null)
+      });
     } else {
       // fallback: todos los productos (sin subcategorías)
       this.productService.getProductos().subscribe({
@@ -77,6 +93,7 @@ private route = inject(ActivatedRoute);
         complete: () => this.loading.set(false),
       });
       this.applyInitialSub();
+      this.currentCategory.set('Todas las categorías');
     }
   }
 
@@ -116,6 +133,44 @@ private route = inject(ActivatedRoute);
 
       return byText && bySub;
     });
+  });
+
+  // Categoria tinta heurística: si el nombre de la categoría o subcategorías incluye "tinta", o si al menos la mitad de los productos parecen ser tintas según su subcategoría
+  isInkCategory = computed(() => {
+    if (this.subcategories().some(s => (s.name || '').toLowerCase().includes('tinta'))) return true;
+    const prods = this.products();
+    if (!prods.length) return false;
+    const inkCount = prods.filter(p => isInkSubcategory(p)).length;
+    return inkCount / prods.length >= 0.5;
+  });
+
+  // Agrupación por modelo base (muestra un representante por colorway)
+  groupedProducts = computed(() => {
+    const list = this.filteredProducts();
+    if (!this.isInkCategory()) return list;
+
+    const groups = new Map<string, Product[]>();
+    for (const p of list) {
+      if (!isInkSubcategory(p)) {
+        // elementos no tinta se muestran normales
+        groups.set(`other-${p.id}`, [p]);
+        continue;
+      }
+      const key = inkBaseKey(p) ?? `ink-${p.id}`;
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)!.push(p);
+    }
+
+    const reps: Product[] = [];
+    for (const [, items] of groups.entries()) {
+      items.sort((a, b) => colorOrder(a) - colorOrder(b));
+      const rep = items[0];
+      reps.push({
+        ...rep,
+        name: cleanInkName(rep),
+      });
+    }
+    return reps;
   });
 
   // counts por subcategoría (sobre búsqueda actual)

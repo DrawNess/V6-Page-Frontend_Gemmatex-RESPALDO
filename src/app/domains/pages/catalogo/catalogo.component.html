@@ -33,15 +33,36 @@
 
     <!-- Layout: grid principal + sidebar uzquierda -->
     <div class="mt-8 grid grid-cols-12 gap-6 lg:gap-8">
-            <!-- Sidebar derecha: filtros por categoría -->
-<!-- Sidebar derecha: filtros por “subcategoría” -->
 <aside class="col-span-12 lg:col-span-3">
-  <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 sticky top-20 mt-10">
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 sticky top-20 mt-10 space-y-5">
 
     <!-- Encabezado -->
     <div class="flex items-center justify-between">
       <h3 class="text-lg font-semibold text-slate-900">Filtros</h3>
       <button class="text-xs text-slate-500 hover:underline" (click)="clearFilters()">Limpiar todo</button>
+    </div>
+
+    <!-- =============== Categorías API =============== -->
+    <div class="border rounded-xl overflow-hidden">
+      <div class="flex items-center justify-between px-3 py-2.5 bg-slate-50">
+        <span class="font-semibold text-slate-900">Categorías</span>
+      </div>
+      <div class="p-2 space-y-1.5 max-h-[40vh] overflow-auto">
+        @for (cat of categories(); track cat.id) {
+          <button
+            type="button"
+            class="w-full flex items-center justify-between rounded-lg border px-3 py-2 transition hover:bg-slate-50 text-left"
+            [ngClass]="selectedCats().has(cat.id) ? 'border-blue-300 bg-blue-50 text-blue-800' : 'border-slate-200 text-slate-800'"
+            (click)="toggleCat(cat.id)"
+          >
+            <span class="text-sm font-medium">{{ cat.name }}</span>
+            <span class="text-xs rounded-full px-2 py-0.5 border"
+                  [ngClass]="(categoryCounts().get(cat.id) ?? 0) > 0 ? 'bg-slate-50 text-slate-700 border-slate-200' : 'bg-slate-100 text-slate-400 border-slate-200'">
+              {{ categoryCounts().get(cat.id) ?? 0 }}
+            </span>
+          </button>
+        }
+      </div>
     </div>
 
     <!-- =============== EPSON (desplegable) =============== -->
@@ -210,6 +231,5 @@
     </div>
   </div>
 </section>
-
 
 

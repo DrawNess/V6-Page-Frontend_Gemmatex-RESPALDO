@@ -114,7 +114,8 @@ export class HeaderComponent implements OnDestroy {
   onSearch(q: string) {
     const query = (q || '').trim();
     if (!query) return;
-    this.router.navigate(['/catalogo'], { queryParams: { q: query } });
+    this.router.navigate(['/productos'], { queryParams: { q: query } });
+    this.closeSearch();
   }
 
 
