@@ -1,8 +1,13 @@
 // src/app/shared/services/promo.service.ts
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Promo } from '@shared/models/promo.model';
 import { environment } from '@environments/environment';
+
+export interface PromoQuery {
+  activeNow?: boolean;
+  is_active?: boolean;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -15,8 +20,13 @@ export class PromoService {
   constructor() { }
 
   // GET /promos
-  getAll() {
-    return this.http.get<Promo[]>(this.base);
+  getAll(query?: PromoQuery) {
+    let params = new HttpParams();
+    if (query) {
+      if (query.activeNow !== undefined) params = params.set('activeNow', String(query.activeNow));
+      if (query.is_active !== undefined) params = params.set('is_active', String(query.is_active));
+    }
+    return this.http.get<Promo[]>(this.base, { params });
   }
 
   // GET /promos/:id

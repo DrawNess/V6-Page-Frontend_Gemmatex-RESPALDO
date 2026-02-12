@@ -307,7 +307,7 @@ export default class ListComponent implements OnInit, OnDestroy {
     this.promosLoading.set(true);
     this.promosError.set(null);
 
-    this.promoService.getAll().subscribe({
+    this.promoService.getAll({ activeNow: true }).subscribe({
       next: (items) => {
         this.promos.set(items ?? []);
         this.promosLoading.set(false);
@@ -359,5 +359,4 @@ export default class ListComponent implements OnInit, OnDestroy {
     return null;
   }
 }
-
 
