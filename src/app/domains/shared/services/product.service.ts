@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Product } from '../models/product.model';
 import { environment } from '@environments/environment';
-import { map, Observable, of, switchMap } from 'rxjs';
+import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
 
 export interface PaginationMeta {
   totalItems: number;
@@ -48,6 +48,7 @@ export interface ProductSearchParams {
   providedIn: 'root'
 })
 export class ProductService {
+  private static readonly DEFAULT_PAGE_SIZE = 40;
   private http = inject(HttpClient);
   private base = `${environment.API_URL}/products`;
 
@@ -56,7 +57,7 @@ export class ProductService {
   private normalizePaginatedProducts(
     raw: PaginatedResponse<Product> | Product[],
     fallbackPage = 1,
-    fallbackPageSize = 40
+    fallbackPageSize = ProductService.DEFAULT_PAGE_SIZE
   ): PaginatedResponse<Product> {
     if (Array.isArray(raw)) {
       const count = raw.length;
@@ -105,7 +106,7 @@ export class ProductService {
   listProducts(params: ProductListParams = {}): Observable<PaginatedResponse<Product>> {
     const {
       page = 1,
-      pageSize = 40,
+      pageSize = ProductService.DEFAULT_PAGE_SIZE,
       categoryId,
       page_size,
       limit,
@@ -130,17 +131,33 @@ export class ProductService {
 
     return this.http
       .get<PaginatedResponse<Product> | Product[]>(url)
-      .pipe(map((raw) => this.normalizePaginatedProducts(raw, Number(page) || 1, Number(pageSize) || 40)));
+      .pipe(map((raw) => this.normalizePaginatedProducts(
+        raw,
+        Number(page) || 1,
+        Number(pageSize) || ProductService.DEFAULT_PAGE_SIZE
+      )));
   }
 
   // GET /products/search (paginado)
   searchProducts(params: ProductSearchParams): Observable<PaginatedResponse<Product>> {
-    const { name, tag, page = 1, pageSize = 40, page_size, limit, offset } = params;
+    const {
+      name,
+      tag,
+      page = 1,
+      pageSize = ProductService.DEFAULT_PAGE_SIZE,
+      page_size,
+      limit,
+      offset
+    } = params;
     const query = this.buildParams({ name, tag, page, pageSize, page_size, limit, offset });
     const url = `${this.base}/search?${query.toString()}`;
     return this.http
       .get<PaginatedResponse<Product> | Product[]>(url)
-      .pipe(map((raw) => this.normalizePaginatedProducts(raw, Number(page) || 1, Number(pageSize) || 40)));
+      .pipe(map((raw) => this.normalizePaginatedProducts(
+        raw,
+        Number(page) || 1,
+        Number(pageSize) || ProductService.DEFAULT_PAGE_SIZE
+      )));
   }
 
   // búsqueda robusta: intenta por nombre y, si no hay resultados, reintenta por tag
@@ -150,7 +167,11 @@ export class ProductService {
   ): Observable<PaginatedResponse<Product>> {
     const q = term.trim();
     if (!q) {
-      return of(this.normalizePaginatedProducts([], Number(params.page) || 1, Number(params.pageSize) || 40));
+      return of(this.normalizePaginatedProducts(
+        [],
+        Number(params.page) || 1,
+        Number(params.pageSize) || ProductService.DEFAULT_PAGE_SIZE
+      ));
     }
 
     return this.searchProducts({ ...params, name: q }).pipe(
@@ -170,10 +191,41 @@ export class ProductService {
       .pipe(map((raw) => (Array.isArray(raw) ? raw : (raw?.data ?? []))));
   }
 
+  private listAllProducts(params: Omit<ProductListParams, 'page' | 'pageSize' | 'page_size' | 'limit' | 'offset'> = {}) {
+    return this.listProducts({
+      ...params,
+      page: 1,
+      pageSize: ProductService.DEFAULT_PAGE_SIZE
+    }).pipe(
+      switchMap((first) => {
+        const firstItems = first.data ?? [];
+        const totalPages = Math.max(1, Number(first.meta?.totalPages ?? 1));
+        if (totalPages <= 1) return of(firstItems);
+
+        const requests: Observable<PaginatedResponse<Product>>[] = [];
+        for (let p = 2; p <= totalPages; p++) {
+          requests.push(
+            this.listProducts({
+              ...params,
+              page: p,
+              pageSize: ProductService.DEFAULT_PAGE_SIZE
+            })
+          );
+        }
+
+        return forkJoin(requests).pipe(
+          map((pages) => {
+            const rest = pages.flatMap((pg) => pg.data ?? []);
+            return [...firstItems, ...rest];
+          })
+        );
+      })
+    );
+  }
+
   // LEGACY COMPAT: devuelve array de productos
   getProducts(category_id?: string) {
-    return this.listProducts({ page: 1, pageSize: 100, categoryId: category_id })
-      .pipe(map((res) => res.data ?? []));
+    return this.listAllProducts({ categoryId: category_id });
   }
 
   // GET /products/:id
@@ -183,14 +235,12 @@ export class ProductService {
 
   // LEGACY COMPAT: devuelve array de productos
   getAll() {
-    return this.listProducts({ page: 1, pageSize: 100 })
-      .pipe(map((res) => res.data ?? []));
+    return this.listAllProducts();
   }
 
   // LEGACY COMPAT: devuelve array de productos
   getProductos() {
-    return this.listProducts({ page: 1, pageSize: 100 })
-      .pipe(map((res) => res.data ?? []));
+    return this.listAllProducts();
   }
 
 

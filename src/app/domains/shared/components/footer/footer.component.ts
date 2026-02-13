@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../../../environments/environment';
 
 interface Location {
   name: string;
@@ -61,9 +62,11 @@ export class FooterComponent {
   email = 'info@gemmatex.com.bo';
 
   phones: ContactPhone[] = [
-    { city: 'LPZ', number: '+591 71926087', link: 'tel:+59171926087' },
-    { city: 'CBBA', number: '+591 62537431', link: 'tel:+59162537431' },
-    { city: 'SCRZ', number: '+591 63565431', link: 'tel:+59163565431' }
+    this.buildPhone('LPZ', environment.WSP_LPZ),
+    this.buildPhone('CBBA', environment.WSP_CBBA),
+    this.buildPhone('SCRZ', environment.WSP_SCZ),
+    this.buildPhone('CEIBO', environment.WSP_EACEIBO),
+    this.buildPhone('SATELITE', environment.WSP_EASATE)
   ];
 
   socialLinks: SocialLink[] = [
@@ -94,4 +97,13 @@ export class FooterComponent {
   ];
 
   currentYear = new Date().getFullYear();
+
+  private buildPhone(city: string, rawNumber: number | string): ContactPhone {
+    const localNumber = String(rawNumber).replace(/\D+/g, '');
+    return {
+      city,
+      number: `+591 ${localNumber}`,
+      link: `https://api.whatsapp.com/send?phone=591${localNumber}`
+    };
+  }
 }

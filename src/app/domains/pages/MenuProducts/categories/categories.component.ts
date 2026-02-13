@@ -193,7 +193,7 @@ export class CategoriesComponent {
   trackById = (_: number, c: Category) => c.id;
 
   onImgError(ev: Event) {
-    (ev.target as HTMLImageElement).src = '/assets/placeholders/category.webp';
+    (ev.target as HTMLImageElement).src = '/assets/placeholders/category.svg';
   }
 
   // Slug por defecto

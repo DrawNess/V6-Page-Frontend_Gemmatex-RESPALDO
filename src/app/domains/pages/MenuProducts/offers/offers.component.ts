@@ -311,7 +311,7 @@ export class OffersComponent implements OnInit{
   trackById = (_: number, o: Offer) => o.id;
 
   onImgError(ev: Event) {
-    (ev.target as HTMLImageElement).src = '/assets/placeholders/product.webp';
+    (ev.target as HTMLImageElement).src = '/assets/placeholders/product.svg';
   }
 
   toNum = (v: any) => (v === '' || v === null || v === undefined) ? null : Number(v);

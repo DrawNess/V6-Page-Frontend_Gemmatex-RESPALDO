@@ -16,6 +16,6 @@ export class ProductComponent {
   addToCartHandler() { this.addToCart.emit(this.product); }
 
   onImgError(e: Event) {
-    (e.target as HTMLImageElement).src = '/assets/placeholders/product.webp';
+    (e.target as HTMLImageElement).src = '/assets/placeholders/product.svg';
   }
 }

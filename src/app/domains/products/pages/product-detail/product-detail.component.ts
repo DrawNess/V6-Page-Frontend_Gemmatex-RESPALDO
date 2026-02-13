@@ -57,7 +57,7 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
   // derivados
   readonly isOutOfStock = computed(() => (this.product()?.stock ?? 0) === 0);
   readonly selectedImage = computed(
-    () => this.cover() || this.product()?.imageUrl || '/assets/placeholders/product.webp'
+    () => this.cover() || this.product()?.imageUrl || '/assets/placeholders/product.svg'
   );
   readonly productTags = computed(() => this.product()?.tags ?? []);
   readonly isInkProduct = computed(() => isInkSubcategory(this.product()));
@@ -170,10 +170,10 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
 
 
   onCoverError(e: Event) {
-    (e.target as HTMLImageElement).src = '/assets/placeholders/product.webp';
+    (e.target as HTMLImageElement).src = '/assets/placeholders/product.svg';
   }
   onThumbError(e: Event) {
-    (e.target as HTMLImageElement).src = '/assets/placeholders/thumb.webp';
+    (e.target as HTMLImageElement).src = '/assets/placeholders/thumb.svg';
   }
 
   // ——— CTA

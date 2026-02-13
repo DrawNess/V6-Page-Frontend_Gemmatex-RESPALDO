@@ -121,7 +121,7 @@ export class CatalogoComponent {
   trackById(index: number, item: Product) {
     return item.id;
   }
-  onCatImgError(e: Event) { (e.target as HTMLImageElement).src = '/assets/placeholders/category.webp'; }
+  onCatImgError(e: Event) { (e.target as HTMLImageElement).src = '/assets/placeholders/category.svg'; }
 
   /* ---------------------- BUSCADOR + CATEGORÍAS ---------------------- */
   search = signal('');

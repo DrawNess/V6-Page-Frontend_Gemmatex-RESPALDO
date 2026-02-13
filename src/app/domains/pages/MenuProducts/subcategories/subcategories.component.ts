@@ -317,7 +317,7 @@ export class SubcategoriesComponent implements OnInit {
   trackById = (_: number, s: ViewSub) => s.id;
 
   onImgError(ev: Event) {
-    (ev.target as HTMLImageElement).src = '/assets/placeholders/subcategory.webp';
+    (ev.target as HTMLImageElement).src = '/assets/placeholders/subcategory.svg';
   }
 
   private slugify(s: string) {

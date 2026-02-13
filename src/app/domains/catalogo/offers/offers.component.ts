@@ -198,7 +198,7 @@ private offerService = inject(OfferService);
     return `https://wa.me/${phone}?text=${encodeURIComponent(lines.join('\n'))}`;
   }
 
-  onImgError(e: Event) { (e.target as HTMLImageElement).src = '/assets/placeholders/product.webp'; }
+  onImgError(e: Event) { (e.target as HTMLImageElement).src = '/assets/placeholders/product.svg'; }
   trackById = (_: number, o: Offer) => o.id ?? o.sku ?? _;
 
 

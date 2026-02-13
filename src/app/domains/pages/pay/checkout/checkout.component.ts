@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CartService } from '@shared/services/cart.service';
 import { Product } from '@shared/models/product.model';
+import { environment } from '@environments/environment';
 
 type Branch = { id: string; name: string; phone: string; address?: string };
 
@@ -43,9 +44,9 @@ export class CheckoutComponent {
 
   // Sucursales
   branches: Branch[] = [
-    { id: 'lp', name: 'La Paz',      phone: '59171926087', address: 'Av. Illampu esq. Graneros Nº 682' },
-    { id: 'sc', name: 'Santa Cruz',  phone: '59163565431', address: 'Calle Isabela Católica Nº 275' },
-    { id: 'cb', name: 'Cochabamba',  phone: '59162537431', address: 'Av. Aroma c/ 16 de Julio y Av. Oquendo' },
+    { id: 'lp', name: 'La Paz',      phone: this.branchPhone(environment.WSP_LPZ), address: 'Av. Illampu esq. Graneros Nº 682' },
+    { id: 'sc', name: 'Santa Cruz',  phone: this.branchPhone(environment.WSP_SCZ), address: 'Calle Isabela Católica Nº 275' },
+    { id: 'cb', name: 'Cochabamba',  phone: this.branchPhone(environment.WSP_CBBA), address: 'Av. Aroma c/ 16 de Julio y Av. Oquendo' },
   ];
   selectedBranchId = signal<string>(this.branches[0].id);
   selectedBranch = computed<Branch | undefined>(() =>
@@ -140,13 +141,19 @@ export class CheckoutComponent {
     }
     lines.push('');
     lines.push(`Gracias por su preferencia.`);
+    lines.push(`https://gemmatex.com.bo/`);
     return lines.join('\n');
   }
 
   waLink(): string {
     const phone = this.selectedBranch()?.phone ?? '';
     const text = encodeURIComponent(this.waMessage());
-    return `https://wa.me/${phone}?text=${text}`;
+    return `https://api.whatsapp.com/send?phone=${phone}&text=${text}`;
+  }
+
+  private branchPhone(rawNumber: number | string): string {
+    const localNumber = String(rawNumber).replace(/\D+/g, '');
+    return `591${localNumber}`;
   }
 
   placeOrder(ev?: Event) {

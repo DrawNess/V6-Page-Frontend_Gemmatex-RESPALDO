@@ -257,7 +257,7 @@ private http = inject(HttpClient); // ✅ corregido (private)
   sortArrow(k: SortKey) { return this.sortKey() !== k ? '' : (this.sortDir() === 'asc' ? '▲' : '▼'); }
 
   trackById = (_: number, o: Offer) => o.id;
-  onImgError(ev: Event) { (ev.target as HTMLImageElement).src = '/assets/placeholders/product.webp'; }
+  onImgError(ev: Event) { (ev.target as HTMLImageElement).src = '/assets/placeholders/product.svg'; }
   toNum = (v: any) => (v === '' || v == null) ? null : Number(v);
   toInt = (v: any) => (v === '' || v == null) ? null : Math.trunc(Number(v));
 
