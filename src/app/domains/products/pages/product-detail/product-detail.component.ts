@@ -220,42 +220,11 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
   private loadSimilar(p?: Product | null) {
     if (!p) { this.similar.set([]); return; }
 
-    this.productService.getProductos()
+    this.productService.getRelatedProducts(p.id, 8)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
       next: (items) => {
-        const list = (items || []).filter(x => x && x.id !== p.id);
-
-        const sub = (p.subcategory || '');
-        const tagSet = new Set<string>((p.tags || []).map(t => String(t).toLowerCase()));
-        const catId = (p as any)?.category?.id ?? (p as any)?.category_id;
-
-        // score: subcat > tags > category
-        const scored = list.map(q => {
-          const qs = (q.subcategory || '');
-          const sameSub = sub && qs === sub ? 1 : 0;
-
-          const qTags = (q.tags || []).map(t => String(t).toLowerCase());
-          let tagHits = 0;
-          for (const t of qTags) if (tagSet.has(t)) tagHits++;
-
-          const sameCat = catId && ((q as any)?.category?.id === catId || (q as any)?.category_id === catId) ? 1 : 0;
-
-          const score = sameSub * 100 + tagHits * 10 + sameCat * 5;
-          return { q, score };
-        });
-
-        // ordenar por score desc, fallback por stock/reciente
-        scored.sort((a, b) => {
-          if (b.score !== a.score) return b.score - a.score;
-          const stockDiff = (b.q.stock || 0) - (a.q.stock || 0);
-          if (stockDiff !== 0) return stockDiff;
-          return String(b.q.updated_at || '').localeCompare(String(a.q.updated_at || ''));
-        });
-
-        // tomar 8 como máximo
-        const top = scored.map(s => s.q).slice(0, 8);
-        this.similar.set(top);
+        this.similar.set((items || []).filter(x => x && x.id !== p.id).slice(0, 8));
       },
       error: (err) => {
         console.error('Error cargando similares', err);
@@ -321,17 +290,19 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
 
   // ——— Ink grouping helpers
   private loadInkVariants(p?: Product | null) {
-    if (!isInkSubcategory(p)) { this.inkVariants.set([]); return; }
+    if (!p || !isInkSubcategory(p)) { this.inkVariants.set([]); return; }
 
     const baseKey = inkBaseKey(p);
     if (!baseKey) { this.inkVariants.set([]); return; }
 
-    this.productService.getProductos()
+    this.productService.getRelatedProducts(p.id, 24)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (items) => {
-          const variants = (items || [])
-            .filter(x => !!x && isInkSubcategory(x) && inkBaseKey(x) === baseKey)
+          const pool: Product[] = [p, ...(items || [])].filter((x): x is Product => !!x);
+          const variants = pool
+            .filter(x => isInkSubcategory(x) && inkBaseKey(x) === baseKey)
+            .filter((x, i, arr) => arr.findIndex(y => y.id === x.id) === i)
             .sort((a, b) => colorOrder(a) - colorOrder(b));
           this.inkVariants.set(variants);
           this.refreshSelectedColor(p);

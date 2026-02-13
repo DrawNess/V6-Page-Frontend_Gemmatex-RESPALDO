@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ProductComponent } from '@products/components/product/product.component';
 import { Product } from '@shared/models/product.model';
 import { CartService } from '@shared/services/cart.service';
-import { ProductService } from '@shared/services/product.service';
+import { PaginationMeta, ProductService } from '@shared/services/product.service';
 import { CategoryService } from '@shared/services/category.service';
 import { Category } from '@shared/models/category.model';
 
@@ -28,6 +28,7 @@ export class CatalogoComponent {
   private cartService = inject(CartService);
   private productService = inject(ProductService);
   private categoryService = inject(CategoryService);
+  private searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   @Input() category_id?: string;
 
@@ -46,19 +47,45 @@ export class CatalogoComponent {
       const catId = qp.get('categoryId');
       this.search.set(q);
       this.selectedCats.set(catId ? new Set([Number(catId)]) : new Set());
+      this.page.set(1);
+      this.getProducts();
     });
     this.getCategories();
   }
-  ngOnChanges(_: SimpleChanges) { this.getProducts(); }
+  ngOnChanges(_: SimpleChanges) {
+    this.page.set(1);
+    this.getProducts();
+  }
   ngAfterViewInit() { setTimeout(() => this.rouletteResume(), 0); }
   ngOnDestroy() { this.roulettePause(); }
 
   addToCart(product: Product) { this.cartService.addToCart(product); }
 
   private getProducts() {
-    this.productService.getProducts(this.category_id).subscribe({
-      next: (products) => this.products.set(products),
-      error: () => {}
+    this.loading.set(true);
+
+    const q = this.search().trim();
+    const req$ = q
+      ? this.productService.searchProductsByTerm(q, {
+          page: this.page(),
+          pageSize: this.pageSize
+        })
+      : this.productService.listProducts({
+          categoryId: this.category_id,
+          page: this.page(),
+          pageSize: this.pageSize
+        });
+
+    req$.subscribe({
+      next: (res) => {
+        this.products.set(res.data ?? []);
+        this.meta.set(res.meta ?? null);
+      },
+      error: () => {
+        this.products.set([]);
+        this.meta.set(null);
+      },
+      complete: () => this.loading.set(false)
     });
   }
   private getCategories() {
@@ -98,20 +125,14 @@ export class CatalogoComponent {
 
   /* ---------------------- BUSCADOR + CATEGORÍAS ---------------------- */
   search = signal('');
+  loading = signal(false);
+  meta = signal<PaginationMeta | null>(null);
+  page = signal(1);
+  readonly pageSize = 40;
   selectedCats = signal<Set<number>>(new Set<number>());
 
   searchFilteredProducts = computed<Product[]>(() => {
-    const q = this.search().trim().toLowerCase();
-    if (!q) return this.products();
-    return this.products().filter(p => {
-      const haystack = [
-        p.name,
-        (p as any).shortDescription,
-        (p as any).description,
-        ...(p.tags ?? []),
-      ].filter(Boolean).join(' ').toLowerCase();
-      return haystack.includes(q);
-    });
+    return this.products();
   });
 
   categoryCounts = computed<Map<number, number>>(() => {
@@ -190,8 +211,15 @@ filteredProducts = computed<Product[]>(() => {
   onSearch(ev: Event) {
     const val = (ev.target as HTMLInputElement)?.value ?? '';
     this.search.set(val);
+    this.page.set(1);
+    if (this.searchDebounceTimer) clearTimeout(this.searchDebounceTimer);
+    this.searchDebounceTimer = setTimeout(() => this.getProducts(), 300);
   }
-  clearSearch() { this.search.set(''); }
+  clearSearch() {
+    this.search.set('');
+    this.page.set(1);
+    this.getProducts();
+  }
   toggleCat(id: number) {
     this.selectedCats.update(prev => {
       const next = new Set(prev);
@@ -204,6 +232,20 @@ filteredProducts = computed<Product[]>(() => {
     this.clearSearch();
     this.clearCategories();
     this.activeSub.set(null);
+  }
+
+  prevPage() {
+    const m = this.meta();
+    if (!m?.hasPrevPage) return;
+    this.page.set(m.prevPage ?? Math.max(1, this.page() - 1));
+    this.getProducts();
+  }
+
+  nextPage() {
+    const m = this.meta();
+    if (!m?.hasNextPage) return;
+    this.page.set(m.nextPage ?? this.page() + 1);
+    this.getProducts();
   }
 
 
@@ -420,12 +462,6 @@ docTitle2(d: PdfDoc) {
 
 
 }
-
-
-
-
-
-
 
 
 

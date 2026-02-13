@@ -66,10 +66,13 @@
       <div class="col-span-12 md:col-span-9">
         <div class="mb-3 text-sm text-slate-600">
           Resultados: <strong>{{ groupedProducts().length }}</strong>
+          <span *ngIf="meta()" class="text-xs text-slate-500 ml-2">
+            ({{ meta()!.totalItems }} totales)
+          </span>
           <span *ngIf="isInkCategory()" class="text-xs text-slate-500 ml-2">(agrupados por modelo de tinta)</span>
         </div>
 
-        <div class="grid gap-5 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+        <div class="grid gap-5 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           <app-product
             *ngFor="let p of groupedProducts(); trackBy: trackByProduct"
             [product]="p"
@@ -78,6 +81,28 @@
 
         <div *ngIf="groupedProducts().length === 0" class="mt-10 text-center text-slate-500">
           Sin resultados. Prueba otra subcategoría o búsqueda.
+        </div>
+
+        <div *ngIf="meta() as m" class="mt-8 flex items-center justify-between gap-3 border-t border-slate-200 pt-4">
+          <button
+            type="button"
+            class="rounded-lg border px-3 py-2 text-sm transition disabled:cursor-not-allowed disabled:opacity-40"
+            [disabled]="!m.hasPrevPage || loading()"
+            (click)="prevPage()"
+          >
+            Anterior
+          </button>
+          <div class="text-sm text-slate-600">
+            Página <strong>{{ m.page }}</strong> de <strong>{{ m.totalPages || 1 }}</strong>
+          </div>
+          <button
+            type="button"
+            class="rounded-lg border px-3 py-2 text-sm transition disabled:cursor-not-allowed disabled:opacity-40"
+            [disabled]="!m.hasNextPage || loading()"
+            (click)="nextPage()"
+          >
+            Siguiente
+          </button>
         </div>
       </div>
     </div>
