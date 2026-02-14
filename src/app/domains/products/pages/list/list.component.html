@@ -176,7 +176,7 @@
         Novedades
       </h2>
 
-      <div class="hidden sm:flex items-center gap-2">
+      <div class="flex items-center gap-2">
         <button
           type="button"
           class="h-9 w-9 grid place-items-center rounded-full border border-slate-300 bg-white hover:bg-slate-50"
@@ -195,7 +195,7 @@
         class="hide-scroll grid grid-flow-col gap-4 sm:gap-5 lg:gap-6
                auto-cols-[88%] sm:auto-cols-[50%] lg:auto-cols-[33.333%]
                overflow-x-auto snap-x snap-mandatory scroll-smooth
-               touch-pan-y sm:touch-pan-x [-ms-overflow-style:none] [scrollbar-width:none]"
+               touch-pan-x touch-pan-y [-ms-overflow-style:none] [scrollbar-width:none]"
         (mouseenter)="pauseAutoplayRandom()" (mouseleave)="resumeAutoplayRandom()"
       >
         @for (p of random10(); track p.id) {
@@ -627,4 +627,3 @@
   </div>
 </section>
  -->
-
