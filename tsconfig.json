@@ -27,7 +27,7 @@
       "@shared/*": ["./src/app/domains/shared/*"],
       "@products/*": ["./src/app/domains/products/*"],
       "@info/*": ["./src/app/domains/info/*"],
-      "@services/*": ["./src/app/domains/pages/sercicios/*"],
+      "@services/*": ["./src/app/domains/shared/services/*"],
       "@auth/*": ["./src/app/domains/modules/auth/*"],
       "@core/*": ["./src/app/core/*"],
       "@environments/*": ["./src/environments/*"],

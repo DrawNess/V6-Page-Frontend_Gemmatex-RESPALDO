@@ -158,7 +158,6 @@ export class RegisterComponent {
       },
     };
 
-    // ✅ Flujo premium:
     // 1) POST /customers
     // 2) POST /auth/send-verify-email (con email devuelto por backend)
     // 3) Modal + esperar 2s + redirect
@@ -175,7 +174,9 @@ export class RegisterComponent {
         next: () => {
           this.status = 'success';
           this.openSuccessModal(payload.user.email);
-
+          timer(4000).subscribe(() => {
+            this.goToLogin();
+          });
           /* timer(2000).subscribe(() => {
             this.router.navigate(['/email-verified']); // o '/verify-success'
           }); */

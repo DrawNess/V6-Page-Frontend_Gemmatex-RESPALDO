@@ -113,7 +113,7 @@ export class ForgotPasswordComponent {
         this.successMsg = rta?.message || 'Contraseña actualizada correctamente.';
         this.loading = false;
 
-        // opcional: redirigir al login
+        // Redirigir al login
         setTimeout(() => this.router.navigate(['/auth/login']), 1200);
       },
       error: (err) => {

@@ -1,9 +1,12 @@
 <!-- CARGA / ERROR -->
-<div *ngIf="loading()" class="py-10 text-center text-slate-600">Cargando…</div>
-<div *ngIf="error()" class="py-4 mx-auto max-w-3xl text-center rounded-xl border border-red-200 bg-red-50 text-red-700">
-  {{ error() }}
-</div>
-
+@if (loading()) {
+  <div class="py-10 text-center text-slate-600">Cargando…</div>
+}
+@if (error()) {
+  <div class="py-4 mx-auto max-w-3xl text-center rounded-xl border border-red-200 bg-red-50 text-red-700">
+    {{ error() }}
+  </div>
+}
 <!-- ================= HERO ================= -->
 
 <section *ngIf="!loading() && slides().length"

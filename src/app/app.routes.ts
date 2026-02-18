@@ -29,6 +29,9 @@ import { VerifyRequestComponent } from '@auth/pages/verify-request/verify-reques
 // Componentes administrativos - usando lazy loading para mejor rendimiento
 const SECRET_BASE = ROUTE_CONSTANTS.SECRET_BASE;
 
+
+import { authGuard } from './guards/auth.guard';
+
 export const routes: Routes = [
     {
         path: '',
@@ -79,7 +82,7 @@ export const routes: Routes = [
                 path: ROUTE_CONSTANTS.PUBLIC.CHECKOUT,
                 component: CheckoutComponent
             },
-            
+
             // ========== RUTAS DE RECURSOS ==========
             {
                 path: ROUTE_CONSTANTS.PUBLIC.RECURSOS.PERFILES_COLOR,
@@ -89,13 +92,13 @@ export const routes: Routes = [
                 path: ROUTE_CONSTANTS.PUBLIC.RECURSOS.PDFS,
                 component: DescargaPdfsComponent
             },
-            
+
             // ========== RUTAS DE EMPRESA ==========
             {
                 path: ROUTE_CONSTANTS.PUBLIC.EMPRESA.SOBRE_NOSOTROS,
                 component: SobreNosotrosComponent
             },
-            
+
             // ========== RUTAS DE AUTENTICACIÓN ==========
             {
                 path: ROUTE_CONSTANTS.AUTH.LOGIN,
@@ -125,7 +128,7 @@ export const routes: Routes = [
                 path: ROUTE_CONSTANTS.AUTH.VERIFY_REQUEST,
                 component: VerifyRequestComponent
             },
-            
+
             // ========== RUTAS ADMINISTRATIVAS (PROTEGIDAS) ==========
             {
                 path: `${SECRET_BASE}/${ROUTE_CONSTANTS.ADMIN.MENU_SECRETO}`,
@@ -182,6 +185,9 @@ export const routes: Routes = [
                 loadComponent: () => import('./domains/pages/MenuProducts/adds/promo/promo.component').then(m => m.PromoComponent),
                 canActivate: [adminGuard]
             }
+            // ========== RUTAS DE PRUEBA GUARDS (PROTEGIDAS) ==========
+
+
         ]
     },
     // ========== RUTA 404 ==========

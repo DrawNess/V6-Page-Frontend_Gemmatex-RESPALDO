@@ -1,12 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '@environments/environment';
-import { Observable } from 'rxjs';
+
+import { Observable, tap } from 'rxjs';
+import { TokenService } from '@services/token.service';
+import { ResponseLogin } from '@shared/models/auth.model';
 
 export interface LoginResponse {
   token: string;
   user: any;
 }
+
 export interface RegisterCustomerDTO {
   name: string;
   lastName: string;
@@ -26,14 +30,20 @@ export class AuthService {
   private apiUrl = environment.API_URL;
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private tokenService: TokenService
   ){}
 
   login( email: string, password: string ) {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, {
+    return this.http.post<ResponseLogin>(`${this.apiUrl}/auth/login`, {
       email,
       password
-    });
+    })
+    .pipe(
+      tap(response => {
+        this.tokenService.saveToken(response.access_token);
+      })
+    )
   }
 
 /*   register( name: string, lastName: string, phone: string, email: string, password: string ): Observable<any> {
@@ -65,5 +75,4 @@ export class AuthService {
   changePassword(token: string, newPassword: string) {
     return this.http.post<{ message: string }>(`${this.apiUrl}/auth/change-password`, { token, newPassword });
   }
-
 }

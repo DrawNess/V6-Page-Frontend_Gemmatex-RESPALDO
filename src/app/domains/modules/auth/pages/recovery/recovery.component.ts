@@ -4,6 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { AuthService } from '@shared/services/auth.service';
+import { RequestStatus } from '@models/request-status.model';
 
 @Component({
   selector: 'app-recovery',
@@ -14,6 +15,9 @@ import { AuthService } from '@shared/services/auth.service';
 export class RecoveryComponent {
   loading = false;
   submitted = false;
+
+  // Aprender a usar.
+  status: RequestStatus = 'init';
 
   // mensajes
   errorMsg: string | null = null;
@@ -76,8 +80,8 @@ export class RecoveryComponent {
         this.successMsg = rta?.message || 'Revisa tu correo para continuar.';
         this.loading = false;
 
-        // Opcional: después de 1.5s lo mandas al login
-        // setTimeout(() => this.router.navigate(['/auth/login']), 1500);
+        // Después de 1.5s lo mandas al login
+        setTimeout(() => this.router.navigate(['/auth/login']), 1500);
       },
       error: (err) => {
         this.errorMsg = this.parseError(err);
