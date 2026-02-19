@@ -6,7 +6,7 @@ export const ROUTE_CONSTANTS = {
    * Prefijo base para rutas administrativas secretas
    */
   SECRET_BASE: 'admin-gx-panel-secreto-6f3e2b3e-9c31-4c8c-8cfa-ccf06b9b1c21',
-  
+
   /**
    * Rutas públicas principales
    */
@@ -29,7 +29,7 @@ export const ROUTE_CONSTANTS = {
       SOBRE_NOSOTROS: 'empresa/sobre-nosotros'
     }
   },
-  
+
   /**
    * Rutas de autenticación
    */
@@ -42,7 +42,7 @@ export const ROUTE_CONSTANTS = {
     VERIFY_EMAIL: 'verifyEmail',
     VERIFY_REQUEST: 'auth/verify-request'
   },
-  
+
   /**
    * Rutas administrativas (requieren autenticación)
    */

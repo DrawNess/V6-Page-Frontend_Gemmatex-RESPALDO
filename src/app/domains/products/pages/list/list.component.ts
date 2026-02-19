@@ -216,12 +216,19 @@ export default class ListComponent implements OnInit, OnDestroy {
   annLabel(a: Announcement) {
     return (a.linkLabel && a.linkLabel.trim()) || a.title || 'Anuncio';
   }
-  /** destino con prioridad: producto -> link externo -> sin link */
+  /** destino del chip: usar linkUrl (interno) */
   annRouterLink(a: Announcement) {
-    return a.hrefProductId ? ['/product', a.hrefProductId] : null;
+    const url = (a.linkUrl || '').trim();
+    if (!url) return null;
+    const isExternal = /^(https?:\/\/|mailto:|tel:)/i.test(url);
+    return isExternal ? null : [url];
   }
+  /** destino del chip: usar linkUrl (externo) */
   annHref(a: Announcement) {
-    return !a.hrefProductId && a.linkUrl ? a.linkUrl : null;
+    const url = (a.linkUrl || '').trim();
+    if (!url) return null;
+    const isExternal = /^(https?:\/\/|mailto:|tel:)/i.test(url);
+    return isExternal ? url : null;
   }
   /** trackBy estable */
   trackByAnn(_index: number, a: Announcement) {
@@ -359,4 +366,3 @@ export default class ListComponent implements OnInit, OnDestroy {
     return null;
   }
 }
-
