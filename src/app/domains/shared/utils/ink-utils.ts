@@ -25,11 +25,20 @@ const INK_COLOR_TOKEN_PARTS = new Set(
 );
 // Códigos de referencia de tinta Epson (ej: T7413, T49M4, T49M1)
 const INK_T_CODE_RE = /^t\d{2,}[a-z]?\d*$/i;
+const INK_GENERIC_TOKENS = new Set(['tinta', 'tintas', 'ink', 'epson', 'botella', 'cartucho']);
 
 function normalizeInkModelToken(token: string): string {
   const t = token.toLowerCase();
   // F170 y F570 usan la misma tinta: misma clave para agrupar
   if (t === 'f170' || t === 'f570') return 'f170f570';
+  return t;
+}
+
+function normalizeInkCodeFamily(token: string): string {
+  const t = token.toLowerCase();
+  if (!INK_T_CODE_RE.test(t)) return t;
+  // T49M1 -> t49m / T7413 -> t741
+  if (t.length >= 5 && /\d$/.test(t)) return t.slice(0, -1);
   return t;
 }
 
@@ -54,17 +63,24 @@ export function detectInkColor(p: Product): InkColor {
 
 export function inkBaseKey(p?: Product | null): string | null {
   if (!p) return null;
-  const source = (p.slug || p.name || '').toLowerCase();
+  const source = `${p.slug || ''} ${p.name || ''} ${p.sku || ''}`.toLowerCase();
   if (!source) return null;
 
   // normalizamos, eliminando paréntesis y signos
   const cleaned = source.replace(/[^a-z0-9]+/g, ' ');
   const tokens = cleaned.split(/\s+/).filter(Boolean).map(normalizeInkModelToken);
 
+  // Si hay códigos Epson T..., usar familia de código para evitar mezclar modelos distintos.
+  const modelFamilies = tokens
+    .filter(t => INK_T_CODE_RE.test(t))
+    .map(normalizeInkCodeFamily);
+  const uniqueModels = modelFamilies.filter((t, i, arr) => arr.indexOf(t) === i);
+  if (uniqueModels.length) return uniqueModels.join('-');
+
   const filtered = tokens.filter(t => {
     if (INK_COLOR_TOKENS.has(t)) return false;
     if (INK_COLOR_TOKEN_PARTS.has(t)) return false;
-    if (INK_T_CODE_RE.test(t)) return false; // códigos Epson tipo T7413
+    if (INK_GENERIC_TOKENS.has(t)) return false;
     if (/^\d+ml$/.test(t) || t === 'ml' || /^\d+$/.test(t)) return false; // volumen
     return true;
   });
@@ -100,7 +116,11 @@ export function cleanInkName(p: Product): string {
 
     if (INK_COLOR_TOKENS.has(low) || INK_COLOR_TOKENS.has(simple)) break;
     if (INK_COLOR_TOKEN_PARTS.has(low) || INK_COLOR_TOKEN_PARTS.has(simple)) break;
-    if (INK_T_CODE_RE.test(low) || INK_T_CODE_RE.test(simple)) break;
+    if (INK_T_CODE_RE.test(low) || INK_T_CODE_RE.test(simple)) {
+      const family = normalizeInkCodeFamily(simple).toUpperCase();
+      if (kept[kept.length - 1] !== family) kept.push(family);
+      continue;
+    }
     if (/^\d+ml$/i.test(low) || /^\d+ml$/i.test(simple)) break;
     if (low === 'ml' || simple === 'ml') break;
     if (/^\d+$/.test(low) || /^\d+$/.test(simple)) break;

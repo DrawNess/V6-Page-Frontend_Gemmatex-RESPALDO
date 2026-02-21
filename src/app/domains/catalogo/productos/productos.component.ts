@@ -8,12 +8,8 @@ import { CategoryService } from '@shared/services/category.service';
 import { ProductComponent } from '@products/components/product/product.component';
 import { SubcategoryService } from '@shared/services/subcategory.service';
 import { Subcategory } from '@shared/models/subcategory.model';
-import {
-  cleanInkName,
-  colorOrder,
-  inkBaseKey,
-  isInkSubcategory
-} from '@shared/utils/ink-utils';
+import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
+import { groupEpsonInkProducts } from '@shared/utils/ink-grouping.util';
 
 @Component({
   selector: 'app-productos',
@@ -27,6 +23,7 @@ export class ProductosComponent {
   private categoryService = inject(CategoryService);
   private subcategoryService = inject(SubcategoryService);
   private searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+  private subProductsCache = new Map<number, Product[]>();
 
   // estado
   products = signal<Product[]>([]);
@@ -42,7 +39,7 @@ export class ProductosComponent {
   // filtros
   search = signal('');
   selectedSubs = signal<Set<number>>(new Set<number>());
-  private initialSubId: number | null = null;
+  subCounts = signal<Map<number, number>>(new Map<number, number>());
 
   ngOnInit() {
     this.route.queryParamMap.subscribe((qp) => {
@@ -52,11 +49,12 @@ export class ProductosComponent {
 
       this.currentCategoryId.set(categoryId);
       this.search.set(q);
-      this.initialSubId = subcategoryId ? Number(subcategoryId) : null;
+      this.selectedSubs.set(subcategoryId ? new Set([Number(subcategoryId)]) : new Set());
+      this.subProductsCache.clear();
       this.page.set(1);
-      this.selectedSubs.set(new Set());
       this.products.set([]);
       this.subcategories.set([]);
+      this.subCounts.set(new Map());
       this.meta.set(null);
 
       this.loadCategoryData(categoryId);
@@ -73,9 +71,21 @@ export class ProductosComponent {
     this.subcategoryService.getByCategory(categoryId).subscribe({
       next: (subs) => {
         this.subcategories.set(subs ?? []);
-        this.applyInitialSub();
+        this.loadSubCounts();
+
+        const allowed = new Set((subs ?? []).map((s) => s.id));
+        const current = this.selectedSubs();
+        const next = new Set<number>([...current].filter((id) => allowed.has(id)));
+        if (next.size !== current.size) {
+          this.selectedSubs.set(next);
+          this.page.set(1);
+          this.fetchProducts();
+        }
       },
-      error: () => this.subcategories.set([])
+      error: () => {
+        this.subcategories.set([]);
+        this.subCounts.set(new Map());
+      }
     });
 
     this.categoryService.getOne(categoryId).subscribe({
@@ -90,7 +100,10 @@ export class ProductosComponent {
 
     const q = this.search().trim();
     const categoryId = this.currentCategoryId();
-    const req$ = q
+    const selectedSubIds = [...this.selectedSubs()];
+    const req$ = selectedSubIds.length
+      ? this.listProductsBySelectedSubs(selectedSubIds, q)
+      : q
       ? this.productService.searchProductsByTerm(q, {
           page: this.page(),
           pageSize: this.pageSize
@@ -105,6 +118,9 @@ export class ProductosComponent {
       next: (res) => {
         this.products.set(res.data ?? []);
         this.meta.set(res.meta ?? null);
+        if (this.page() !== (res.meta?.page ?? this.page())) {
+          this.page.set(res.meta?.page ?? this.page());
+        }
       },
       error: () => {
         this.products.set([]);
@@ -115,67 +131,128 @@ export class ProductosComponent {
     });
   }
 
-  private applyInitialSub() {
-    if (this.initialSubId && this.subcategories().some(s => s.id === this.initialSubId)) {
-      this.selectedSubs.set(new Set([this.initialSubId]));
+  private loadSubCounts() {
+    const subs = this.subcategories();
+    if (!subs.length) {
+      this.subCounts.set(new Map());
+      return;
     }
-  }
 
-  private productSubId(p: Product): number | null {
-    return Number((p as any).subcategoryId ?? (p as any).subcategory?.id ?? NaN) || null;
-  }
+    const requests = subs.map((s) =>
+      this.subcategoryService.getProductsBySubcategory(s.id, { page: 1, pageSize: 1 }).pipe(
+        map((res) => [s.id, Number(res.meta?.totalItems ?? res.data?.length ?? 0)] as const),
+        catchError(() => of([s.id, 0] as const))
+      )
+    );
 
-  filteredProducts = computed(() => {
-    const subSet = this.selectedSubs();
-    return this.products().filter((p) => {
-      const subId = this.productSubId(p);
-      return !subSet.size ? true : subId !== null && subSet.has(subId);
+    forkJoin(requests).subscribe((entries) => {
+      this.subCounts.set(new Map<number, number>(entries));
     });
-  });
+  }
 
-  isInkCategory = computed(() => {
-    if (this.subcategories().some(s => (s.name || '').toLowerCase().includes('tinta'))) return true;
-    const prods = this.products();
-    if (!prods.length) return false;
-    const inkCount = prods.filter(p => isInkSubcategory(p)).length;
-    return inkCount / prods.length >= 0.5;
-  });
+  private getAllProductsBySubcategory(id: number): Observable<Product[]> {
+    const cached = this.subProductsCache.get(id);
+    if (cached) return of(cached);
+
+    return this.subcategoryService.getProductsBySubcategory(id, {
+      page: 1,
+      pageSize: this.pageSize
+    }).pipe(
+      switchMap((first) => {
+        const firstItems = first.data ?? [];
+        const totalPages = Math.max(1, Number(first.meta?.totalPages ?? 1));
+        if (totalPages <= 1) return of(firstItems);
+
+        const requests: Observable<{ data: Product[] }>[] = [];
+        for (let p = 2; p <= totalPages; p++) {
+          requests.push(
+            this.subcategoryService.getProductsBySubcategory(id, {
+              page: p,
+              pageSize: this.pageSize
+            })
+          );
+        }
+
+        return forkJoin(requests).pipe(
+          map((pages) => {
+            const rest = pages.flatMap((pg) => pg.data ?? []);
+            return [...firstItems, ...rest];
+          })
+        );
+      }),
+      map((all) => {
+        this.subProductsCache.set(id, all);
+        return all;
+      }),
+      catchError(() => of([]))
+    );
+  }
+
+  private listProductsBySelectedSubs(
+    ids: number[],
+    term: string
+  ): Observable<{ data: Product[]; meta: PaginationMeta }> {
+    const requests = ids.map((id) => this.getAllProductsBySubcategory(id));
+    return forkJoin(requests).pipe(
+      map((groups) => {
+        const unique = new Map<number, Product>();
+        for (const list of groups) {
+          for (const p of list) {
+            unique.set(p.id, p);
+          }
+        }
+
+        let merged = Array.from(unique.values());
+        const q = term.trim().toLowerCase();
+        if (q) {
+          merged = merged.filter((p) => this.matchesTerm(p, q));
+        }
+        const grouped = groupEpsonInkProducts(merged);
+        grouped.sort((a, b) => Number(a.id) - Number(b.id));
+
+        const totalItems = grouped.length;
+        const pageSize = this.pageSize;
+        const totalPages = totalItems > 0 ? Math.ceil(totalItems / pageSize) : 0;
+        const safePage = totalPages > 0
+          ? Math.min(this.page(), totalPages)
+          : 1;
+        const start = (safePage - 1) * pageSize;
+        const data = grouped.slice(start, start + pageSize);
+
+        return {
+          data,
+          meta: {
+            totalItems,
+            itemCount: data.length,
+            page: safePage,
+            pageSize,
+            totalPages,
+            hasNextPage: totalPages > 0 && safePage < totalPages,
+            hasPrevPage: totalPages > 0 && safePage > 1,
+            nextPage: totalPages > 0 && safePage < totalPages ? safePage + 1 : null,
+            prevPage: totalPages > 0 && safePage > 1 ? safePage - 1 : null
+          }
+        };
+      })
+    );
+  }
+
+  private matchesTerm(p: Product, q: string): boolean {
+    const parts: string[] = [
+      p.name ?? '',
+      (p as any).description ?? '',
+      (p as any).shortDescription ?? '',
+      (p as any).brand ?? '',
+      (p as any).subcategory?.name ?? '',
+      (p as any).category?.name ?? ''
+    ];
+    const tags = ((p as any).tags ?? []) as string[];
+    const haystack = [...parts, ...tags].join(' ').toLowerCase();
+    return haystack.includes(q);
+  }
 
   groupedProducts = computed(() => {
-    const list = this.filteredProducts();
-    if (!this.isInkCategory()) return list;
-
-    const groups = new Map<string, Product[]>();
-    for (const p of list) {
-      if (!isInkSubcategory(p)) {
-        groups.set(`other-${p.id}`, [p]);
-        continue;
-      }
-      const key = inkBaseKey(p) ?? `ink-${p.id}`;
-      if (!groups.has(key)) groups.set(key, []);
-      groups.get(key)!.push(p);
-    }
-
-    const reps: Product[] = [];
-    for (const [, items] of groups.entries()) {
-      items.sort((a, b) => colorOrder(a) - colorOrder(b));
-      const rep = items[0];
-      reps.push({
-        ...rep,
-        name: cleanInkName(rep),
-      });
-    }
-    return reps;
-  });
-
-  subCounts = computed<Map<number, number>>(() => {
-    const map = new Map<number, number>();
-    for (const s of this.subcategories()) map.set(s.id, 0);
-    for (const p of this.products()) {
-      const sid = this.productSubId(p);
-      if (sid !== null && map.has(sid)) map.set(sid, (map.get(sid) ?? 0) + 1);
-    }
-    return map;
+    return this.products();
   });
 
   onSearch(ev: Event) {
@@ -199,10 +276,16 @@ export class ProductosComponent {
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
+    this.page.set(1);
+    this.fetchProducts();
   }
 
   isSubActive = (id: number) => this.selectedSubs().has(id);
-  clearSubs() { this.selectedSubs.set(new Set()); }
+  clearSubs() {
+    this.selectedSubs.set(new Set<number>());
+    this.page.set(1);
+    this.fetchProducts();
+  }
 
   prevPage() {
     const meta = this.meta();
