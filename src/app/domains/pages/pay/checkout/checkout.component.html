@@ -1,197 +1,286 @@
-<section class="w-full">
-  <div class="mx-auto max-w-7xl px-4 py-8 sm:py-10">
+<section class="w-full min-h-screen bg-slate-50 font-[Arial,sans-serif]">
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:py-12">
 
-    <!-- Pasos -->
-    <ol class="mb-6 flex items-center gap-3 text-sm">
-      <li class="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 bg-blue-50 text-blue-700 border-blue-200">
-        1. Carrito
-      </li>
-     <!--  <li class="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-slate-600">
-        2. Datos
-      </li>
-      <li class="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-slate-600">
-        3. Confirmar (WhatsApp)
-      </li> -->
-    </ol>
-
-    <!-- Encabezado -->
-    <div class="mb-6 flex items-start justify-between gap-4">
-      <div>
-        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Finalizar compra</h1>
-        <p class="text-slate-600">Revisa tus productos, completa tus datos y envía tu pedido por WhatsApp.</p>
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between mb-2">
+        <h1 class="text-3xl sm:text-4xl font-black text-slate-900">Finalizar compra</h1>
+        <a routerLink="/productos"
+           class="hidden sm:inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          Seguir comprando
+        </a>
       </div>
 
-      <a routerLink="/productos"
-         class="hidden sm:inline-flex items-center rounded-lg border px-3 py-2 text-sm hover:bg-slate-50">
-        ← Seguir comprando
-      </a>
+      <!-- Progress indicator -->
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 px-3 py-1.5 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
+          <div class="w-5 h-5 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">1</div>
+          Revisión
+        </div>
+        <div class="h-px flex-1 bg-slate-200 max-w-[80px]"></div>
+        <div class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 text-slate-400 rounded-full text-xs font-semibold">
+          <div class="w-5 h-5 bg-slate-300 text-white rounded-full flex items-center justify-center text-xs">2</div>
+          WhatsApp
+        </div>
+      </div>
     </div>
 
     <!-- Carrito vacío -->
-    <div *ngIf="isEmpty()" class="rounded-xl border border-slate-200 bg-white p-8 text-center">
-      <p class="text-slate-600">Tu carrito está vacío.</p>
+    <div *ngIf="isEmpty()" class="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm">
+      <div class="w-20 h-20 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
+        <svg class="w-10 h-10 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+        </svg>
+      </div>
+      <h3 class="text-xl font-bold text-slate-900 mb-2">Tu carrito está vacío</h3>
+      <p class="text-slate-600 mb-6">Agrega productos para continuar con tu compra</p>
       <a routerLink="/productos"
-         class="mt-4 inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
-        Ver productos
+         class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-white font-semibold hover:bg-blue-700 transition">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        </svg>
+        Explorar productos
       </a>
     </div>
 
     <!-- Layout principal -->
-    <div *ngIf="!isEmpty()" class="grid grid-cols-12 gap-6 lg:gap-8">
+    <div *ngIf="!isEmpty()" class="grid grid-cols-12 gap-6">
 
-      <!-- Izquierda: datos + sucursal -->
-      <div class="col-span-12 lg:col-span-5 space-y-6">
-        <div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
-          <h2 class="text-lg font-semibold text-slate-900">Tus datos</h2>
+      <!-- Columna derecha: Carrito -->
+      <div class="col-span-12 lg:col-span-7 space-y-4 order-2 lg:order-2">
 
-          <div class="mt-4 grid grid-cols-1 gap-4">
+        <!-- Items del carrito -->
+        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div class="p-5 border-b border-slate-200 flex items-center justify-between">
+            <h2 class="text-lg font-bold text-slate-900">
+              Tu carrito <span class="text-slate-500 font-normal">({{ groupedCart().length }} {{ groupedCart().length === 1 ? 'producto' : 'productos' }})</span>
+            </h2>
+            <button class="text-xs text-red-600 hover:text-red-700 font-medium" (click)="clearCart()">
+              Vaciar todo
+            </button>
+          </div>
+
+          <div class="divide-y divide-slate-100">
+            <div
+              *ngFor="let item of groupedCart(); trackBy: trackByItem"
+              class="p-5 hover:bg-slate-50 transition-colors"
+            >
+              <div class="flex items-start gap-4">
+                <!-- Imagen -->
+                <div class="flex-shrink-0">
+                  <img
+                    [src]="item.product.imageUrl"
+                    [alt]="item.product.name"
+                    class="h-20 w-20 rounded-xl object-cover border border-slate-200"
+                  />
+                </div>
+
+                <!-- Info del producto -->
+                <div class="flex-1 min-w-0">
+                  <h3 class="font-semibold text-slate-900 mb-1 line-clamp-2">{{ item.product.name }}</h3>
+                  <p class="text-xs text-slate-500 mb-2">SKU: {{ item.product.sku || '—' }}</p>
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-semibold text-slate-900">
+                      {{ item.unitPrice | currency:'BOB':'symbol-narrow':'1.2-2' }}
+                    </span>
+                    <span class="text-xs text-slate-500">c/u</span>
+                  </div>
+                </div>
+
+                <!-- Controles de cantidad -->
+                <div class="flex flex-col items-end gap-3">
+                  <button
+                    class="text-slate-400 hover:text-red-600 transition"
+                    (click)="removeAll(item.product)"
+                    title="Eliminar"
+                  >
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                  </button>
+
+                  <div class="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+                    <button
+                      class="w-8 h-8 rounded-md bg-white hover:bg-slate-50 flex items-center justify-center text-slate-700 font-semibold shadow-sm transition"
+                      (click)="dec(item.product)"
+                    >
+                      −
+                    </button>
+                    <div class="w-12 text-center text-sm font-bold text-slate-900">{{ item.count }}</div>
+                    <button
+                      class="w-8 h-8 rounded-md bg-white hover:bg-slate-50 flex items-center justify-center text-slate-700 font-semibold shadow-sm transition"
+                      (click)="inc(item.product)"
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  <div class="text-right">
+                    <div class="text-lg font-bold text-slate-900">
+                      {{ itemSubtotal(item) | currency:'BOB':'symbol-narrow':'1.2-2' }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón mobile seguir comprando -->
+        <a routerLink="/productos"
+           class="lg:hidden flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-slate-700 hover:bg-slate-50 transition">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          Seguir comprando
+        </a>
+      </div>
+
+      <!-- Columna izquierda: Datos y resumen -->
+      <div class="col-span-12 lg:col-span-5 space-y-4 order-1 lg:order-1">
+
+        <!-- Formulario de datos -->
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 class="text-lg font-bold text-slate-900 mb-4">Tus datos</h2>
+
+          <div class="space-y-4">
             <div>
-              <label class="block text-sm text-slate-700 mb-1">Nombre y apellido</label>
+              <label class="block text-sm font-medium text-slate-700 mb-2">Nombre completo</label>
               <input
                 type="text"
-                class="w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none
-                       border-slate-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none
+                       focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition"
                 [ngModel]="customerName()"
                 (ngModelChange)="customerName.set($event)"
-                placeholder="Ej: Juan Pérez"
+                placeholder="Juan Pérez"
               />
-              <p *ngIf="customerName() && !nameValid()" class="mt-1 text-xs text-red-600">
-                Ingresa al menos 2 caracteres.
+              <p *ngIf="customerName() && !nameValid()" class="mt-1.5 text-xs text-red-600 flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                Ingresa al menos 2 caracteres
               </p>
             </div>
 
             <div>
-              <label class="block text-sm text-slate-700 mb-1">Teléfono (WhatsApp)</label>
+              <label class="block text-sm font-medium text-slate-700 mb-2">WhatsApp</label>
               <input
                 type="tel"
-                class="w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none
-                       border-slate-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none
+                       focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition"
                 [ngModel]="customerPhone()"
                 (ngModelChange)="customerPhone.set($event)"
-                placeholder="Incluye el prefijo 591…"
+                placeholder="591 7XXXXXXX"
               />
-              <p class="mt-1 text-[12px] text-slate-500">Ejemplo: 5917XXXXXXX</p>
-              <p *ngIf="customerPhone() && !phoneValid()" class="mt-1 text-xs text-red-600">
-                Ingresa un número válido (con 591).
+              <p class="mt-1.5 text-xs text-slate-500">Incluye código de país (591)</p>
+              <p *ngIf="customerPhone() && !phoneValid()" class="mt-1.5 text-xs text-red-600 flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                Número inválido
               </p>
             </div>
 
             <div>
-              <label class="block text-sm text-slate-700 mb-1">Notas / indicaciones</label>
+              <label class="block text-sm font-medium text-slate-700 mb-2">Notas adicionales (opcional)</label>
               <textarea
                 rows="3"
-                class="w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none
-                       border-slate-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none
+                       focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition resize-none"
                 [ngModel]="notes()"
                 (ngModelChange)="notes.set($event)"
-                placeholder="Ej: Facturar a nombre de..., horarios preferidos, etc."
+                placeholder="Ej: Horario de entrega preferido, instrucciones especiales..."
               ></textarea>
             </div>
           </div>
         </div>
 
-        <div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
-          <h2 class="text-lg font-semibold text-slate-900">Elige tu sucursal</h2>
-          <div class="mt-4 grid grid-cols-1 gap-3">
+        <!-- Selección de sucursal -->
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 class="text-lg font-bold text-slate-900 mb-4">Sucursal de contacto</h2>
+
+          <div class="space-y-2">
             <label
               *ngFor="let b of branches"
-              class="flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition hover:bg-slate-50"
-              [class.border-blue-300]="selectedBranchId() === b.id"
+              class="flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all"
+              [class.border-blue-500]="selectedBranchId() === b.id"
+              [class.bg-blue-50]="selectedBranchId() === b.id"
+              [class.border-slate-200]="selectedBranchId() !== b.id"
+              [class.hover:border-slate-300]="selectedBranchId() !== b.id"
             >
               <input
                 type="radio"
-                class="mt-1"
+                class="mt-0.5 w-4 h-4 text-blue-600 focus:ring-blue-500"
                 name="branch"
                 [value]="b.id"
                 [checked]="selectedBranchId() === b.id"
                 (change)="selectedBranchId.set(b.id)"
               />
-              <div>
-                <div class="font-medium text-slate-900">{{ b.name }}</div>
-                <div class="text-sm text-slate-600">
-                  Tel: {{ b.phone }} <span *ngIf="b.address">• {{ b.address }}</span>
+              <div class="flex-1">
+                <div class="font-semibold text-slate-900 mb-1">{{ b.name }}</div>
+                <div class="text-xs text-slate-600 space-y-0.5">
+                  <div class="flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                    </svg>
+                    {{ b.phone }}
+                  </div>
+                  <div *ngIf="b.address" class="flex items-start gap-1.5">
+                    <svg class="w-3.5 h-3.5 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    {{ b.address }}
+                  </div>
                 </div>
               </div>
             </label>
           </div>
         </div>
-      </div>
 
-      <!-- Derecha: listado + resumen -->
-      <div class="col-span-12 lg:col-span-7 space-y-6">
-        <div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
-          <h2 class="text-lg font-semibold text-slate-900">Tu carrito</h2>
+        <!-- Resumen de compra -->
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 class="text-lg font-bold text-slate-900 mb-4">Resumen</h2>
 
-          <div class="mt-4 divide-y">
-            <div
-              *ngFor="let item of groupedCart(); trackBy: trackByItem"
-              class="py-4 flex items-center gap-4"
-            >
-              <img
-                [src]="item.product.imageUrl"
-                [alt]="item.product.name"
-                class="h-16 w-16 rounded-lg object-cover border"
-              />
-              <div class="flex-1 min-w-0">
-                <div class="font-medium text-slate-900 truncate">{{ item.product.name }}</div>
-                <div class="text-sm text-slate-500">SKU: {{ item.product.sku || '—' }}</div>
-                <div class="mt-0.5 text-sm text-slate-700">
-                  {{ item.unitPrice | currency:'BOB':'symbol-narrow':'1.2-2' }} c/u
-                </div>
-              </div>
-
-              <div class="flex items-center gap-2">
-                <button class="h-8 w-8 rounded border hover:bg-slate-50" (click)="dec(item.product)" aria-label="Restar uno">−</button>
-                <div class="px-2 text-sm font-medium">{{ item.count }}</div>
-                <button class="h-8 w-8 rounded border hover:bg-slate-50" (click)="inc(item.product)" aria-label="Sumar uno">+</button>
-              </div>
-
-              <div class="w-28 text-right font-semibold">
-                {{ itemSubtotal(item) | currency:'BOB':'symbol-narrow':'1.2-2' }}
-              </div>
-
-              <button
-                class="h-8 w-8 inline-flex items-center justify-center rounded border border-red-200 text-red-600 hover:bg-red-50"
-                (click)="removeAll(item.product)"
-                title="Quitar todos"
-                aria-label="Quitar producto"
-              >
-                ✕
-              </button>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-slate-600">Subtotal</span>
+              <span class="font-semibold text-slate-900">{{ total() | currency:'BOB':'symbol-narrow':'1.2-2' }}</span>
             </div>
-          </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-slate-600">Envío</span>
+              <span class="text-xs text-slate-500">A coordinar</span>
+            </div>
 
-          <div class="mt-4 flex items-center justify-between">
-            <button class="text-sm text-slate-500 hover:underline" (click)="clearCart()">Vaciar carrito</button>
-            <div class="text-right">
-              <div class="text-sm text-slate-600">Total</div>
-              <div class="text-xl font-extrabold">
-                {{ total() | currency:'BOB':'symbol-narrow':'1.2-2' }}
+            <div class="pt-3 border-t border-slate-200">
+              <div class="flex items-center justify-between">
+                <span class="text-base font-semibold text-slate-900">Total</span>
+                <span class="text-2xl font-black text-slate-900">{{ total() | currency:'BOB':'symbol-narrow':'1.2-2' }}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- CTA -->
-        <div class="flex flex-col sm:flex-row-reverse gap-3">
-          <button
-            class="inline-flex items-center justify-center rounded-xl px-5 py-3 text-white font-semibold shadow-sm active:scale-[.98] transition
-                   bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            (click)="placeOrder($event)"
-            [disabled]="!formValid()"
-          >
-            Hacer pedido por WhatsApp
-          </button>
+        <!-- CTA WhatsApp -->
+        <button
+          class="w-full flex items-center justify-center gap-2 rounded-xl px-6 py-4 text-white font-bold shadow-sm
+                 bg-green-600 hover:bg-green-700
+                 disabled:bg-slate-300 disabled:cursor-not-allowed
+                 transition-all duration-200"
+          (click)="placeOrder($event)"
+          [disabled]="!formValid()"
+        >
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.304-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          Enviar pedido por WhatsApp
+        </button>
 
-          <a routerLink="/productos"
-             class="inline-flex items-center justify-center rounded-xl border px-5 py-3 bg-white hover:bg-slate-50">
-            ← Seguir comprando
-          </a>
-        </div>
-
-        <!-- Ayuda -->
-        <p class="text-xs text-slate-500">
-          Al hacer clic en “Hacer pedido por WhatsApp” se abrirá una conversación con la sucursal seleccionada con el detalle de tu pedido.
+        <p class="text-xs text-center text-slate-500">
+          Se abrirá WhatsApp con el detalle completo de tu pedido
         </p>
       </div>
     </div>

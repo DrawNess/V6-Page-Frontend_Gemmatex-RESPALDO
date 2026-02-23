@@ -116,32 +116,46 @@ export class CheckoutComponent {
   // WhatsApp
   private waMessage(): string {
     const lines: string[] = [];
-    lines.push(`*Pedido Gemmatex*`);
+    lines.push('*PEDIDO GEMMATEX*');
     lines.push(`Fecha: ${new Date().toLocaleString('es-BO')}`);
     lines.push('');
-    lines.push(`*Cliente*: ${this.customerName().trim() || '—'}`);
-    lines.push(`*Teléfono*: ${this.customerPhone().trim() || '—'}`);
-    lines.push(`*Sucursal*: ${this.selectedBranch()?.name ?? '—'}`);
+    lines.push('*DATOS DEL CLIENTE*');
+    lines.push(`Nombre: ${this.customerName().trim() || '—'}`);
+    lines.push(`Teléfono: ${this.customerPhone().trim() || '—'}`);
+    lines.push(`Sucursal: ${this.selectedBranch()?.name ?? '—'}`);
     lines.push('');
-    lines.push(`*Detalle de productos:*`);
-    for (const item of this.groupedCart()) {
+    lines.push('*DETALLE DEL PEDIDO*');
+
+    this.groupedCart().forEach((item: { product: Product; count: number; unitPrice: number }, idx: number) => {
       const sku = (item.product as any).sku ?? '—';
       const unit = item.unitPrice ?? item.product.price ?? 0;
       const subtotal = this.itemSubtotal(item);
-      lines.push(
-        `* (SKU: ${sku}) - ${item.product.name} X ${item.count} — ${this.fmtBOB(unit)} c/u — Subtotal: ${this.fmtBOB(subtotal)}`
-      );
-    }
-    lines.push('');
-    lines.push(`*TOTAL*: ${this.fmtBOB(this.total())}`);
+      const selectedColor = (item.product as any).selectedColor as string | undefined;
+      const selectedPrinter = (item.product as any).selectedPrinter as string | undefined;
+
+      lines.push(`${idx + 1}. ${item.product.name}`);
+      lines.push(`   SKU: ${sku}`);
+      if (selectedColor) lines.push(`   Color: ${selectedColor}`);
+      if (selectedPrinter) lines.push(`   Impresora: ${selectedPrinter}`);
+      lines.push(`   Cantidad: ${item.count}`);
+      lines.push(`   Precio unitario: ${this.fmtBOB(unit)}`);
+      lines.push(`   Subtotal: ${this.fmtBOB(subtotal)}`);
+      lines.push('');
+    });
+
+    lines.push('*RESUMEN*');
+    lines.push(`Total: ${this.fmtBOB(this.total())}`);
+
     const extra = this.notes().trim();
     if (extra) {
       lines.push('');
-      lines.push(`*Notas*: ${extra}`);
+      lines.push('*NOTAS*');
+      lines.push(extra);
     }
+
     lines.push('');
-    lines.push(`Gracias por su preferencia.`);
-    lines.push(`https://gemmatex.com.bo/`);
+    lines.push('Gracias por su preferencia.');
+    lines.push('https://gemmatex.com.bo/');
     return lines.join('\n');
   }
 

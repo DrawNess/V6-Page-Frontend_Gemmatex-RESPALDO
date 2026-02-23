@@ -13,7 +13,7 @@
 
 .cart-btn.btn-added {
   background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: #0f172a;
+  color: #ffffff;
 }
 
 @keyframes cart-bounce {
