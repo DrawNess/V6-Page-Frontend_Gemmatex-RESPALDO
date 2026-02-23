@@ -1,39 +1,66 @@
-# Agrupacion De Tintas (Catalogo)
+# Agrupacion De Tintas (EPSON)
 
 ## Objetivo
-- Mostrar una sola tarjeta por "familia de tinta" para evitar duplicados por color.
-- Mantener la paginacion consistente en `40` items por pagina.
+- En catálogo, mostrar **1 tarjeta por familia de tinta** (no 1 por color).
+- En detalle de producto, mostrar las **variantes de color** de esa familia.
 
-## Donde Se Aplica
-- `src/app/domains/catalogo/productos/productos.component.ts`
-- Solo cuando hay subcategorias seleccionadas (porque en ese flujo se junta el dataset completo y luego se pagina).
+## Alcance De Activacion
+- Archivo: `src/app/domains/catalogo/productos/productos.component.ts`
+- La agrupación se activa solo en flujo de subcategorías seleccionadas y con heurística de contexto Epson+tintas.
+- Si no se cumple el contexto, se mantiene el listado normal sin agrupar.
 
-## Regla De Flujo
-1. Se unen los productos de todas las subcategorias seleccionadas.
-2. Se aplica busqueda por texto (si hay termino).
-3. Se agrupan tintas Epson con `groupEpsonInkProducts(...)`.
-4. Se pagina el resultado agrupado en `40`.
+## Motor De Agrupacion
+- Archivo: `src/app/domains/shared/utils/ink-grouping.util.ts`
+- Función principal: `groupEpsonInkProducts(products, options?)`
+- Modo actual: agrupación por **familia**.
 
-## Implementacion
-- Util: `src/app/domains/shared/utils/ink-grouping.util.ts`
-- Funcion principal: `groupEpsonInkProducts(products, options?)`
+### Familias explicitas
+1. `f170-f570`
+- Unifica F170 y F570 en una sola tarjeta.
 
-### Heuristicas actuales
-- Agrupa solo productos que parecen tinta Epson:
-  - `isInkSubcategory(product) === true`
-  - y texto con marca Epson.
-- Construye una clave de grupo por:
-  - familia de modelo de impresora (ej. `F6470`, `F6470H`, `F9570`)
-  - tokens de producto sin color, volumen y terminos genericos.
+2. `f6200`
+- Una tarjeta para la familia F6200.
 
-### Equivalencias de modelos (editable)
-- En `DEFAULT_MODEL_ALIAS_FAMILIES`:
-  - `['F6470', 'F6470H', 'F9570']`
+3. `f6370`
+- Una tarjeta para la familia F6370.
 
-Si negocio cambia, edita ese arreglo para agregar o quitar equivalencias.
+4. `f6470-f6470h`
+- Unifica F6470 y F6470H en una sola tarjeta.
 
-## Nota Sobre Fuentes Epson
-- Se verifico documentacion oficial Epson para tinta/modelos:
-  - SureColor F6470/F6470H (anuncio oficial de lanzamiento y configuraciones de tinta).
-  - SureColor F9570/F9570H (guia oficial con configuraciones de tinta).
-  - SureColor G6070 (guia oficial con set de 6 tintas: `C, M, Y, K, Wh, ML`).
+5. `g6070`
+- Una tarjeta para familia DTF G6070 (incluye tintas y líquido de mantenimiento).
+
+### Fallback automatico
+- Para modelos Epson no listados explícitamente, detecta tokens de modelo por regex y agrupa por familia detectada.
+- Cubre casos como `T3170X`.
+
+## Deteccion De Tintas Y Colores
+- Archivo: `src/app/domains/shared/utils/ink-utils.ts`
+
+### Reglas clave
+- `isInkSubcategoryStrict(...)`: validación estricta por subcategoría (UI).
+- `isInkSubcategory(...)`: validación tolerante con fallback por texto (lógica interna).
+- `detectInkColor(...)`: prioridad de detección fluor antes de colores base para evitar colisiones.
+
+### Aliases importantes
+- `Fluor Yellow`: reconoce `yellow fluor`, `fluor yellow`, `yfl`, etc.
+- `Fluor Pink`: reconoce `pink fluor`, `fluor pink`, `pfl`, etc.
+- Orden visual base de colores: `C, M, Y, K`.
+
+## Product Detail (Variantes)
+- Archivo: `src/app/domains/products/pages/product-detail/product-detail.component.ts`
+- Archivo: `src/app/domains/products/pages/product-detail/product-detail.component.html`
+
+### Comportamiento
+- El bloque de variantes solo se muestra si `isInkSubcategoryStrict(...)` es verdadero.
+- Las variantes se buscan por **familia** (misma lógica del catálogo), no por `inkBaseKey`.
+- Si `relatedProducts` no trae suficientes variantes, se completa con toda la subcategoría.
+
+### Siglas en UI
+- `Fluor Yellow` -> `FY`
+- `Fluor Pink` -> `FP`
+- `Mantenimiento` -> `ML`
+
+## Nota De Mantenimiento
+- Si negocio cambia familias o nombres de modelo, ajustar `resolveFamilyKey(...)` en `src/app/domains/shared/utils/ink-grouping.util.ts`.
+- Si cambian nomenclaturas de color, ajustar `INK_COLORS` y `detectInkColor(...)` en `src/app/domains/shared/utils/ink-utils.ts`.

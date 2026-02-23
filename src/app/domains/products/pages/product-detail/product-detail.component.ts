@@ -16,14 +16,17 @@ import { RouterLink } from '@angular/router';
 import { ProductService } from '@shared/services/product.service';
 import { Product } from '@shared/models/product.model';
 import { CartService } from '@shared/services/cart.service';
+import { SubcategoryService } from '@shared/services/subcategory.service';
 import { ProductComponent } from '@products/components/product/product.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { forkJoin, map, of, switchMap } from 'rxjs';
 import {
   INK_COLORS,
   colorOrder,
   detectInkColor,
-  inkBaseKey,
+  productInkHaystack,
   isInkSubcategory,
+  isInkSubcategoryStrict,
   swatchForColor
 } from '@shared/utils/ink-utils';
 
@@ -38,6 +41,7 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
   @Input() id?: string;
 
   private productService = inject(ProductService);
+  private subcategoryService = inject(SubcategoryService);
   private cartService = inject(CartService);
   private destroyRef = inject(DestroyRef);
   private lastLoadedId: string | null = null;
@@ -60,9 +64,9 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
     () => this.cover() || this.product()?.imageUrl || '/assets/placeholders/product.svg'
   );
   readonly productTags = computed(() => this.product()?.tags ?? []);
-  readonly isInkProduct = computed(() => isInkSubcategory(this.product()));
+  readonly isInkProduct = computed(() => isInkSubcategoryStrict(this.product())); // UI: solo mostrar variantes en subcategoría tintas real.
   readonly availableColors = computed<string[]>(() => {
-    const canonicalSix = ['Negro', 'Cian', 'Magenta', 'Amarillo', 'Fluor Pink', 'Fluor Yellow'];
+    const canonicalSix = ['Cian', 'Magenta', 'Amarillo', 'Negro', 'Fluor Pink', 'Fluor Yellow'];
     const order = [
       ...canonicalSix,
       'Light Cian',
@@ -75,7 +79,7 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
 
     // colores detectados de variantes agrupadas (si existen)
     this.inkVariants()
-      .map(v => detectInkColor(v).label)
+      .map(v => this.inkVariantLabel(v))
       .filter(Boolean)
       .forEach(c => bucket.add(c));
 
@@ -240,13 +244,27 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
     this.selectedColor.set(null);
   }
 
+  private inkVariantLabel(p?: Product | null): string {
+    if (!p) return 'Color';
+    const h = productInkHaystack(p);
+    if (
+      h.includes('liquido de mantenimiento') ||
+      h.includes('liquido mantenimiento') ||
+      h.includes('maintenance liquid') ||
+      h.includes('maintenance fluid')
+    ) {
+      return 'Mantenimiento';
+    }
+    return detectInkColor(p).label;
+  }
+
   private setupInkSelections(p?: Product | null) {
-    if (!isInkSubcategory(p)) {
+    if (!isInkSubcategoryStrict(p)) {
       this.resetInkSelections();
       return;
     }
 
-    const detectedColor = p ? detectInkColor(p).label : null;
+    const detectedColor = p ? this.inkVariantLabel(p) : null;
     const colors = this.availableColors() as string[];
 
     const currentColor = this.selectedColor();
@@ -264,12 +282,13 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
     this.selectedColor.set(color);
   }
 
-  inkColorLabel(p: Product): string { return detectInkColor(p).label; }
+  inkColorLabel(p: Product): string { return this.inkVariantLabel(p); }
   inkSwatch(p: Product): string { return detectInkColor(p).swatch; }
   variantForColor(color: string): Product | null {
-    return this.inkVariants().find(v => detectInkColor(v).label === color) ?? null;
+    return this.inkVariants().find(v => this.inkVariantLabel(v) === color) ?? null;
   }
   swatchForColor(color: string): string {
+    if (color === 'Mantenimiento') return '#94a3b8';
     return swatchForColor(color);
   }
 
@@ -289,23 +308,96 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
 }
 
   // ——— Ink grouping helpers
-  private loadInkVariants(p?: Product | null) {
-    if (!p || !isInkSubcategory(p)) { this.inkVariants.set([]); return; }
+  private containsWord(haystack: string, token: string): boolean {
+    return new RegExp(`\\b${token}\\b`).test(haystack);
+  }
 
-    const baseKey = inkBaseKey(p);
-    if (!baseKey) { this.inkVariants.set([]); return; }
+  private extractModelTokens(haystack: string): string[] {
+    const matches = haystack.match(/\b(?:f|g|t)\d{3,5}[a-z]?\b/g) ?? [];
+    return Array.from(new Set(matches));
+  }
+
+  private inkFamilyKey(p?: Product | null): string | null {
+    if (!p) return null;
+    const text = productInkHaystack(p);
+    if (!text) return null;
+
+    // Misma lógica de familias del catálogo: 1 familia = 1 tarjeta.
+    if (this.containsWord(text, 'f170') || this.containsWord(text, 'f570')) return 'f170-f570';
+    if (this.containsWord(text, 'f6200')) return 'f6200';
+    if (this.containsWord(text, 'f6370')) return 'f6370';
+    if (this.containsWord(text, 'f6470') || this.containsWord(text, 'f6470h')) return 'f6470-f6470h';
+    if (this.containsWord(text, 'g6070')) return 'g6070';
+
+    const tokens = this.extractModelTokens(text);
+    if (tokens.length) return tokens.sort().join('+');
+    return null;
+  }
+
+  private listAllProductsBySubcategory(subcategoryId: number) {
+    return this.subcategoryService.getProductsBySubcategory(subcategoryId, { page: 1, pageSize: 40 }).pipe(
+      switchMap((first) => {
+        const firstItems = first.data ?? [];
+        const totalPages = Math.max(1, Number(first.meta?.totalPages ?? 1));
+        if (totalPages <= 1) return of(firstItems);
+
+        const requests = Array.from({ length: totalPages - 1 }, (_, idx) =>
+          this.subcategoryService.getProductsBySubcategory(subcategoryId, { page: idx + 2, pageSize: 40 })
+        );
+        return forkJoin(requests).pipe(
+          map((pages) => [...firstItems, ...pages.flatMap((pg) => pg.data ?? [])])
+        );
+      })
+    );
+  }
+
+  private loadInkVariants(p?: Product | null) {
+    if (!p || !isInkSubcategoryStrict(p)) { this.inkVariants.set([]); return; }
+
+    const familyKey = this.inkFamilyKey(p);
+    if (!familyKey) { this.inkVariants.set([]); return; }
 
     this.productService.getRelatedProducts(p.id, 24)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (items) => {
-          const pool: Product[] = [p, ...(items || [])].filter((x): x is Product => !!x);
-          const variants = pool
-            .filter(x => isInkSubcategory(x) && inkBaseKey(x) === baseKey)
-            .filter((x, i, arr) => arr.findIndex(y => y.id === x.id) === i)
+          const relatedPool: Product[] = [p, ...(items || [])].filter((x): x is Product => !!x);
+          const relatedVariants = relatedPool
+            .filter((x) => isInkSubcategory(x) && this.inkFamilyKey(x) === familyKey)
+            .filter((x, i, arr) => arr.findIndex((y) => y.id === x.id) === i)
             .sort((a, b) => colorOrder(a) - colorOrder(b));
-          this.inkVariants.set(variants);
-          this.refreshSelectedColor(p);
+
+          // Si related no trae suficientes colores, usamos toda la subcategoría para completar variantes.
+          if (relatedVariants.length >= 2) {
+            this.inkVariants.set(relatedVariants);
+            this.refreshSelectedColor(p);
+            return;
+          }
+
+          const subcategoryId = Number((p as any)?.subcategory?.id ?? (p as any)?.subcategoryId ?? 0);
+          if (!subcategoryId) {
+            this.inkVariants.set(relatedVariants);
+            this.refreshSelectedColor(p);
+            return;
+          }
+
+          this.listAllProductsBySubcategory(subcategoryId)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+              next: (all) => {
+                const fullPool: Product[] = [p, ...all].filter((x): x is Product => !!x);
+                const variants = fullPool
+                  .filter((x) => isInkSubcategory(x) && this.inkFamilyKey(x) === familyKey)
+                  .filter((x, i, arr) => arr.findIndex((y) => y.id === x.id) === i)
+                  .sort((a, b) => colorOrder(a) - colorOrder(b));
+                this.inkVariants.set(variants);
+                this.refreshSelectedColor(p);
+              },
+              error: () => {
+                this.inkVariants.set(relatedVariants);
+                this.refreshSelectedColor(p);
+              }
+            });
         },
         error: () => this.inkVariants.set([])
       });
@@ -313,7 +405,7 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
 
   private refreshSelectedColor(current?: Product | null) {
     const colors = this.availableColors();
-    const detected = current ? detectInkColor(current).label : null;
+    const detected = current ? this.inkVariantLabel(current) : null;
     if (detected && colors.includes(detected)) {
       this.selectedColor.set(detected);
       return;
@@ -329,12 +421,15 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
       'Magenta': 'M',
       'Yellow': 'Y',
       'Black': 'K',
+      'Fluor Yellow': 'FY',
+      'Fluor Pink': 'FP',
+      'Mantenimiento': 'ML',
       'Light Cyan': 'LC',
       'Light Magenta': 'LM',
       'Cian': 'C',
       'Amarillo': 'Y',
       'Negro': 'HDK',
-      'Blanco': 'B',
+      'Blanco': 'WH',
       'Rojo': 'R',
       'Azul': 'Az',
       'Verde': 'V',

@@ -48,11 +48,9 @@ export interface ProductSearchParams {
   providedIn: 'root'
 })
 export class ProductService {
-  private static readonly DEFAULT_PAGE_SIZE = 40;
-  private http = inject(HttpClient);
-  private base = `${environment.API_URL}/products`;
-
-  constructor() { }
+  private static readonly DEFAULT_PAGE_SIZE = 40; // Tamaño por defecto para cualquier listado paginado.
+  private readonly http = inject(HttpClient); // Cliente HTTP inyectado una sola vez.
+  private readonly base = `${environment.API_URL}/products`; // Base URL del recurso products.
 
   private normalizePaginatedProducts(
     raw: PaginatedResponse<Product> | Product[],
@@ -102,6 +100,16 @@ export class ProductService {
     return q;
   }
 
+  private mapPaginatedResponse(
+    source: Observable<PaginatedResponse<Product> | Product[]>,
+    page: number,
+    pageSize: number
+  ): Observable<PaginatedResponse<Product>> {
+    return source.pipe( // Reutilizamos el mapeo para no duplicar lógica entre list/search.
+      map((raw) => this.normalizePaginatedProducts(raw, Number(page) || 1, Number(pageSize) || ProductService.DEFAULT_PAGE_SIZE)) // Normaliza arrays o estructuras paginadas.
+    );
+  }
+
   // GET /products (paginado)
   listProducts(params: ProductListParams = {}): Observable<PaginatedResponse<Product>> {
     const {
@@ -128,14 +136,7 @@ export class ProductService {
       price_max
     });
     const url = query.toString() ? `${this.base}?${query.toString()}` : this.base;
-
-    return this.http
-      .get<PaginatedResponse<Product> | Product[]>(url)
-      .pipe(map((raw) => this.normalizePaginatedProducts(
-        raw,
-        Number(page) || 1,
-        Number(pageSize) || ProductService.DEFAULT_PAGE_SIZE
-      )));
+    return this.mapPaginatedResponse(this.http.get<PaginatedResponse<Product> | Product[]>(url), page, pageSize); // Usa helper común para mantener código limpio.
   }
 
   // GET /products/search (paginado)
@@ -151,13 +152,7 @@ export class ProductService {
     } = params;
     const query = this.buildParams({ name, tag, page, pageSize, page_size, limit, offset });
     const url = `${this.base}/search?${query.toString()}`;
-    return this.http
-      .get<PaginatedResponse<Product> | Product[]>(url)
-      .pipe(map((raw) => this.normalizePaginatedProducts(
-        raw,
-        Number(page) || 1,
-        Number(pageSize) || ProductService.DEFAULT_PAGE_SIZE
-      )));
+    return this.mapPaginatedResponse(this.http.get<PaginatedResponse<Product> | Product[]>(url), page, pageSize); // Mismo criterio de normalización que en listProducts.
   }
 
   // búsqueda robusta: intenta por nombre y, si no hay resultados, reintenta por tag
@@ -245,7 +240,7 @@ export class ProductService {
 
 
   // PATCH /products/:id
-  patchProduct(id: string | number, partial: Partial<Product> & Record<string, any>) {
+  patchProduct(id: string | number, partial: Partial<Product> & Record<string, unknown>) {
     return this.http.patch<Product>(`${this.base}/${id}`, partial);
   }
 
@@ -253,5 +248,4 @@ export class ProductService {
   deleteProduct(id: string | number) {
     return this.http.delete<void>(`${this.base}/${id}`);
   }
-  // NEW: PATCH parcial (edición / activar / soft-delete)
 }

@@ -10,6 +10,7 @@ import { SubcategoryService } from '@shared/services/subcategory.service';
 import { Subcategory } from '@shared/models/subcategory.model';
 import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { groupEpsonInkProducts } from '@shared/utils/ink-grouping.util';
+import { isLikelyEpsonInkProduct, normalizeInkText } from '@shared/utils/ink-utils';
 
 @Component({
   selector: 'app-productos',
@@ -72,6 +73,7 @@ export class ProductosComponent {
       next: (subs) => {
         this.subcategories.set(subs ?? []);
         this.loadSubCounts();
+        const hadSelectedSubs = this.selectedSubs().size > 0; // Recordamos si venimos filtrando por subcategoría.
 
         const allowed = new Set((subs ?? []).map((s) => s.id));
         const current = this.selectedSubs();
@@ -79,6 +81,12 @@ export class ProductosComponent {
         if (next.size !== current.size) {
           this.selectedSubs.set(next);
           this.page.set(1);
+          this.fetchProducts();
+          return;
+        }
+
+        if (hadSelectedSubs) {
+          // Re-ejecuta con metadata completa de subcategorías para habilitar gate de agrupación correctamente.
           this.fetchProducts();
         }
       },
@@ -192,32 +200,33 @@ export class ProductosComponent {
     ids: number[],
     term: string
   ): Observable<{ data: Product[]; meta: PaginationMeta }> {
-    const requests = ids.map((id) => this.getAllProductsBySubcategory(id));
+    const requests = ids.map((id) => this.getAllProductsBySubcategory(id)); // Consulta todos los productos para cada subcategoría activa.
     return forkJoin(requests).pipe(
       map((groups) => {
-        const unique = new Map<number, Product>();
+        const unique = new Map<number, Product>(); // Evita duplicados cuando un producto llega desde más de una subcategoría.
         for (const list of groups) {
           for (const p of list) {
             unique.set(p.id, p);
           }
         }
 
-        let merged = Array.from(unique.values());
-        const q = term.trim().toLowerCase();
+        let merged = Array.from(unique.values()); // Dataset consolidado de subcategorías seleccionadas.
+        const q = term.trim().toLowerCase(); // Normaliza el término de búsqueda para comparación case-insensitive.
         if (q) {
-          merged = merged.filter((p) => this.matchesTerm(p, q));
+          merged = merged.filter((p) => this.matchesTerm(p, q)); // Aplica filtro de texto al dataset consolidado.
         }
-        const grouped = groupEpsonInkProducts(merged);
-        grouped.sort((a, b) => Number(a.id) - Number(b.id));
+        const shouldGroup = this.shouldApplyEpsonInkGrouping(ids, merged); // Gate estricto: solo Epson + subcategoría tintas.
+        const processed = shouldGroup ? groupEpsonInkProducts(merged) : merged; // Agrupación habilitada únicamente en el contexto permitido.
+        processed.sort((a, b) => Number(a.id) - Number(b.id)); // Orden estable por id para paginación consistente.
 
-        const totalItems = grouped.length;
-        const pageSize = this.pageSize;
-        const totalPages = totalItems > 0 ? Math.ceil(totalItems / pageSize) : 0;
+        const totalItems = processed.length; // Total final después de filtro y agrupación condicional.
+        const pageSize = this.pageSize; // Tamaño de página fijo del catálogo.
+        const totalPages = totalItems > 0 ? Math.ceil(totalItems / pageSize) : 0; // Total de páginas resultante.
         const safePage = totalPages > 0
-          ? Math.min(this.page(), totalPages)
+          ? Math.min(this.page(), totalPages) // Ajusta página actual si quedó fuera de rango tras filtro/agrupación.
           : 1;
-        const start = (safePage - 1) * pageSize;
-        const data = grouped.slice(start, start + pageSize);
+        const start = (safePage - 1) * pageSize; // Índice inicial del corte paginado.
+        const data = processed.slice(start, start + pageSize); // Elementos visibles de la página actual.
 
         return {
           data,
@@ -235,6 +244,47 @@ export class ProductosComponent {
         };
       })
     );
+  }
+
+  private normalizeScopeText(value: unknown): string {
+    return normalizeInkText(value);
+  }
+
+  private isEpsonInkSubcategory(sub: Subcategory | undefined): boolean {
+    if (!sub) return false;
+    const subText = this.normalizeScopeText(`${sub.name} ${sub.slug}`);
+    const catText = this.normalizeScopeText(`${sub.category?.name} ${sub.category?.slug}`);
+    return subText.includes('tinta') && catText.includes('epson');
+  }
+
+  private productLooksLikeEpsonInk(p: Product): boolean {
+    return isLikelyEpsonInkProduct(p); // Reusa heurística centralizada para evitar divergencia de reglas.
+  }
+
+  private shouldApplyEpsonInkGrouping(selectedIds: number[], products: Product[]): boolean {
+    if (!selectedIds.length) return false; // Sin subcategorías activas, nunca agrupamos aquí.
+
+    const selectedSet = new Set(selectedIds);
+    const selectedSubcategories = this.subcategories().filter((s) => selectedSet.has(s.id));
+    const selectedSubNames = selectedSubcategories
+      .map((s) => this.normalizeScopeText(`${s.name} ${s.slug}`))
+      .join(' ');
+    const hasTintasSelected = selectedSubNames.includes('tinta');
+    const hasEpsonCategory = this.normalizeScopeText(this.currentCategory()).includes('epson');
+    const allSelectedAreEpsonInks = selectedSubcategories.length > 0
+      ? selectedSubcategories.every((s) => this.isEpsonInkSubcategory(s)) // Regla fuerte cuando tenemos metadata de subcategoría.
+      : false;
+    if (allSelectedAreEpsonInks) return true; // Caso ideal: metadata de subcategoría cargada y consistente.
+    if (hasTintasSelected && hasEpsonCategory) return true; // Fallback cuando category en subcategory no viene expandido.
+
+    // Fallback para primer render si la metadata aún no cargó: inferimos por dataset.
+    if (!products.length) return false;
+    const epsonLikeCount = products.filter((p) => this.productLooksLikeEpsonInk(p)).length;
+    const ratio = epsonLikeCount / products.length;
+    if (ratio >= 0.6) return true; // Fallback principal para payloads incompletos.
+
+    // Fallback adicional si la metadata de UI sí apunta a Epson+tintas.
+    return ratio >= 0.4 && hasTintasSelected && hasEpsonCategory;
   }
 
   private matchesTerm(p: Product, q: string): boolean {

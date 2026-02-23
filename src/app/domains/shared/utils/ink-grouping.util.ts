@@ -1,123 +1,62 @@
 import { Product } from '@shared/models/product.model';
-import { INK_COLORS, cleanInkName, colorOrder, isInkSubcategory } from './ink-utils';
+import { cleanInkName, productInkHaystack } from './ink-utils';
 
 export interface InkGroupingOptions {
   modelAliasFamilies?: string[][];
 }
 
-const DEFAULT_MODEL_ALIAS_FAMILIES: string[][] = [
-  // Business rule requested by catalog team: these models are shown as one ink family.
-  ['F6470', 'F6470H', 'F9570'],
-];
-
-const INK_COLOR_TOKENS = new Set(
-  INK_COLORS.flatMap((c) => [c.label, ...c.variants])
-    .flatMap((v) => v.toLowerCase().split(/[^a-z0-9]+/))
-    .filter(Boolean)
-);
-
-const GENERIC_DROP_TOKENS = new Set([
-  'epson',
-  'surecolor',
-  'tinta',
-  'tintas',
-  'ink',
-  'ultrachrome',
-  'ds',
-  'df',
-  'hd',
-  'hdk',
-  'paquete',
-  'pack',
-  'cartucho',
-  'botella',
-  'ml',
-]);
-
-function modelAliasMap(families: string[][]): Map<string, string> {
-  const map = new Map<string, string>();
-  families.forEach((family, idx) => {
-    const canonical = `family_${idx + 1}`;
-    family.forEach((token) => map.set(token.toLowerCase(), canonical));
-  });
-  return map;
+function containsWord(haystack: string, token: string): boolean {
+  return new RegExp(`\\b${token}\\b`).test(haystack);
 }
 
-function modelTokensFromText(text: string): string[] {
-  const found = text.toLowerCase().match(/\b[fg]\d{3,4}h?\b/g) ?? [];
-  return Array.from(new Set(found));
+function extractModelTokens(haystack: string): string[] {
+  const matches = haystack.match(/\b(?:f|g|t)\d{3,5}[a-z]?\b/g) ?? [];
+  return Array.from(new Set(matches));
 }
 
-function normalizeText(value: unknown): string {
-  return String(value ?? '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim();
+function resolveFamilyKey(haystack: string): string {
+  // Reglas explícitas pedidas por negocio.
+  if (containsWord(haystack, 'f170') || containsWord(haystack, 'f570')) return 'f170-f570';
+  if (containsWord(haystack, 'f6200')) return 'f6200';
+  if (containsWord(haystack, 'f6370')) return 'f6370';
+  if (containsWord(haystack, 'f6470') || containsWord(haystack, 'f6470h')) return 'f6470-f6470h';
+  if (containsWord(haystack, 'g6070')) return 'g6070';
+
+  // Fallback automático (ej: T3170X).
+  const tokens = extractModelTokens(haystack);
+  if (tokens.length) return tokens.sort().join('+');
+  return 'model_unknown';
 }
 
-function isLikelyEpsonInkProduct(p: Product): boolean {
-  if (!isInkSubcategory(p)) return false;
-  const raw = `${p.name ?? ''} ${(p as any).brand ?? ''} ${p.slug ?? ''} ${(p as any).sku ?? ''}`;
-  return normalizeText(raw).includes('epson');
+function representativeScore(p: Product): number {
+  const h = productInkHaystack(p);
+  let score = 0;
+  // Priorizamos títulos comerciales limpios para la tarjeta representante.
+  if (containsWord(h, 'epson')) score += 4;
+  if (containsWord(h, 'tinta') || containsWord(h, 'ink')) score += 3;
+  if (p.name && p.name.trim().length > 8) score += 2;
+  return score;
 }
 
-function dropToken(t: string): boolean {
-  if (!t) return true;
-  if (INK_COLOR_TOKENS.has(t)) return true;
-  if (GENERIC_DROP_TOKENS.has(t)) return true;
-  if (/^t\d{2,}[a-z]?\d*$/i.test(t)) return true;
-  if (/^\d+ml$/.test(t) || /^\d+$/.test(t)) return true;
-  return false;
-}
-
-function buildInkGroupKey(
-  p: Product,
-  aliases: Map<string, string>
-): string {
-  const source = normalizeText(`${p.name ?? ''} ${p.slug ?? ''} ${(p as any).sku ?? ''}`);
-  const models = modelTokensFromText(source).map((m) => aliases.get(m) ?? m);
-  const modelPart = Array.from(new Set(models)).sort().join('+');
-
-  const modelSet = new Set(modelTokensFromText(source));
-  const core = source
-    .split(/\s+/)
-    .filter((t) => !modelSet.has(t))
-    .filter((t) => !dropToken(t));
-  const corePart = Array.from(new Set(core)).join('-') || 'ink';
-
-  return `${modelPart || 'model_unknown'}|${corePart}`;
-}
-
-function selectRepresentative(items: Product[]): Product {
-  const sorted = [...items].sort((a, b) => {
-    const byColor = colorOrder(a) - colorOrder(b);
-    if (byColor !== 0) return byColor;
+function pickRepresentative(items: Product[]): Product {
+  const chosen = [...items].sort((a, b) => {
+    const byScore = representativeScore(b) - representativeScore(a);
+    if (byScore !== 0) return byScore;
     return Number(a.id) - Number(b.id);
-  });
-  const chosen = sorted[0];
+  })[0];
+
   return { ...chosen, name: cleanInkName(chosen) };
 }
 
-export function groupEpsonInkProducts(
-  products: Product[],
-  options: InkGroupingOptions = {}
-): Product[] {
+export function groupEpsonInkProducts(products: Product[], _options: InkGroupingOptions = {}): Product[] {
   if (!products.length) return products;
 
-  const aliasMap = modelAliasMap(options.modelAliasFamilies ?? DEFAULT_MODEL_ALIAS_FAMILIES);
   const groups = new Map<string, Product[]>();
-
   for (const p of products) {
-    if (!isLikelyEpsonInkProduct(p)) {
-      groups.set(`raw-${p.id}`, [p]);
-      continue;
-    }
-
-    const key = buildInkGroupKey(p, aliasMap);
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key)!.push(p);
+    const familyKey = resolveFamilyKey(productInkHaystack(p));
+    if (!groups.has(familyKey)) groups.set(familyKey, []);
+    groups.get(familyKey)!.push(p);
   }
 
-  return Array.from(groups.values()).map(selectRepresentative);
+  return Array.from(groups.values()).map(pickRepresentative);
 }
-
