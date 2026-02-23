@@ -157,7 +157,17 @@ export default class ListComponent implements OnInit, OnDestroy {
   /** helpers imagen/link */
   imgDesktop(s: HeroSlide) { return s.imageUrl; }
   imgMobile(s: HeroSlide)  { return s.mobileImageUrl }
-  cta(s: HeroSlide)        { return s.ctaUrl || null; } // SOLO ctaUrl, sin texto overlay
+  cta(s: HeroSlide)        { return (s.ctaUrl ?? '').trim() || null; } // SOLO ctaUrl, sin texto overlay
+  heroRouterLink(s: HeroSlide) {
+    const url = this.cta(s);
+    if (!url) return null;
+    return url.startsWith('/') ? url : null;
+  }
+  heroHref(s: HeroSlide): string | null {
+    const url = this.cta(s);
+    if (!url) return null;
+    return /^(https?:\/\/|mailto:|tel:)/i.test(url) ? url : null;
+  }
   /* =========================================== */
 
   // ANNNOUNCEMENTS
@@ -350,19 +360,16 @@ export default class ListComponent implements OnInit, OnDestroy {
   }
 
   promoRouterLink(p: Promo) {
-    if (p.hrefProductId) {
-      // ajusta si tu ruta es /productos/:id
-      return ['/product', p.hrefProductId];
-    }
-    if (p.ctaUrl && p.ctaUrl.startsWith('/')) {
-      return [p.ctaUrl];
-    }
+    const url = (p.ctaUrl ?? '').trim();
+    if (!url) return null;
+    if (url.startsWith('/')) return url; // rutas internas (incluye query params si vienen en el string).
     return null;
   }
 
   promoHref(p: Promo): string | null {
-    if (p.hrefProductId) return null;
-    if (p.ctaUrl && !p.ctaUrl.startsWith('/')) return p.ctaUrl;
+    const url = (p.ctaUrl ?? '').trim();
+    if (!url) return null;
+    if (/^(https?:\/\/|mailto:|tel:)/i.test(url)) return url;
     return null;
   }
 }

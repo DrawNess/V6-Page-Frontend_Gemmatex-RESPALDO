@@ -21,7 +21,6 @@ import { ProductComponent } from '@products/components/product/product.component
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin, map, of, switchMap } from 'rxjs';
 import {
-  INK_COLORS,
   colorOrder,
   detectInkColor,
   productInkHaystack,
@@ -46,9 +45,6 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
   private destroyRef = inject(DestroyRef);
   private lastLoadedId: string | null = null;
 
-  // listado de colores reutilizado
-  readonly inkColors = INK_COLORS;
-
   selectedColor = signal<string | null>(null);
 
   // estado principal
@@ -63,7 +59,6 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
   readonly selectedImage = computed(
     () => this.cover() || this.product()?.imageUrl || '/assets/placeholders/product.svg'
   );
-  readonly productTags = computed(() => this.product()?.tags ?? []);
   readonly isInkProduct = computed(() => isInkSubcategoryStrict(this.product())); // UI: solo mostrar variantes en subcategoría tintas real.
   readonly availableColors = computed<string[]>(() => {
     const canonicalSix = ['Cian', 'Magenta', 'Amarillo', 'Negro', 'Fluor Pink', 'Fluor Yellow'];
@@ -265,7 +260,7 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
     }
 
     const detectedColor = p ? this.inkVariantLabel(p) : null;
-    const colors = this.availableColors() as string[];
+    const colors = this.availableColors();
 
     const currentColor = this.selectedColor();
     if (detectedColor && colors.includes(detectedColor)) {
@@ -297,15 +292,6 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
     if (this.addAnimTimeout) clearTimeout(this.addAnimTimeout);
     if (this.rafId !== null) cancelAnimationFrame(this.rafId);
   }
-
-  getDiscountPercent(): number {
-  const price = this.product()?.price ?? 0;
-  const discount = this.product()?.discountPrice ?? 0;
-  if (price > 0 && discount > 0) {
-    return Math.round(((price - discount) / price) * 100);
-  }
-  return 0;
-}
 
   // ——— Ink grouping helpers
   private containsWord(haystack: string, token: string): boolean {

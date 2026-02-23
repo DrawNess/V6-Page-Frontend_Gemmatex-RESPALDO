@@ -22,10 +22,9 @@
              [class.opacity-100]="i === current()"
              [class.opacity-0]="i !== current()">
 
-          <!-- Si hay ctaUrl: imagen clickeable -->
-          <a *ngIf="cta(s) as href; else plain"
-          [routerLink]="s.ctaUrl"
-               rel="noopener"
+          <!-- Si hay ctaUrl interno: imagen clickeable por routerLink -->
+          <a *ngIf="heroRouterLink(s) as rlink; else heroExternalOrPlain"
+             [routerLink]="rlink"
              class="block h-full w-full cursor-pointer"
              [attr.aria-label]="s.title || 'Ver promoción'">
             <picture class="block h-full w-full">
@@ -37,6 +36,25 @@
                     [attr.fetchpriority]="i === 0 ? 'high' : null" />
             </picture>
           </a>
+
+          <ng-template #heroExternalOrPlain>
+            <!-- Si hay ctaUrl externo: imagen clickeable por href -->
+            <a *ngIf="heroHref(s) as href; else plain"
+               [href]="href"
+               target="_blank"
+               rel="noopener"
+               class="block h-full w-full cursor-pointer"
+               [attr.aria-label]="s.title || 'Ver promoción'">
+              <picture class="block h-full w-full">
+                <source [attr.srcset]="imgMobile(s)" media="(max-width: 640px)" />
+                <img  [src]="imgDesktop(s)"
+                      [alt]="s.title || 'Slide'"
+                      class="h-full w-full object-cover"
+                      [attr.loading]="i === 0 ? 'eager' : 'lazy'"
+                      [attr.fetchpriority]="i === 0 ? 'high' : null" />
+              </picture>
+            </a>
+          </ng-template>
 
           <!-- Si NO hay ctaUrl: solo imagen (no clickeable) -->
           <ng-template #plain>
