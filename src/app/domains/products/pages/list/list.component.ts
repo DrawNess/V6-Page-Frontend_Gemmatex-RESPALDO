@@ -359,17 +359,33 @@ export default class ListComponent implements OnInit, OnDestroy {
     this.currentPromo.set(i);
   }
 
+  private normalizeCtaUrl(url?: string | null): string | null {
+    const value = (url ?? '').trim();
+    if (!value) return null;
+    if (value.startsWith('/')) return value;
+    if (/^(https?:\/\/|mailto:|tel:)/i.test(value)) return value;
+    if (/^(www\.|[a-z0-9-]+\.[a-z]{2,})(\/|$)/i.test(value)) return `https://${value}`;
+    return null;
+  }
+
+  private promoProductFallback(p: Promo): string | null {
+    if (!p.hrefProductId) return null;
+    return `/product/${p.hrefProductId}`;
+  }
+
   promoRouterLink(p: Promo) {
-    const url = (p.ctaUrl ?? '').trim();
-    if (!url) return null;
-    if (url.startsWith('/')) return url; // rutas internas (incluye query params si vienen en el string).
+    const url = this.normalizeCtaUrl(p.ctaUrl);
+    if (url?.startsWith('/')) {
+      if (url === '/productos') return this.promoProductFallback(p) ?? url;
+      return url;
+    }
+    if (!url) return this.promoProductFallback(p);
     return null;
   }
 
   promoHref(p: Promo): string | null {
-    const url = (p.ctaUrl ?? '').trim();
-    if (!url) return null;
-    if (/^(https?:\/\/|mailto:|tel:)/i.test(url)) return url;
-    return null;
+    const url = this.normalizeCtaUrl(p.ctaUrl);
+    if (!url || url.startsWith('/')) return null;
+    return url;
   }
 }

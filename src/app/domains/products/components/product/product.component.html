@@ -1,6 +1,7 @@
 <div class="product-card group">
   <a
-    [routerLink]="['/product', product.id]"
+    [attr.href]="productHref()"
+    (click)="goToProduct($event)"
     class="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1E2041]/60 rounded-lg"
     [attr.aria-label]="product.name"
   >
