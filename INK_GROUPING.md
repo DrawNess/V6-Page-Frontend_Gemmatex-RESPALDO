@@ -1,4 +1,4 @@
-# Agrupacion De Tintas (EPSON)
+# Agrupacion De Tintas
 
 ## Objetivo
 - En catálogo, mostrar **1 tarjeta por familia de tinta** (no 1 por color).
@@ -6,7 +6,8 @@
 
 ## Alcance De Activacion
 - Archivo: `src/app/domains/catalogo/productos/productos.component.ts`
-- La agrupación se activa solo en flujo de subcategorías seleccionadas y con heurística de contexto Epson+tintas.
+- La agrupación se activa solo en flujo de subcategorías seleccionadas.
+- Gate estricto: se habilita únicamente cuando la subcategoría seleccionada es `Tintas` o `tntas` (nombre o slug).
 - Si no se cumple el contexto, se mantiene el listado normal sin agrupar.
 
 ## Motor De Agrupacion

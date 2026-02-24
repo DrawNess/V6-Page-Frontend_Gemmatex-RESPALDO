@@ -215,7 +215,7 @@ export class ProductosComponent {
         if (q) {
           merged = merged.filter((p) => this.matchesTerm(p, q)); // Aplica filtro de texto al dataset consolidado.
         }
-        const shouldGroup = this.shouldApplyEpsonInkGrouping(ids); // Gate estricto: solo Epson + subcategoría tintas.
+        const shouldGroup = this.shouldApplyInkSubcategoryGrouping(ids); // Gate estricto: solo subcategoría Tintas/tntas.
         const processed = shouldGroup ? groupEpsonInkProducts(merged) : merged; // Agrupación habilitada únicamente en el contexto permitido.
         processed.sort((a, b) => Number(a.id) - Number(b.id)); // Orden estable por id para paginación consistente.
 
@@ -250,22 +250,26 @@ export class ProductosComponent {
     return normalizeInkText(value);
   }
 
-  private isEpsonInkSubcategory(sub: Subcategory | undefined): boolean {
-    if (!sub) return false;
-    const subText = this.normalizeScopeText(`${sub.name} ${sub.slug}`);
-    const catText = this.normalizeScopeText(`${sub.category?.name} ${sub.category?.slug}`);
-    return subText.includes('tinta') && catText.includes('epson');
+  private isTintasSubcategoryName(sub: Subcategory): boolean {
+    const name = this.normalizeScopeText(sub.name);
+    const slug = this.normalizeScopeText(sub.slug);
+    return name === 'tintas' || name === 'tntas' || slug === 'tintas' || slug === 'tntas';
   }
 
-  private shouldApplyEpsonInkGrouping(selectedIds: number[]): boolean {
+  private isInkGroupingSubcategory(sub: Subcategory | undefined): boolean {
+    if (!sub) return false;
+    return this.isTintasSubcategoryName(sub);
+  }
+
+  private shouldApplyInkSubcategoryGrouping(selectedIds: number[]): boolean {
     if (!selectedIds.length) return false; // Sin subcategorías activas, nunca agrupamos aquí.
 
     const selectedSet = new Set(selectedIds);
     const selectedSubcategories = this.subcategories().filter((s) => selectedSet.has(s.id));
     if (!selectedSubcategories.length) return false; // Sin metadata de subcategorías, no arriesgar agrupado incorrecto.
 
-    // Gate estricto: solo cuando TODAS las subcategorías seleccionadas son tintas Epson.
-    return selectedSubcategories.every((s) => this.isEpsonInkSubcategory(s));
+    // Gate estricto: solo cuando TODAS las subcategorías seleccionadas son Tintas/tntas.
+    return selectedSubcategories.every((s) => this.isInkGroupingSubcategory(s));
   }
 
   private matchesTerm(p: Product, q: string): boolean {

@@ -114,7 +114,7 @@ export function isInkSubcategoryStrict(p?: Product | null): boolean {
       (p as any)?.subcategory,
     ].join(' ')
   );
-  return subText.includes('tinta');
+  return /\b(?:tintas|tntas|tinta)\b/.test(subText);
 }
 
 export function detectInkColor(p: Product): InkColor {
