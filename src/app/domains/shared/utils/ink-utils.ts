@@ -63,6 +63,18 @@ export function productInkHaystack(p?: Product | null): string {
   );
 }
 
+export function productInkModelHaystack(p?: Product | null): string {
+  if (!p) return '';
+  return normalizeInkText(
+    [
+      p.name,
+      p.slug,
+      p.sku,
+      ...(Array.isArray((p as any)?.tags) ? (p as any).tags : []),
+    ].join(' ')
+  );
+}
+
 export function hasInkModelToken(text: string): boolean {
   return MODEL_TOKEN_RE.test(normalizeInkText(text));
 }

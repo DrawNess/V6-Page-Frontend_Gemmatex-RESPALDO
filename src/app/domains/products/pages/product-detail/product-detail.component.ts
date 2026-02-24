@@ -24,6 +24,7 @@ import {
   colorOrder,
   detectInkColor,
   productInkHaystack,
+  productInkModelHaystack,
   isInkSubcategory,
   isInkSubcategoryStrict,
   swatchForColor
@@ -305,7 +306,7 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
 
   private inkFamilyKey(p?: Product | null): string | null {
     if (!p) return null;
-    const text = productInkHaystack(p);
+    const text = productInkModelHaystack(p);
     if (!text) return null;
 
     // Misma lógica de familias del catálogo: 1 familia = 1 tarjeta.

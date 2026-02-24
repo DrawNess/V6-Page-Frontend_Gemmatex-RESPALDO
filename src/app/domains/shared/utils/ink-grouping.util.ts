@@ -1,5 +1,5 @@
 import { Product } from '@shared/models/product.model';
-import { cleanInkName, productInkHaystack } from './ink-utils';
+import { cleanInkName, productInkHaystack, productInkModelHaystack } from './ink-utils';
 
 export interface InkGroupingOptions {
   modelAliasFamilies?: string[][];
@@ -14,18 +14,19 @@ function extractModelTokens(haystack: string): string[] {
   return Array.from(new Set(matches));
 }
 
-function resolveFamilyKey(haystack: string): string {
+function resolveFamilyKey(modelHaystack: string, p: Product): string {
   // Reglas explícitas pedidas por negocio.
-  if (containsWord(haystack, 'f170') || containsWord(haystack, 'f570')) return 'f170-f570';
-  if (containsWord(haystack, 'f6200')) return 'f6200';
-  if (containsWord(haystack, 'f6370')) return 'f6370';
-  if (containsWord(haystack, 'f6470') || containsWord(haystack, 'f6470h')) return 'f6470-f6470h';
-  if (containsWord(haystack, 'g6070')) return 'g6070';
+  if (containsWord(modelHaystack, 'f170') || containsWord(modelHaystack, 'f570')) return 'f170-f570';
+  if (containsWord(modelHaystack, 'f6200')) return 'f6200';
+  if (containsWord(modelHaystack, 'f6370')) return 'f6370';
+  if (containsWord(modelHaystack, 'f6470') || containsWord(modelHaystack, 'f6470h')) return 'f6470-f6470h';
+  if (containsWord(modelHaystack, 'g6070')) return 'g6070';
 
   // Fallback automático (ej: T3170X).
-  const tokens = extractModelTokens(haystack);
+  const tokens = extractModelTokens(modelHaystack);
   if (tokens.length) return tokens.sort().join('+');
-  return 'model_unknown';
+  // Sin token de modelo: no forzar agrupación entre productos distintos.
+  return `id:${p.id}`;
 }
 
 function representativeScore(p: Product): number {
@@ -53,7 +54,7 @@ export function groupEpsonInkProducts(products: Product[], _options: InkGrouping
 
   const groups = new Map<string, Product[]>();
   for (const p of products) {
-    const familyKey = resolveFamilyKey(productInkHaystack(p));
+    const familyKey = resolveFamilyKey(productInkModelHaystack(p), p);
     if (!groups.has(familyKey)) groups.set(familyKey, []);
     groups.get(familyKey)!.push(p);
   }
