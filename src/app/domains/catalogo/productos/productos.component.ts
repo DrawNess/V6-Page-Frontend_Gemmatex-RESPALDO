@@ -10,7 +10,7 @@ import { SubcategoryService } from '@shared/services/subcategory.service';
 import { Subcategory } from '@shared/models/subcategory.model';
 import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { groupEpsonInkProducts } from '@shared/utils/ink-grouping.util';
-import { isLikelyEpsonInkProduct, normalizeInkText } from '@shared/utils/ink-utils';
+import { normalizeInkText } from '@shared/utils/ink-utils';
 
 @Component({
   selector: 'app-productos',
@@ -215,7 +215,7 @@ export class ProductosComponent {
         if (q) {
           merged = merged.filter((p) => this.matchesTerm(p, q)); // Aplica filtro de texto al dataset consolidado.
         }
-        const shouldGroup = this.shouldApplyEpsonInkGrouping(ids, merged); // Gate estricto: solo Epson + subcategoría tintas.
+        const shouldGroup = this.shouldApplyEpsonInkGrouping(ids); // Gate estricto: solo Epson + subcategoría tintas.
         const processed = shouldGroup ? groupEpsonInkProducts(merged) : merged; // Agrupación habilitada únicamente en el contexto permitido.
         processed.sort((a, b) => Number(a.id) - Number(b.id)); // Orden estable por id para paginación consistente.
 
@@ -257,34 +257,15 @@ export class ProductosComponent {
     return subText.includes('tinta') && catText.includes('epson');
   }
 
-  private productLooksLikeEpsonInk(p: Product): boolean {
-    return isLikelyEpsonInkProduct(p); // Reusa heurística centralizada para evitar divergencia de reglas.
-  }
-
-  private shouldApplyEpsonInkGrouping(selectedIds: number[], products: Product[]): boolean {
+  private shouldApplyEpsonInkGrouping(selectedIds: number[]): boolean {
     if (!selectedIds.length) return false; // Sin subcategorías activas, nunca agrupamos aquí.
 
     const selectedSet = new Set(selectedIds);
     const selectedSubcategories = this.subcategories().filter((s) => selectedSet.has(s.id));
-    const selectedSubNames = selectedSubcategories
-      .map((s) => this.normalizeScopeText(`${s.name} ${s.slug}`))
-      .join(' ');
-    const hasTintasSelected = selectedSubNames.includes('tinta');
-    const hasEpsonCategory = this.normalizeScopeText(this.currentCategory()).includes('epson');
-    const allSelectedAreEpsonInks = selectedSubcategories.length > 0
-      ? selectedSubcategories.every((s) => this.isEpsonInkSubcategory(s)) // Regla fuerte cuando tenemos metadata de subcategoría.
-      : false;
-    if (allSelectedAreEpsonInks) return true; // Caso ideal: metadata de subcategoría cargada y consistente.
-    if (hasTintasSelected && hasEpsonCategory) return true; // Fallback cuando category en subcategory no viene expandido.
+    if (!selectedSubcategories.length) return false; // Sin metadata de subcategorías, no arriesgar agrupado incorrecto.
 
-    // Fallback para primer render si la metadata aún no cargó: inferimos por dataset.
-    if (!products.length) return false;
-    const epsonLikeCount = products.filter((p) => this.productLooksLikeEpsonInk(p)).length;
-    const ratio = epsonLikeCount / products.length;
-    if (ratio >= 0.6) return true; // Fallback principal para payloads incompletos.
-
-    // Fallback adicional si la metadata de UI sí apunta a Epson+tintas.
-    return ratio >= 0.4 && hasTintasSelected && hasEpsonCategory;
+    // Gate estricto: solo cuando TODAS las subcategorías seleccionadas son tintas Epson.
+    return selectedSubcategories.every((s) => this.isEpsonInkSubcategory(s));
   }
 
   private matchesTerm(p: Product, q: string): boolean {

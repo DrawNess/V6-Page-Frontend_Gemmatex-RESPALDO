@@ -45,6 +45,7 @@ export class CatalogoComponent {
     this.route.queryParamMap.subscribe((qp) => {
       const q = (qp.get('q') || '').trim();
       const catId = qp.get('categoryId');
+      this.category_id = catId ?? undefined;
       this.search.set(q);
       this.selectedCats.set(catId ? new Set([Number(catId)]) : new Set());
       this.page.set(1);
@@ -65,13 +66,16 @@ export class CatalogoComponent {
     this.loading.set(true);
 
     const q = this.search().trim();
+    const selectedCats = this.selectedCats();
+    const requestCategoryId = this.category_id
+      ?? (selectedCats.size === 1 ? String([...selectedCats][0]) : undefined);
     const req$ = q
       ? this.productService.searchProductsByTerm(q, {
           page: this.page(),
           pageSize: this.pageSize
         })
       : this.productService.listProducts({
-          categoryId: this.category_id,
+          categoryId: requestCategoryId,
           page: this.page(),
           pageSize: this.pageSize
         });
@@ -462,7 +466,6 @@ docTitle2(d: PdfDoc) {
 
 
 }
-
 
 
 

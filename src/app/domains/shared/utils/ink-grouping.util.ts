@@ -1,5 +1,5 @@
 import { Product } from '@shared/models/product.model';
-import { cleanInkName, productInkHaystack, productInkModelHaystack } from './ink-utils';
+import { cleanInkName, isLikelyEpsonInkProduct, productInkHaystack, productInkModelHaystack } from './ink-utils';
 
 export interface InkGroupingOptions {
   modelAliasFamilies?: string[][];
@@ -52,12 +52,16 @@ function pickRepresentative(items: Product[]): Product {
 export function groupEpsonInkProducts(products: Product[], _options: InkGroupingOptions = {}): Product[] {
   if (!products.length) return products;
 
+  const candidates = products.filter((p) => isLikelyEpsonInkProduct(p));
+  const passthrough = products.filter((p) => !isLikelyEpsonInkProduct(p));
+  if (!candidates.length) return products;
+
   const groups = new Map<string, Product[]>();
-  for (const p of products) {
+  for (const p of candidates) {
     const familyKey = resolveFamilyKey(productInkModelHaystack(p), p);
     if (!groups.has(familyKey)) groups.set(familyKey, []);
     groups.get(familyKey)!.push(p);
   }
 
-  return Array.from(groups.values()).map(pickRepresentative);
+  return [...passthrough, ...Array.from(groups.values()).map(pickRepresentative)];
 }
