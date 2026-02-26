@@ -8,34 +8,42 @@ import { ForgotPasswordComponent } from './domains/modules/auth/pages/forgot-pas
 import { VerifySuccessComponent } from '@auth/pages/verify-success/verify-success.component';
 import { VerifyMailComponent } from '@auth/pages/verify-mail/verify-mail.component';
 import { VerifyRequestComponent } from '@auth/pages/verify-request/verify-request.component';
+import { RedirectGuard } from './guards/redirect.guard';
 
 export const authRoutes: Routes = [
   {
     path: ROUTE_CONSTANTS.AUTH.LOGIN,
-    component: LoginComponent
+    component: LoginComponent,
+    canActivate: [RedirectGuard]
   },
   {
     path: ROUTE_CONSTANTS.AUTH.REGISTER,
-    component: RegisterComponent
+    component: RegisterComponent,
+    canActivate: [RedirectGuard]
   },
   {
     path: ROUTE_CONSTANTS.AUTH.RECOVERY,
-    component: RecoveryComponent
+    component: RecoveryComponent,
+    canActivate: [RedirectGuard]
   },
   {
     path: ROUTE_CONSTANTS.AUTH.RESET_PASSWORD,
-    component: ForgotPasswordComponent
+    component: ForgotPasswordComponent,
+    canActivate: [RedirectGuard]
   },
   {
     path: ROUTE_CONSTANTS.AUTH.VERIFY_SUCCESS,
-    component: VerifySuccessComponent
+    component: VerifySuccessComponent,
+    canActivate: [RedirectGuard]
   },
   {
     path: ROUTE_CONSTANTS.AUTH.VERIFY_EMAIL,
-    component: VerifyMailComponent
+    component: VerifyMailComponent,
+    canActivate: [RedirectGuard]
   },
   {
     path: ROUTE_CONSTANTS.AUTH.VERIFY_REQUEST,
-    component: VerifyRequestComponent
+    component: VerifyRequestComponent,
+    canActivate: [RedirectGuard]
   }
 ];

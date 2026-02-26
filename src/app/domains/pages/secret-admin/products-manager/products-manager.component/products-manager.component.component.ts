@@ -2,6 +2,7 @@ import { Component, inject, signal, computed} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ProductService } from '@shared/services/product.service';
 import { Product } from '@shared/models/product.model';
 import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
@@ -64,6 +65,15 @@ export class ProductsManagerComponentComponent {
 
   constructor() { this.load(); }
 
+  private errorMessage(error: unknown, fallback: string): string {
+    if (error instanceof HttpErrorResponse) {
+      if (error.status === 401) return 'Tu sesión expiró. Inicia sesión nuevamente.';
+      if (error.status === 403) return 'No tienes permisos para modificar productos.';
+      return (error.error?.message as string) || fallback;
+    }
+    return fallback;
+  }
+
   // helpers para template (evita NG5002)
   onSearchInput(val: string) { this.search.set(val); }
 
@@ -72,7 +82,10 @@ export class ProductsManagerComponentComponent {
     this.loading.set(true);
     this.productService.getProducts().subscribe({
       next: list => { this.products.set(list ?? []); this.loading.set(false); },
-      error: () => { this.err.set('No se pudieron cargar los productos'); this.loading.set(false); }
+      error: (error) => {
+        this.err.set(this.errorMessage(error, 'No se pudieron cargar los productos'));
+        this.loading.set(false);
+      }
     });
   }
 
@@ -126,7 +139,10 @@ export class ProductsManagerComponentComponent {
         this.loading.set(false);
         this.closeModal();
       },
-      error: () => { this.err.set('Error al actualizar'); this.loading.set(false); }
+      error: (error) => {
+        this.err.set(this.errorMessage(error, 'Error al actualizar'));
+        this.loading.set(false);
+      }
     });
   }
 
@@ -140,7 +156,10 @@ export class ProductsManagerComponentComponent {
         this.ok.set(next ? 'Producto activado' : 'Producto desactivado');
         this.loading.set(false);
       },
-      error: () => { this.err.set('No se pudo cambiar el estado'); this.loading.set(false); }
+      error: (error) => {
+        this.err.set(this.errorMessage(error, 'No se pudo cambiar el estado'));
+        this.loading.set(false);
+      }
     });
   }
   trackById = (_: number, item: Product) => item.id;

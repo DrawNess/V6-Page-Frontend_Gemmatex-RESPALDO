@@ -1,13 +1,13 @@
 import { Routes } from '@angular/router';
 import { LayoutComponent } from '@shared/components/layout/layout.component';
-import { AuthGuard } from './guards/auth.guard';
+import { customerGuard } from '@core/guards/customer.guard';
 
 export const userRoutes: Routes = [
   {
     path: 'mi-cuenta',
     component: LayoutComponent,
-    canActivate: [AuthGuard],
-    canActivateChild: [AuthGuard],
+    canActivate: [customerGuard],
+    canActivateChild: [customerGuard],
     children: [
       // Estructura base para rutas de usuario protegidas.
       // Cuando existan componentes:

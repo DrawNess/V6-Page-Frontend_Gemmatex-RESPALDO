@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { Title, Meta } from '@angular/platform-browser';
+import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
 
 import { AuthService } from '@shared/services/auth.service';
 
@@ -84,7 +85,7 @@ export class LoginComponent {
       .subscribe({
         next: () => {
           this.status = 'success';
-          this.router.navigate(['/']); // cambia si tu home es otra ruta
+          this.router.navigate([`${ROUTE_CONSTANTS.SECRET_BASE}/${ROUTE_CONSTANTS.ADMIN.MENU}` ]); // cambia si tu home es otra ruta
         },
         error: (err) => {
           this.status = 'failed';

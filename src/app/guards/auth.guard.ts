@@ -4,7 +4,8 @@ import {
   CanActivate,
   CanActivateChild,
   Router,
-  RouterStateSnapshot
+  RouterStateSnapshot,
+  UrlTree
 } from '@angular/router';
 import { TokenService } from '@services/token.service';
 
@@ -12,26 +13,32 @@ import { TokenService } from '@services/token.service';
   providedIn: 'root'
 })
 export class AuthGuard implements CanActivate, CanActivateChild {
+  // Inyectamos el servicio que lee el token y el router para redirecciones.
   constructor(
     private readonly tokenService: TokenService,
     private readonly router: Router
   ) {}
 
-  canActivate(_route: ActivatedRouteSnapshot, _state: RouterStateSnapshot): boolean {
-    return this.checkAuth();
+  // Protege rutas normales: si no hay sesión válida, se bloquea el acceso.
+  canActivate(_route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | UrlTree {
+    return this.checkAuth(state);
   }
 
-  canActivateChild(_childRoute: ActivatedRouteSnapshot, _state: RouterStateSnapshot): boolean {
-    return this.checkAuth();
+  // Protege rutas hijas reutilizando la misma validación.
+  canActivateChild(_childRoute: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | UrlTree {
+    return this.checkAuth(state);
   }
 
-  private checkAuth(): boolean {
+  // Valida si existe token; si no existe, construye redirección al login.
+  private checkAuth(state: RouterStateSnapshot): boolean | UrlTree {
     const token = this.tokenService.getToken();
     if (!token) {
-      this.router.navigate(['/auth/login']);
-      return false;
+      // Guardamos la URL original para regresar después de autenticarse.
+      return this.router.createUrlTree(['/auth/login'], {
+        queryParams: { returnUrl: state.url }
+      });
     }
-
+    // Con token presente, permitimos navegar.
     return true;
   }
 }

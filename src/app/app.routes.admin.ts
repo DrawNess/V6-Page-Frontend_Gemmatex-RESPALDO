@@ -7,6 +7,7 @@ const SECRET_BASE = ROUTE_CONSTANTS.SECRET_BASE;
 export const adminRoutes: Routes = [
   {
     path: SECRET_BASE,
+    canActivate: [adminGuard],
     canActivateChild: [adminGuard],
     children: [
       {

@@ -4,14 +4,11 @@ import { environment } from '@environments/environment';
 
 import { Observable, tap } from 'rxjs';
 import { TokenService } from '@services/token.service';
-import { ResponseLogin } from '@shared/models/auth.model';
+import { ResponseLogin, RegisterCustomerDTO } from '@shared/models/auth.model';
 
-export interface LoginResponse {
-  token: string;
-  user: any;
-}
 
-export interface RegisterCustomerDTO {
+
+/* export interface RegisterCustomerDTO {
   name: string;
   lastName: string;
   phone: string;
@@ -19,8 +16,7 @@ export interface RegisterCustomerDTO {
     email: string;
     password: string;
   };
-}
-
+} */
 
 @Injectable({
   providedIn: 'root',
@@ -41,7 +37,10 @@ export class AuthService {
     })
     .pipe(
       tap(response => {
-        this.tokenService.saveToken(response.access_token);
+        const token = response.token ?? response.access_token;
+        if (token) {
+          this.tokenService.saveToken(token);
+        }
       })
     )
   }
@@ -74,5 +73,8 @@ export class AuthService {
 
   changePassword(token: string, newPassword: string) {
     return this.http.post<{ message: string }>(`${this.apiUrl}/auth/change-password`, { token, newPassword });
+  }
+  logout() {
+    this.tokenService.removeToken();
   }
 }
