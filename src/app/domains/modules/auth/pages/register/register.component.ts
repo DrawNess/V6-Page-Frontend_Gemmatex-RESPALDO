@@ -13,6 +13,7 @@ import { finalize, switchMap } from 'rxjs/operators';
 import { timer } from 'rxjs';
 
 import { AuthService } from '@shared/services/auth.service';
+import { SessionService } from '@shared/services/session.service';
 
 type RequestStatus = 'init' | 'loading' | 'success' | 'failed';
 
@@ -65,7 +66,8 @@ export class RegisterComponent {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private sessionService: SessionService
   ) {
     // Limpia error backend al editar
     this.form.valueChanges.subscribe(() => (this.errorMsg = ''));
@@ -165,6 +167,11 @@ export class RegisterComponent {
       .register(payload as any)
       .pipe(
         switchMap((res: any) => {
+          const newCustomerId = Number(res?.newCustomer?.id);
+          const newUserId = Number(res?.newCustomer?.userId ?? res?.newCustomer?.user?.id);
+          if (!Number.isNaN(newCustomerId) && !Number.isNaN(newUserId)) {
+            this.sessionService.rememberCustomerForUser(newUserId, newCustomerId);
+          }
           const createdEmail = res?.newCustomer?.user?.email || payload.user.email;
           return this.authService.sendVerifyEmail(createdEmail);
         }),

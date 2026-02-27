@@ -31,8 +31,9 @@ export class AuthGuard implements CanActivate, CanActivateChild {
 
   // Valida si existe token; si no existe, construye redirección al login.
   private checkAuth(state: RouterStateSnapshot): boolean | UrlTree {
-    const token = this.tokenService.getToken();
-    if (!token) {
+    const isAuthenticated = this.tokenService.isAuthenticated();
+    if (!isAuthenticated) {
+      this.tokenService.removeToken();
       // Guardamos la URL original para regresar después de autenticarse.
       return this.router.createUrlTree(['/auth/login'], {
         queryParams: { returnUrl: state.url }

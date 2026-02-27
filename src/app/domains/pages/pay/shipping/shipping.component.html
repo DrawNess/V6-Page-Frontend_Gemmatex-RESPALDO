@@ -1,0 +1,177 @@
+<section class="w-full min-h-screen bg-slate-50">
+  <div class="mx-auto max-w-5xl px-4 py-8">
+    <div class="mb-6 flex items-center justify-between">
+      <h1 class="text-2xl font-black text-slate-900">Coordinación de envío</h1>
+      <a [routerLink]="checkoutPath" class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+        Volver a bolsa
+      </a>
+    </div>
+
+    @if (errorMsg()) {
+      <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        {{ errorMsg() }}
+      </div>
+    }
+
+    @if (successMsg()) {
+      <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+        {{ successMsg() }}
+      </div>
+    }
+
+    <div class="grid gap-4 lg:grid-cols-2">
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h2 class="mb-3 text-lg font-bold text-slate-900">Resumen de bolsa</h2>
+
+        @if (groupedCart().length === 0) {
+          <p class="text-sm text-slate-600">Tu carrito está vacío. Vuelve y agrega productos.</p>
+        } @else {
+          <div class="space-y-3 max-h-[420px] overflow-auto pr-1">
+            <div
+              *ngFor="let item of groupedCart()"
+              class="grid grid-cols-[64px_1fr_auto] items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3"
+            >
+              <img
+                [src]="item.product.imageUrl"
+                [alt]="item.product.name"
+                class="h-16 w-16 rounded-lg object-cover border border-slate-200 bg-white"
+              />
+              <div class="min-w-0">
+                <p class="truncate text-sm font-semibold text-slate-900">{{ item.product.name }}</p>
+                <p class="mt-0.5 text-xs text-slate-500">SKU: {{ item.product.sku || '—' }}</p>
+                <span class="mt-1 inline-flex rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-medium text-slate-700">
+                  Cantidad: {{ item.count }}
+                </span>
+              </div>
+              <div class="text-right">
+                <p class="text-sm font-bold text-slate-900">
+                  {{ itemSubtotal(item) | currency:'BOB':'symbol-narrow':'1.2-2' }}
+                </p>
+                <p class="text-[11px] text-slate-500">
+                  {{ item.unitPrice | currency:'BOB':'symbol-narrow':'1.2-2' }} c/u
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 rounded-xl bg-slate-900 px-4 py-3 text-right">
+            <p class="text-xs uppercase tracking-wide text-slate-300">Subtotal</p>
+            <p class="text-2xl font-black text-white">{{ total() | currency:'BOB':'symbol-narrow':'1.2-2' }}</p>
+          </div>
+        }
+      </div>
+
+      <div class="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h2 class="text-lg font-bold text-slate-900">Datos para vendedor</h2>
+
+        <label class="block text-sm text-slate-700">
+          Nombre completo
+          <input
+            type="text"
+            class="mt-1 w-full rounded-xl border border-slate-300 px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
+            [ngModel]="customerName()"
+            (ngModelChange)="customerName.set($event)"
+            placeholder="Juan Perez"
+          />
+        </label>
+
+        <label class="block text-sm text-slate-700">
+          WhatsApp
+          <input
+            type="tel"
+            class="mt-1 w-full rounded-xl border border-slate-300 px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
+            [ngModel]="customerPhone()"
+            (ngModelChange)="customerPhone.set($event)"
+            placeholder="5917XXXXXXX"
+          />
+        </label>
+
+        <div>
+          <p class="mb-2 text-sm font-medium text-slate-700">Modalidad de entrega</p>
+          <div class="grid gap-2">
+            <label
+              class="flex items-start gap-3 rounded-xl border p-3 cursor-pointer"
+              [class.border-blue-500]="deliveryMode() === 'pickup_store'"
+              [class.bg-blue-50]="deliveryMode() === 'pickup_store'"
+            >
+              <input
+                type="radio"
+                name="delivery_mode"
+                value="pickup_store"
+                [checked]="deliveryMode() === 'pickup_store'"
+                (change)="deliveryMode.set('pickup_store')"
+              />
+              <div>
+                <p class="text-sm font-semibold text-slate-900">Recojo en tienda</p>
+                <p class="text-xs text-slate-600">El cliente pasará a recoger su pedido en sucursal.</p>
+              </div>
+            </label>
+
+            <label
+              class="flex items-start gap-3 rounded-xl border p-3 cursor-pointer"
+              [class.border-blue-500]="deliveryMode() === 'shipping_coordination'"
+              [class.bg-blue-50]="deliveryMode() === 'shipping_coordination'"
+            >
+              <input
+                type="radio"
+                name="delivery_mode"
+                value="shipping_coordination"
+                [checked]="deliveryMode() === 'shipping_coordination'"
+                (change)="deliveryMode.set('shipping_coordination')"
+              />
+              <div>
+                <p class="text-sm font-semibold text-slate-900">Envío a coordinar</p>
+                <p class="text-xs text-slate-600">Coordinación directa con vendedor o ejecutivo de ventas.</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <p class="mb-2 text-sm font-medium text-slate-700">Sucursal para coordinar</p>
+          <div class="space-y-2">
+            <label
+              *ngFor="let b of branches"
+              class="flex items-start gap-3 rounded-xl border p-3 cursor-pointer"
+              [class.border-blue-500]="selectedBranchId() === b.id"
+            >
+              <input
+                type="radio"
+                name="branch"
+                [value]="b.id"
+                [checked]="selectedBranchId() === b.id"
+                (change)="selectedBranchId.set(b.id)"
+              />
+              <span class="text-sm text-slate-700">
+                <strong>{{ b.name }}</strong> - {{ b.phone }}
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <label class="block text-sm text-slate-700">
+          Notas para entrega
+          <textarea
+            rows="3"
+            class="mt-1 w-full rounded-xl border border-slate-300 px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
+            [ngModel]="shippingNotes()"
+            (ngModelChange)="shippingNotes.set($event)"
+            placeholder="Dirección referencial, horario, etc."
+          ></textarea>
+        </label>
+
+        <button
+          type="button"
+          class="w-full rounded-xl bg-green-600 px-6 py-3 font-semibold text-white hover:bg-green-700 disabled:bg-slate-300"
+          [disabled]="!formValid() || loading()"
+          (click)="sendToSeller()"
+        >
+          {{ loading() ? 'Registrando pedido...' : 'Enviar mensaje y registrar pedido' }}
+        </button>
+
+        <a [routerLink]="accountOrdersPath" class="block text-center text-sm text-slate-600 hover:underline">
+          Ver mis pedidos
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

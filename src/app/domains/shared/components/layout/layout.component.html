@@ -2,5 +2,9 @@
     <app-header />
     <router-outlet />
     <app-promo-bar />
-    <app-footer />
+    @defer (on viewport) {
+      <app-footer />
+    } @placeholder {
+      <div class="h-24 w-full bg-white"></div>
+    }
 </div>

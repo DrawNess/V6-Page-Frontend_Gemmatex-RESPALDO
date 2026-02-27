@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { Title, Meta } from '@angular/platform-browser';
 import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
 
 import { AuthService } from '@shared/services/auth.service';
+import { TokenService } from '@services/token.service';
 
 type RequestStatus = 'init' | 'loading' | 'success' | 'failed';
 
@@ -36,7 +37,9 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder,
     private router: Router,
+    private route: ActivatedRoute,
     private authService: AuthService,
+    private tokenService: TokenService,
     private title: Title,
     private meta: Meta
   ) {
@@ -85,7 +88,20 @@ export class LoginComponent {
       .subscribe({
         next: () => {
           this.status = 'success';
-          this.router.navigate([`${ROUTE_CONSTANTS.SECRET_BASE}/${ROUTE_CONSTANTS.ADMIN.MENU}` ]); // cambia si tu home es otra ruta
+          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+          const role = this.tokenService.getRoleFromToken()?.toLowerCase();
+
+          if (returnUrl) {
+            this.router.navigateByUrl(returnUrl);
+            return;
+          }
+
+          if (role === 'admin') {
+            this.router.navigate([`${ROUTE_CONSTANTS.SECRET_BASE}/${ROUTE_CONSTANTS.ADMIN.MENU}`]);
+            return;
+          }
+
+          this.router.navigate([`/${ROUTE_CONSTANTS.USER.BASE}`]);
         },
         error: (err) => {
           this.status = 'failed';
@@ -93,7 +109,7 @@ export class LoginComponent {
 
           const msg = err?.error?.message || err?.error?.errors?.message;
 
-          if (msg === 'EMAIL_NOT_VERIFIED') {
+          if (msg === 'EMAIL_NOT_VERIFIED' || msg === 'EMAIL_NO_VERIFICADO') {
             this.errorCode = 'EMAIL_NOT_VERIFIED';
             this.errorMsg = '';
             return;

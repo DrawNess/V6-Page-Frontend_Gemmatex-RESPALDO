@@ -2,9 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '@environments/environment';
 
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, map, of, switchMap, tap } from 'rxjs';
 import { TokenService } from '@services/token.service';
 import { ResponseLogin, RegisterCustomerDTO } from '@shared/models/auth.model';
+import { SessionService } from './session.service';
+import { ProfileService } from './profile.service';
+import { CartService } from './cart.service';
 
 
 
@@ -27,7 +30,10 @@ export class AuthService {
 
   constructor(
     private http: HttpClient,
-    private tokenService: TokenService
+    private tokenService: TokenService,
+    private sessionService: SessionService,
+    private profileService: ProfileService,
+    private cartService: CartService
   ){}
 
   login( email: string, password: string ) {
@@ -41,7 +47,21 @@ export class AuthService {
         if (token) {
           this.tokenService.saveToken(token);
         }
-      })
+        this.sessionService.saveLogin(response.user);
+        this.cartService.syncWithCurrentSession();
+      }),
+      switchMap((response) =>
+        this.profileService.getMe().pipe(
+          tap((me) => {
+            if (Number(me?.userId) > 0 && Number(me?.customerId) > 0) {
+              this.sessionService.saveIdentity(me.userId, me.customerId);
+              this.cartService.syncWithCurrentSession();
+            }
+          }),
+          map(() => response),
+          catchError(() => of(response))
+        )
+      )
     )
   }
 
@@ -75,6 +95,9 @@ export class AuthService {
     return this.http.post<{ message: string }>(`${this.apiUrl}/auth/change-password`, { token, newPassword });
   }
   logout() {
+    this.cartService.syncWithCurrentSession();
     this.tokenService.removeToken();
+    this.sessionService.clearSession();
+    this.cartService.syncWithCurrentSession();
   }
 }

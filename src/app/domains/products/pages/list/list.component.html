@@ -33,7 +33,10 @@
                     [alt]="s.title || 'Slide'"
                     class="h-full w-full object-cover"
                     [attr.loading]="i === 0 ? 'eager' : 'lazy'"
-                    [attr.fetchpriority]="i === 0 ? 'high' : null" />
+                    [attr.fetchpriority]="i === 0 ? 'high' : null"
+                    decoding="async"
+                    width="1920"
+                    height="1080" />
             </picture>
           </a>
 
@@ -51,7 +54,10 @@
                       [alt]="s.title || 'Slide'"
                       class="h-full w-full object-cover"
                       [attr.loading]="i === 0 ? 'eager' : 'lazy'"
-                      [attr.fetchpriority]="i === 0 ? 'high' : null" />
+                      [attr.fetchpriority]="i === 0 ? 'high' : null"
+                      decoding="async"
+                      width="1920"
+                      height="1080" />
               </picture>
             </a>
           </ng-template>
@@ -64,7 +70,10 @@
                     [alt]="s.title || 'Slide'"
                     class="h-full w-full object-cover"
                     [attr.loading]="i === 0 ? 'eager' : 'lazy'"
-                    [attr.fetchpriority]="i === 0 ? 'high' : null" />
+                    [attr.fetchpriority]="i === 0 ? 'high' : null"
+                    decoding="async"
+                    width="1920"
+                    height="1080" />
             </picture>
           </ng-template>
         </div>
@@ -189,6 +198,7 @@
 
 <!-- ======================================================================================================== -->
  <!-- CARDS ALEATORIOS DE PRODUCTOS -->
+@defer (on viewport) {
 <section id="novedades" class="w-full bg-white">
   <div class="mx-auto max-w-7xl px-5 py-8 sm:py-10">
     <!-- Título + flechas -->
@@ -247,6 +257,14 @@
     </div>
   </div>
 </section>
+} @placeholder {
+  <section class="w-full bg-white">
+    <div class="mx-auto max-w-7xl px-5 py-8 sm:py-10">
+      <div class="h-10 w-48 animate-pulse rounded bg-slate-100"></div>
+      <div class="mt-4 h-[280px] animate-pulse rounded-2xl bg-slate-100"></div>
+    </div>
+  </section>
+}
 <!-- ======================================================================================================== -->
 <!-- ANNOUNCEMENTS -->
 <!-- ================= OFERTAS (banners de announcements) ================= -->
@@ -254,14 +272,15 @@
 <!-- ================= PROMOS (banners largos debajo del hero) ================= -->
 
 <!-- Error específico de promos (si falla la carga) -->
-@if (promosError()) {
-  <div class="mx-auto max-w-7xl px-4 pt-4 text-center text-sm text-red-600">
-    {{ promosError() }}
-  </div>
-}
+@defer (on viewport) {
+  @if (promosError()) {
+    <div class="mx-auto max-w-7xl px-4 pt-4 text-center text-sm text-red-600">
+      {{ promosError() }}
+    </div>
+  }
 
-@if (!promosLoading() && activePromos().length) {
-  <section class="w-full bg-gradient-to-b from-slate-50 to-white py-8">
+  @if (!promosLoading() && activePromos().length) {
+    <section class="w-full bg-gradient-to-b from-slate-50 to-white py-8">
     <div class="mx-auto max-w-7xl px-4">
 
       <!-- Carrusel de promociones -->
@@ -456,8 +475,8 @@
         }
       </div>
     </div>
-  </section>
-}
+    </section>
+  }
 
 <!-- ======================================================================================================== -->
 
@@ -628,6 +647,13 @@
     </div>
   </div>
 </section>
+} @placeholder {
+  <section class="w-full bg-white">
+    <div class="mx-auto max-w-7xl px-4 py-10 sm:py-14">
+      <div class="h-[320px] animate-pulse rounded-2xl bg-slate-100"></div>
+    </div>
+  </section>
+}
 
 
 <!-- ================= PROMOS (carrusel/grid) ================= -->

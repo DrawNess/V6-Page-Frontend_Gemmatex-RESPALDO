@@ -78,6 +78,11 @@
               [src]="selectedImage()"
               [alt]="product()?.name || 'Producto'"
               class="max-w-full h-auto max-h-[560px] object-contain drop-shadow-md transition-transform duration-500 group-hover:scale-105"
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
+              width="1000"
+              height="1000"
               (error)="onCoverError($event)"
             />
           </div>
@@ -103,7 +108,11 @@
           >
             <img [src]="img" alt="miniatura"
                  class="w-full h-full object-cover bg-slate-100 transition-transform duration-300 group-hover:scale-110"
-                 (error)="onThumbError($event)" loading="lazy" />
+                 (error)="onThumbError($event)"
+                 loading="lazy"
+                 decoding="async"
+                 width="80"
+                 height="80" />
                  @if (img === selectedImage()) {
                    <div class="absolute inset-0 bg-sky-100/60 backdrop-blur-[1px]"></div>
                  }

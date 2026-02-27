@@ -21,6 +21,7 @@ export const ROUTE_CONSTANTS = {
     PRODUCTOS: 'productos',
     OFERTAS: 'ofertas',
     CHECKOUT: 'checkout',
+    SHIPPING: 'shipping',
     RECURSOS: {
       PERFILES_COLOR: 'recursos/perfiles-de-color',
       PDFS: 'recursos/pdfs'
@@ -58,5 +59,14 @@ export const ROUTE_CONSTANTS = {
     HERO_SLIDES: 'menu-adds/hero-slides',
     OFFERS_ADDS: 'menu-adds/offers-adds',
     PROMO: 'menu-adds/promo'
+  },
+
+  /**
+   * Rutas para cuenta de cliente (customer)
+   */
+  USER: {
+    BASE: 'mi-cuenta',
+    INFO: 'informacion',
+    ORDERS: 'pedidos'
   }
 } as const;

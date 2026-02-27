@@ -1,22 +1,24 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CartService } from '@shared/services/cart.service';
 import { Product } from '@shared/models/product.model';
-import { environment } from '@environments/environment';
-
-type Branch = { id: string; name: string; phone: string; address?: string };
+import { TokenService } from '@services/token.service';
+import { CheckoutFlowService } from '@shared/services/checkout-flow.service';
+import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
 
 @Component({
     selector: 'app-checkout',
-    imports: [CommonModule, FormsModule, RouterLink],
+    imports: [CommonModule, RouterLink],
     templateUrl: './checkout.component.html',
     styleUrl: './checkout.component.css'
 })
 export class CheckoutComponent {
 
- private cartService = inject(CartService);
+  private readonly cartService = inject(CartService);
+  private readonly tokenService = inject(TokenService);
+  private readonly checkoutFlowService = inject(CheckoutFlowService);
+  private readonly router = inject(Router);
 
   // señales del servicio
   cart = this.cartService.cart; // Product[]
@@ -37,21 +39,8 @@ export class CheckoutComponent {
     this.cart().reduce((acc, p) => acc + (p.price ?? 0), 0)
   );
 
-  // Datos del cliente
-  customerName = signal<string>('');
-  customerPhone = signal<string>('');
-  notes = signal<string>('');
-
-  // Sucursales
-  branches: Branch[] = [
-    { id: 'lp', name: 'La Paz',      phone: this.branchPhone(environment.WSP_LPZ), address: 'Av. Illampu esq. Graneros Nº 682' },
-    { id: 'sc', name: 'Santa Cruz',  phone: this.branchPhone(environment.WSP_SCZ), address: 'Calle Isabela Católica Nº 275' },
-    { id: 'cb', name: 'Cochabamba',  phone: this.branchPhone(environment.WSP_CBBA), address: 'Av. Aroma c/ 16 de Julio y Av. Oquendo' },
-  ];
-  selectedBranchId = signal<string>(this.branches[0].id);
-  selectedBranch = computed<Branch | undefined>(() =>
-    this.branches.find(b => b.id === this.selectedBranchId())
-  );
+  private readonly defaultBranchId = 'lp';
+  submitError = signal('');
 
   // TrackBy
   trackByItem = (_: number, item: { product: Product }) =>
@@ -88,101 +77,37 @@ export class CheckoutComponent {
     this.cartService.cart.set([]);
   }
 
-  // Helpers de validación
-  nameValid = computed(() => this.customerName().trim().length >= 2);
-  phoneSanitized = computed(() => this.customerPhone().trim().replace(/\s+/g, ''));
-  phoneValid = computed(() => /^(\+?591)?\d{8,11}$/.test(this.phoneSanitized())); // simple
   isEmpty = computed(() => this.cart().length === 0);
-  formValid = computed(() => this.nameValid() && this.phoneValid() && !this.isEmpty());
-
-  // Formato moneda robusto
-  private fmtBOB(n: number): string {
-    try {
-      return new Intl.NumberFormat('es-BO', {
-        style: 'currency',
-        currency: 'BOB',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }).format(n);
-    } catch {
-      return `Bs ${n.toFixed(2)}`;
-    }
-  }
+  checkoutDisabled = computed(() => this.isEmpty());
 
   itemSubtotal(item: { unitPrice: number; count: number }) {
     return (item.unitPrice ?? 0) * (item.count ?? 0);
-  }
-
-  // WhatsApp
-  private waMessage(): string {
-    const lines: string[] = [];
-    lines.push('*PEDIDO GEMMATEX*');
-    lines.push(`Fecha: ${new Date().toLocaleString('es-BO')}`);
-    lines.push('');
-    lines.push('*DATOS DEL CLIENTE*');
-    lines.push(`Nombre: ${this.customerName().trim() || '—'}`);
-    lines.push(`Teléfono: ${this.customerPhone().trim() || '—'}`);
-    lines.push(`Sucursal: ${this.selectedBranch()?.name ?? '—'}`);
-    lines.push('');
-    lines.push('*DETALLE DEL PEDIDO*');
-
-    this.groupedCart().forEach((item: { product: Product; count: number; unitPrice: number }, idx: number) => {
-      const sku = (item.product as any).sku ?? '—';
-      const unit = item.unitPrice ?? item.product.price ?? 0;
-      const subtotal = this.itemSubtotal(item);
-      const selectedColor = (item.product as any).selectedColor as string | undefined;
-      const selectedPrinter = (item.product as any).selectedPrinter as string | undefined;
-
-      lines.push(`${idx + 1}. ${item.product.name}`);
-      lines.push(`   SKU: ${sku}`);
-      if (selectedColor) lines.push(`   Color: ${selectedColor}`);
-      if (selectedPrinter) lines.push(`   Impresora: ${selectedPrinter}`);
-      lines.push(`   Cantidad: ${item.count}`);
-      lines.push(`   Precio unitario: ${this.fmtBOB(unit)}`);
-      lines.push(`   Subtotal: ${this.fmtBOB(subtotal)}`);
-      lines.push('');
-    });
-
-    lines.push('*RESUMEN*');
-    lines.push(`Total: ${this.fmtBOB(this.total())}`);
-
-    const extra = this.notes().trim();
-    if (extra) {
-      lines.push('');
-      lines.push('*NOTAS*');
-      lines.push(extra);
-    }
-
-    lines.push('');
-    lines.push('Gracias por su preferencia.');
-    lines.push('https://gemmatex.com.bo/');
-    return lines.join('\n');
-  }
-
-  waLink(): string {
-    const phone = this.selectedBranch()?.phone ?? '';
-    const text = encodeURIComponent(this.waMessage());
-    return `https://api.whatsapp.com/send?phone=${phone}&text=${text}`;
-  }
-
-  private branchPhone(rawNumber: number | string): string {
-    const localNumber = String(rawNumber).replace(/\D+/g, '');
-    return `591${localNumber}`;
   }
 
   placeOrder(ev?: Event) {
     ev?.preventDefault?.();
     ev?.stopPropagation?.();
 
-    if (!this.formValid()) return;
-
-    const url = this.waLink();
-    const win = window.open(url, '_blank');
-    if (!win) {
-      // popup bloqueado → abrir en la misma pestaña
-      window.location.href = url;
-    } else {
-      try { (win as any).opener = null; } catch {}
+    if (this.isEmpty()) {
+      return;
     }
+
+    this.submitError.set('');
+
+    if (!this.tokenService.isAuthenticated()) {
+      void this.router.navigate(['/auth/login'], {
+        queryParams: { returnUrl: '/checkout' }
+      });
+      return;
+    }
+
+    this.checkoutFlowService.saveDraft({
+      orderId: 0,
+      branchId: this.defaultBranchId,
+      customerName: '',
+      customerPhone: '',
+      notes: '',
+    });
+    void this.router.navigate([`/${ROUTE_CONSTANTS.PUBLIC.SHIPPING}`]);
   }
 }

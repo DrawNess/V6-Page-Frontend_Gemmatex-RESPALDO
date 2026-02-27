@@ -1,21 +1,30 @@
 import { Routes } from '@angular/router';
 import { LayoutComponent } from '@shared/components/layout/layout.component';
 import { customerGuard } from '@core/guards/customer.guard';
+import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
 
 export const userRoutes: Routes = [
   {
-    path: 'mi-cuenta',
+    path: ROUTE_CONSTANTS.USER.BASE,
     component: LayoutComponent,
     canActivate: [customerGuard],
     canActivateChild: [customerGuard],
     children: [
-      // Estructura base para rutas de usuario protegidas.
-      // Cuando existan componentes:
-      // { path: '', pathMatch: 'full', redirectTo: 'perfil' },
-      // { path: 'perfil', loadComponent: () => import('./domains/user/pages/profile/profile.component').then(m => m.ProfileComponent) },
-      // { path: 'pedidos', loadComponent: () => import('./domains/user/pages/orders/orders.component').then(m => m.OrdersComponent) },
-      // { path: 'direcciones', loadComponent: () => import('./domains/user/pages/addresses/addresses.component').then(m => m.AddressesComponent) },
-      // { path: 'favoritos', loadComponent: () => import('./domains/user/pages/favorites/favorites.component').then(m => m.FavoritesComponent) }
+      {
+        path: '',
+        loadComponent: () =>
+          import('./domains/modules/users/account/account.component').then((m) => m.AccountComponent),
+      },
+      {
+        path: ROUTE_CONSTANTS.USER.INFO,
+        loadComponent: () =>
+          import('./domains/modules/users/info-account/info-account.component').then((m) => m.InfoAccountComponent),
+      },
+      {
+        path: ROUTE_CONSTANTS.USER.ORDERS,
+        loadComponent: () =>
+          import('./domains/modules/users/orders/orders.component').then((m) => m.OrdersComponent),
+      }
     ]
   }
 ];

@@ -9,9 +9,11 @@ import { ImpresionDTFComponent } from './domains/pages/servicios-empresa/impresi
 import { PerfilesDeColorComponent } from './domains/pages/recursos/perfiles-de-color/perfiles-de-color.component';
 import { SobreNosotrosComponent } from './domains/pages/empresa/sobre-nosotros/sobre-nosotros.component';
 import { CheckoutComponent } from './domains/pages/pay/checkout/checkout.component';
+import { ShippingComponent } from './domains/pages/pay/shipping/shipping.component';
 import { DescargaPdfsComponent } from './domains/pages/descarga-pdfs/descarga-pdfs.component';
 import { ProductosComponent } from './domains/catalogo/productos/productos.component';
 import { OffersComponent } from './domains/catalogo/offers/offers.component';
+import { customerGuard } from '@core/guards/customer.guard';
 
 export const publicRoutes: Routes = [
   {
@@ -56,7 +58,13 @@ export const publicRoutes: Routes = [
   },
   {
     path: ROUTE_CONSTANTS.PUBLIC.CHECKOUT,
+    canActivate: [customerGuard],
     component: CheckoutComponent
+  },
+  {
+    path: ROUTE_CONSTANTS.PUBLIC.SHIPPING,
+    canActivate: [customerGuard],
+    component: ShippingComponent
   },
   {
     path: ROUTE_CONSTANTS.PUBLIC.RECURSOS.PERFILES_COLOR,

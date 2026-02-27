@@ -8,12 +8,14 @@ export const customerGuard: CanActivateFn = (_route, state) => {
   const router = inject(Router);
   const tokenService = inject(TokenService);
 
-  const token = tokenService.getToken();
+  const isAuthenticated = tokenService.isAuthenticated();
   const role = tokenService.getRoleFromToken()?.toLowerCase();
 
-  if (token && role && CUSTOMER_ROLES.has(role)) {
+  if (isAuthenticated && role && CUSTOMER_ROLES.has(role)) {
     return true;
   }
+
+  tokenService.removeToken();
 
   return router.createUrlTree(['/auth/login'], {
     queryParams: { returnUrl: state.url }

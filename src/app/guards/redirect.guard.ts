@@ -29,13 +29,18 @@ export class RedirectGuard implements CanActivate, CanActivateChild {
   }
 
   private checkRedirect(): boolean | UrlTree {
-    const token = this.tokenService.getToken();
-    const role = this.tokenService.getRoleFromToken();
+    const isAuthenticated = this.tokenService.isAuthenticated();
+    const role = this.tokenService.getRoleFromToken()?.toLowerCase();
 
-    if (token && role?.toLowerCase() === 'admin') {
+    if (!isAuthenticated) {
+      this.tokenService.removeToken();
+      return true;
+    }
+
+    if (role === 'admin') {
       return this.router.createUrlTree([ROUTE_CONSTANTS.SECRET_BASE, ROUTE_CONSTANTS.ADMIN.MENU]);
     }
 
-    return true;
+    return this.router.createUrlTree([`/${ROUTE_CONSTANTS.USER.BASE}`]);
   }
 }

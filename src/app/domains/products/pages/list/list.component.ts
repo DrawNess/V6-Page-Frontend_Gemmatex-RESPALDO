@@ -3,7 +3,7 @@ import { PromoService } from '@shared/services/promo.service';
 import { Promo } from '@shared/models/promo.model';
 
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, inject, signal, computed, ViewChild, ElementRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject, signal, computed, ViewChild, ElementRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { HeroSlideService } from '@shared/services/hero-slide.service';
 import { HeroSlide } from '@shared/models/hero-slide.model';
@@ -21,10 +21,14 @@ import { ProductComponent } from '@products/components/product/product.component
     selector: 'app-list',
     imports: [CommonModule, RouterLink, ProductComponent],
     templateUrl: './list.component.html',
-    styleUrls: ['./list.component.css']
+    styleUrls: ['./list.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export default class ListComponent implements OnInit, OnDestroy {
+  private static readonly RANDOM_PAGE_SIZE = 24;
+  private static readonly RANDOM_PICK_COUNT = 10;
+  private static readonly EXTERNAL_URL_RE = /^(https?:\/\/|mailto:|tel:)/i;
 
   private heroSrv = inject(HeroSlideService);
 
@@ -35,7 +39,7 @@ export default class ListComponent implements OnInit, OnDestroy {
   current = signal<number>(0);
 
   // autoplay más calmado
-  private timer: any = null;
+  private timer: ReturnType<typeof setInterval> | null = null;
   private readonly intervalMs = 9000;
     /* ========== PROMOS (banners debajo del hero) ========== */
   private promoService = inject(PromoService);
@@ -64,7 +68,7 @@ export default class ListComponent implements OnInit, OnDestroy {
   /* NG ON INIT */
   ngOnInit() {
     // HERO SLIDES
-    this.heroSrv.getAll().subscribe({
+    this.heroSrv.getAll({ activeNow: true }).subscribe({
       next: (items) => {
         const now = new Date();
         const inRange = (a?: string | null, b?: string | null) => {
@@ -91,7 +95,7 @@ export default class ListComponent implements OnInit, OnDestroy {
     document.addEventListener('visibilitychange', this.onVis);
 
     /* Announcement */
-    this.annService.getAll().subscribe({
+    this.annService.getAll({ activeNow: true }).subscribe({
       next: (items) => {
         this.announcements.set(items ?? []);
         this.loading.set(false);
@@ -166,7 +170,7 @@ export default class ListComponent implements OnInit, OnDestroy {
   heroHref(s: HeroSlide): string | null {
     const url = this.cta(s);
     if (!url) return null;
-    return /^(https?:\/\/|mailto:|tel:)/i.test(url) ? url : null;
+    return ListComponent.EXTERNAL_URL_RE.test(url) ? url : null;
   }
   /* =========================================== */
 
@@ -198,28 +202,6 @@ export default class ListComponent implements OnInit, OnDestroy {
       .filter(a => !!a.is_active && this.isNowActive(a.startAt, a.endAt))
       .sort((a, b) => (a.ordering ?? 0) - (b.ordering ?? 0))
   );
-  bannerAnnouncements = computed(() =>
-    this.activeAnnouncements().filter(a => !!a.linkUrl)
-  );
-  @ViewChild('annBannerTrack', { read: ElementRef })
-  annBannerTrack?: ElementRef<HTMLDivElement>;
-  private scrollAnnBanners(direction: 'prev' | 'next') {
-    const el = this.annBannerTrack?.nativeElement;
-    if (!el) return;
-    // desplazamos un ancho de “slide” aprox
-    const cardWidth = el.clientWidth;
-    const delta = direction === 'next' ? cardWidth : -cardWidth;
-
-    el.scrollBy({ left: delta, behavior: 'smooth' });
-  }
-
-  prevAnnBanner() {
-    this.scrollAnnBanners('prev');
-  }
-
-  nextAnnBanner() {
-    this.scrollAnnBanners('next');
-  }
 
   // ANNOUNCEMENT HELPERS
   /** label visible dentro del chip */
@@ -230,14 +212,14 @@ export default class ListComponent implements OnInit, OnDestroy {
   annRouterLink(a: Announcement) {
     const url = (a.linkUrl || '').trim();
     if (!url) return null;
-    const isExternal = /^(https?:\/\/|mailto:|tel:)/i.test(url);
+    const isExternal = ListComponent.EXTERNAL_URL_RE.test(url);
     return isExternal ? null : [url];
   }
   /** destino del chip: usar linkUrl (externo) */
   annHref(a: Announcement) {
     const url = (a.linkUrl || '').trim();
     if (!url) return null;
-    const isExternal = /^(https?:\/\/|mailto:|tel:)/i.test(url);
+    const isExternal = ListComponent.EXTERNAL_URL_RE.test(url);
     return isExternal ? url : null;
   }
   /** trackBy estable */
@@ -254,20 +236,20 @@ export default class ListComponent implements OnInit, OnDestroy {
 
   // === carrusel ===
   @ViewChild('randomTrack', { static: false }) randomTrack?: ElementRef<HTMLDivElement>;
-  private randomTimer: any = null;
-  private randomIntervalMs = 3800; // velocidad autoplay
+  private randomTimer: ReturnType<typeof setInterval> | null = null;
+  private readonly randomIntervalMs = 3800; // velocidad autoplay
 
   // === data ===
   private loadRandom10() {
-    this.productService.getProducts().subscribe({
+    this.productService.listProducts({ page: 1, pageSize: ListComponent.RANDOM_PAGE_SIZE }).subscribe({
       next: (items) => {
-        const list = (items ?? []).slice();
+        const list = (items?.data ?? []).slice();
         // Fisher–Yates + toma 10
         for (let i = list.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [list[i], list[j]] = [list[j], list[i]];
         }
-        this.random10.set(list.slice(0, 10));
+        this.random10.set(list.slice(0, ListComponent.RANDOM_PICK_COUNT));
       },
       error: () => this.random10.set([])
     });
@@ -363,7 +345,7 @@ export default class ListComponent implements OnInit, OnDestroy {
     const value = (url ?? '').trim();
     if (!value) return null;
     if (value.startsWith('/')) return value;
-    if (/^(https?:\/\/|mailto:|tel:)/i.test(value)) return value;
+    if (ListComponent.EXTERNAL_URL_RE.test(value)) return value;
     if (/^(www\.|[a-z0-9-]+\.[a-z]{2,})(\/|$)/i.test(value)) return `https://${value}`;
     return null;
   }
