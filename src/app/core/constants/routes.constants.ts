@@ -3,9 +3,10 @@
  */
 export const ROUTE_CONSTANTS = {
   /**
-   * Prefijo base para rutas administrativas secretas
+   * Prefijo base para rutas administrativas.
+   * Nota: no es un mecanismo de seguridad, la protección real la hacen guard/backend.
    */
-  SECRET_BASE: 'admin-gx-panel-secreto-6f3e2b3e-9c31-4c8c-8cfa-ccf06b9b1c21',
+  SECRET_BASE: 'administracion-central-gemmatex-panel-interno',
 
   /**
    * Rutas públicas principales
@@ -38,7 +39,7 @@ export const ROUTE_CONSTANTS = {
     LOGIN: 'auth/login',
     REGISTER: 'auth/register',
     RECOVERY: 'auth/recovery',
-    RESET_PASSWORD: 'resetPassword',
+    RESET_PASSWORD: 'auth/reset-password',
     VERIFY_SUCCESS: 'verify-success',
     VERIFY_EMAIL: 'verifyEmail',
     VERIFY_REQUEST: 'auth/verify-request'

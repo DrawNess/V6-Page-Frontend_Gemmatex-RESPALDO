@@ -1,140 +1,36 @@
-@keyframes reveal {
-  0%   { opacity: 0; transform: translateY(.45em) scale(.98) rotate(.5deg); filter: blur(.5px); }
-  60%  { opacity: 1; transform: translateY(0) scale(1.02); }
-  100% { opacity: 1; transform: translateY(0) scale(1); filter: none; }
-}
-@keyframes fadeSlide {
-  0% { opacity: 0; transform: translate(-50%, 8px); }
-  50% { opacity: 0.5; transform: translate(-50%, 0); }
-  100% { opacity: 1; transform: translate(-50%, 0); }
-}
 .animate-dropdown {
   animation: dropdownFade 260ms cubic-bezier(.2,.75,.35,1) both;
   transform-origin: top center;
 }
+
 @keyframes dropdownFade {
-  from { opacity: 0; transform: translateY(-12px) scaleY(0.97); }
-  to   { opacity: 1; transform: translateY(0)      scaleY(1); }
+  from { opacity: 0; transform: translateY(-12px) scaleY(.97); }
+  to { opacity: 1; transform: translateY(0) scaleY(1); }
 }
+
 .animate-fadeIn { animation: fadeIn .2s ease-out both; }
-@keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 .animate-slideUp { animation: slideUp .28s cubic-bezier(.2,.8,.2,1) both; }
 @keyframes slideUp {
   from { transform: translateY(24px); opacity: .98; }
-  to   { transform: translateY(0);    opacity: 1; }
-}
-.cart-badge {
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  to { transform: translateY(0); opacity: 1; }
 }
 
-.badge-bump {
-  animation: badge-bump 0.45s ease;
-}
+.cart-badge { transition: transform .25s ease, box-shadow .25s ease; }
+.badge-bump { animation: badge-bump .45s ease; }
+.cart-grow { animation: cart-grow .35s ease; }
 
 @keyframes badge-bump {
   0% { transform: scale(1); }
   30% { transform: scale(1.18) translateY(-2px); }
-  60% { transform: scale(0.96) translateY(0); }
+  60% { transform: scale(.96) translateY(0); }
   100% { transform: scale(1); }
-}
-
-.cart-pop {
-  display: none;
-}
-
-.cart-grow {
-  animation: cart-grow 0.35s ease;
 }
 
 @keyframes cart-grow {
   0% { transform: scale(1); }
   25% { transform: scale(1.08); }
-  60% { transform: scale(0.98); }
+  60% { transform: scale(.98); }
   100% { transform: scale(1); }
-}
-
-/* ——— Search modal minimal */
-.search-card {
-  width: min(720px, 92vw);
-  background: rgba(255,255,255,0.92);
-  border: 1px solid rgba(0,0,0,0.18);
-  box-shadow: 0 24px 70px rgba(0,0,0,0.16);
-  backdrop-filter: blur(12px);
-  border-radius: 18px;
-  padding: 18px 20px 14px;
-  animation: dropdownFade 220ms cubic-bezier(.2,.75,.35,1) both;
-}
-.search-shell {
-  display: grid;
-  grid-template-columns: auto 1fr auto auto;
-  align-items: center;
-  gap: 12px;
-}
-.search-icon {
-  color: #94a3b8;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-.search-input {
-  width: 100%;
-  height: 48px;
-  border-radius: 12px;
-  border: 1px solid rgba(0,0,0,0.35);
-  background: rgba(255,255,255,0.9);
-  padding: 0 14px;
-  font-size: 14px;
-  color: #0f172a;
-  transition: border-color 160ms ease, box-shadow 160ms ease;
-}
-.search-input:focus {
-  outline: none;
-  border-color: #111827;
-  box-shadow: 0 0 0 3px rgba(0,0,0,0.14);
-}
-.search-cta {
-  height: 42px;
-  padding: 0 16px;
-  border-radius: 12px;
-  border: 1px solid #0f172a;
-  background: #0f172a;
-  color: white;
-  font-weight: 600;
-  font-size: 13px;
-  letter-spacing: 0.01em;
-  transition: transform 120ms ease, box-shadow 150ms ease, filter 150ms ease;
-}
-.search-cta:hover { filter: brightness(1.05); }
-.search-cta:active { transform: scale(.98); }
-.search-close {
-  height: 42px;
-  width: 42px;
-  border-radius: 12px;
-  border: 1px solid rgba(0,0,0,0.25);
-  background: rgba(241,245,249,0.9);
-  color: #0f172a;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 120ms ease, transform 120ms ease;
-}
-.search-close:hover { background: #e2e8f0; }
-.search-close:active { transform: scale(.97); }
-.search-hint {
-  margin-top: 8px;
-  font-size: 12px;
-  color: #64748b;
-  text-align: center;
-}
-
-@media (max-width: 640px) {
-  .search-card {
-    width: min(92vw, 520px);
-  }
-  .search-shell {
-    grid-template-columns: 1fr auto auto;
-    gap: 10px;
-  }
-  .search-icon { display: none; }
 }

@@ -1,18 +1,5 @@
 import { Routes } from '@angular/router';
 import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
-
-import { ServicioTecnicoComponent } from './domains/pages/servicios/servicio-tecnico/servicio-tecnico.component';
-import { EncuentranosComponent } from './domains/pages/encuentranos/encuentranos.component';
-import { CatalogoComponent } from './domains/pages/catalogo/catalogo.component';
-import { ServiciosMainComponent } from './domains/pages/servicios-empresa/servicios-main/servicios-main.component';
-import { ImpresionDTFComponent } from './domains/pages/servicios-empresa/impresion-dtf/impresion-dtf.component';
-import { PerfilesDeColorComponent } from './domains/pages/recursos/perfiles-de-color/perfiles-de-color.component';
-import { SobreNosotrosComponent } from './domains/pages/empresa/sobre-nosotros/sobre-nosotros.component';
-import { CheckoutComponent } from './domains/pages/pay/checkout/checkout.component';
-import { ShippingComponent } from './domains/pages/pay/shipping/shipping.component';
-import { DescargaPdfsComponent } from './domains/pages/descarga-pdfs/descarga-pdfs.component';
-import { ProductosComponent } from './domains/catalogo/productos/productos.component';
-import { OffersComponent } from './domains/catalogo/offers/offers.component';
 import { customerGuard } from '@core/guards/customer.guard';
 
 export const publicRoutes: Routes = [
@@ -30,52 +17,64 @@ export const publicRoutes: Routes = [
   },
   {
     path: ROUTE_CONSTANTS.PUBLIC.SERVICIOS,
-    component: ServiciosMainComponent
+    loadComponent: () =>
+      import('./domains/pages/servicios-empresa/servicios-main/servicios-main.component').then((m) => m.ServiciosMainComponent)
   },
   {
     path: ROUTE_CONSTANTS.PUBLIC.SERVICIO_TECNICO,
-    component: ServicioTecnicoComponent
+    loadComponent: () =>
+      import('./domains/pages/servicios/servicio-tecnico/servicio-tecnico.component').then((m) => m.ServicioTecnicoComponent)
   },
   {
     path: `${ROUTE_CONSTANTS.PUBLIC.SERVICIOS}/dtf`,
-    component: ImpresionDTFComponent
+    loadComponent: () =>
+      import('./domains/pages/servicios-empresa/impresion-dtf/impresion-dtf.component').then((m) => m.ImpresionDTFComponent)
   },
   {
     path: ROUTE_CONSTANTS.PUBLIC.ENCUENTRANOS,
-    component: EncuentranosComponent
+    loadComponent: () =>
+      import('./domains/pages/encuentranos/encuentranos.component').then((m) => m.EncuentranosComponent)
   },
   {
     path: ROUTE_CONSTANTS.PUBLIC.CATALOGO,
-    component: CatalogoComponent
+    loadComponent: () =>
+      import('./domains/pages/catalogo/catalogo.component').then((m) => m.CatalogoComponent)
   },
   {
     path: ROUTE_CONSTANTS.PUBLIC.PRODUCTOS,
-    component: ProductosComponent
+    loadComponent: () =>
+      import('./domains/catalogo/productos/productos.component').then((m) => m.ProductosComponent)
   },
   {
     path: ROUTE_CONSTANTS.PUBLIC.OFERTAS,
-    component: OffersComponent
+    loadComponent: () =>
+      import('./domains/catalogo/offers/offers.component').then((m) => m.OffersComponent)
   },
   {
     path: ROUTE_CONSTANTS.PUBLIC.CHECKOUT,
     canActivate: [customerGuard],
-    component: CheckoutComponent
+    loadComponent: () =>
+      import('./domains/pages/pay/checkout/checkout.component').then((m) => m.CheckoutComponent)
   },
   {
     path: ROUTE_CONSTANTS.PUBLIC.SHIPPING,
     canActivate: [customerGuard],
-    component: ShippingComponent
+    loadComponent: () =>
+      import('./domains/pages/pay/shipping/shipping.component').then((m) => m.ShippingComponent)
   },
   {
     path: ROUTE_CONSTANTS.PUBLIC.RECURSOS.PERFILES_COLOR,
-    component: PerfilesDeColorComponent
+    loadComponent: () =>
+      import('./domains/pages/recursos/perfiles-de-color/perfiles-de-color.component').then((m) => m.PerfilesDeColorComponent)
   },
   {
     path: ROUTE_CONSTANTS.PUBLIC.RECURSOS.PDFS,
-    component: DescargaPdfsComponent
+    loadComponent: () =>
+      import('./domains/pages/descarga-pdfs/descarga-pdfs.component').then((m) => m.DescargaPdfsComponent)
   },
   {
     path: ROUTE_CONSTANTS.PUBLIC.EMPRESA.SOBRE_NOSOTROS,
-    component: SobreNosotrosComponent
+    loadComponent: () =>
+      import('./domains/pages/empresa/sobre-nosotros/sobre-nosotros.component').then((m) => m.SobreNosotrosComponent)
   }
 ];

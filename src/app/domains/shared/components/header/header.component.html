@@ -311,14 +311,17 @@
 <!-- Panel búsqueda (desktop, centrado) -->
 @if (searchOpen) {
   <div class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-    <div class="search-card pointer-events-auto" (click)="$event.stopPropagation()">
+    <div
+      class="pointer-events-auto w-[min(720px,92vw)] rounded-[18px] border border-black/20 bg-white/90 p-[18px_20px_14px] shadow-[0_24px_70px_rgba(0,0,0,.16)] backdrop-blur-xl animate-dropdown"
+      (click)="$event.stopPropagation()"
+    >
       <form
-        class="search-shell"
+        class="grid grid-cols-[auto_1fr_auto_auto] items-center gap-3 max-sm:grid-cols-[1fr_auto_auto] max-sm:gap-2.5"
         (submit)="onSearch(searchInput.value); $event.preventDefault()"
         role="search"
         aria-label="Buscar productos"
       >
-        <span class="search-icon">
+        <span class="inline-flex items-center justify-center text-slate-400 max-sm:hidden">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <circle cx="11" cy="11" r="7" stroke-width="1.8"/>
             <path d="m16.5 16.5 3 3" stroke-width="1.8" stroke-linecap="round"/>
@@ -330,13 +333,18 @@
           autocomplete="on"
           inputmode="search"
           placeholder="Buscar productos, marcas o códigos"
-          class="search-input"
+          class="h-12 w-full rounded-xl border border-black/35 bg-white/90 px-3.5 text-sm text-slate-900 transition focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-black/15"
         >
-        <button type="submit" class="search-cta">Buscar</button>
+        <button
+          type="submit"
+          class="h-10 rounded-xl border border-slate-900 bg-slate-900 px-4 text-xs font-semibold tracking-[.01em] text-white transition hover:brightness-105 active:scale-[.98]"
+        >
+          Buscar
+        </button>
         <button
           type="button"
           (click)="closeSearch()"
-          class="search-close"
+          class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-black/25 bg-slate-100/90 text-slate-900 transition hover:bg-slate-200 active:scale-[.97]"
           aria-label="Cerrar búsqueda"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -344,7 +352,7 @@
           </svg>
         </button>
       </form>
-      <p class="search-hint">Ej: "F170", "F6470", "F6470H", "GX", "tintas", "yellow" </p>
+      <p class="mt-2 text-center text-xs text-slate-500">Ej: "F170", "F6470", "F6470H", "GX", "tintas", "yellow"</p>
     </div>
   </div>
 }

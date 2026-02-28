@@ -1,6 +1,7 @@
 import { Component, inject, DOCUMENT } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
 
 type MenuLink = { to: string | any[]; label: string; desc: string; icon: 'box'|'grid'|'layers'|'tags'|'megaphone'|'image'|'ticket' };
 
@@ -15,20 +16,22 @@ export class MenuComponent {
 
  private document = inject(DOCUMENT);
 
+  private readonly adminBase = `/${ROUTE_CONSTANTS.SECRET_BASE}`;
+
   // --- Catálogo
   private catalogLinks: MenuLink[] = [
-    { to: ['/admin-gx-panel-secreto-6f3e2b3e-9c31-4c8c-8cfa-ccf06b9b1c21','offers-menu'],    label: 'Ofertas',      desc: 'Añadir Ofertas.', icon: 'ticket' },
-    { to: ['/admin-gx-panel-secreto-6f3e2b3e-9c31-4c8c-8cfa-ccf06b9b1c21','categories'],    label: 'Categorías',     desc: 'Crea, edita u ordena categorías.',                   icon: 'grid' },
-    { to: ['/admin-gx-panel-secreto-6f3e2b3e-9c31-4c8c-8cfa-ccf06b9b1c21','subcategories'], label: 'Subcategorías',  desc: 'Gestiona subniveles por categoría.',                icon: 'layers' },
-    { to: ['/admin-gx-panel-secreto-6f3e2b3e-9c31-4c8c-8cfa-ccf06b9b1c21','products'],      label: 'Productos',      desc: 'Alta rápida, stock y precios por SKU.',             icon: 'box' },
+    { to: [this.adminBase, ROUTE_CONSTANTS.ADMIN.OFFERS_MENU],   label: 'Ofertas',      desc: 'Añadir Ofertas.', icon: 'ticket' },
+    { to: [this.adminBase, ROUTE_CONSTANTS.ADMIN.CATEGORIES],    label: 'Categorías',   desc: 'Crea, edita u ordena categorías.', icon: 'grid' },
+    { to: [this.adminBase, ROUTE_CONSTANTS.ADMIN.SUBCATEGORIES], label: 'Subcategorías',desc: 'Gestiona subniveles por categoría.', icon: 'layers' },
+    { to: [this.adminBase, ROUTE_CONSTANTS.ADMIN.PRODUCTS],      label: 'Productos',    desc: 'Alta rápida, stock y precios por SKU.', icon: 'box' },
   ];
 
   // --- Publicidad Home
   private adsLinks: MenuLink[] = [
-    /* { to: ['/admin-gx-panel-secreto-6f3e2b3e-9c31-4c8c-8cfa-ccf06b9b1c21','menu-adds'],             label: 'Panel de publicidad', desc: 'Accesos a todos los módulos de home.',   icon: 'megaphone' }, */
-    { to: ['/admin-gx-panel-secreto-6f3e2b3e-9c31-4c8c-8cfa-ccf06b9b1c21','menu-adds','hero-slides'],label: 'Hero Slides',         desc: 'Banners principales (desktop/móvil).',   icon: 'image' },
-    { to: ['/admin-gx-panel-secreto-6f3e2b3e-9c31-4c8c-8cfa-ccf06b9b1c21','menu-adds','offers-adds'],label: 'Announcements',        desc: 'Avisos/avisos tipo chip en el header.',  icon: 'megaphone' },
-    { to: ['/admin-gx-panel-secreto-6f3e2b3e-9c31-4c8c-8cfa-ccf06b9b1c21','menu-adds','promo'],      label: 'Promos',               desc: 'Slider de promociones secundarias.',     icon: 'tags' },
+    /* { to: [this.adminBase, ROUTE_CONSTANTS.ADMIN.MENU_ADDS],              label: 'Panel de publicidad', desc: 'Accesos a todos los módulos de home.', icon: 'megaphone' }, */
+    { to: [this.adminBase, 'menu-adds', 'hero-slides'], label: 'Hero Slides',  desc: 'Banners principales (desktop/móvil).', icon: 'image' },
+    { to: [this.adminBase, 'menu-adds', 'offers-adds'], label: 'Announcements', desc: 'Avisos/avisos tipo chip en el header.', icon: 'megaphone' },
+    { to: [this.adminBase, 'menu-adds', 'promo'],       label: 'Promos',        desc: 'Slider de promociones secundarias.', icon: 'tags' },
   ];
 
   linksCatalog = () => this.catalogLinks;

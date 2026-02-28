@@ -1,49 +1,53 @@
 import { Routes } from '@angular/router';
 import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
-
-import { LoginComponent } from './domains/modules/auth/pages/login/login.component';
-import { RegisterComponent } from './domains/modules/auth/pages/register/register.component';
-import { RecoveryComponent } from './domains/modules/auth/pages/recovery/recovery.component';
-import { ForgotPasswordComponent } from './domains/modules/auth/pages/forgot-password/forgot-password.component';
-import { VerifySuccessComponent } from '@auth/pages/verify-success/verify-success.component';
-import { VerifyMailComponent } from '@auth/pages/verify-mail/verify-mail.component';
-import { VerifyRequestComponent } from '@auth/pages/verify-request/verify-request.component';
 import { RedirectGuard } from './guards/redirect.guard';
 
 export const authRoutes: Routes = [
   {
     path: ROUTE_CONSTANTS.AUTH.LOGIN,
-    component: LoginComponent,
+    loadComponent: () =>
+      import('./domains/modules/auth/pages/login/login.component').then((m) => m.LoginComponent),
     canActivate: [RedirectGuard]
   },
   {
     path: ROUTE_CONSTANTS.AUTH.REGISTER,
-    component: RegisterComponent,
+    loadComponent: () =>
+      import('./domains/modules/auth/pages/register/register.component').then((m) => m.RegisterComponent),
     canActivate: [RedirectGuard]
   },
   {
     path: ROUTE_CONSTANTS.AUTH.RECOVERY,
-    component: RecoveryComponent,
+    loadComponent: () =>
+      import('./domains/modules/auth/pages/recovery/recovery.component').then((m) => m.RecoveryComponent),
     canActivate: [RedirectGuard]
   },
   {
+    path: 'resetPassword',
+    redirectTo: ROUTE_CONSTANTS.AUTH.RESET_PASSWORD,
+    pathMatch: 'full'
+  },
+  {
     path: ROUTE_CONSTANTS.AUTH.RESET_PASSWORD,
-    component: ForgotPasswordComponent,
+    loadComponent: () =>
+      import('./domains/modules/auth/pages/forgot-password/forgot-password.component').then((m) => m.ForgotPasswordComponent),
     canActivate: [RedirectGuard]
   },
   {
     path: ROUTE_CONSTANTS.AUTH.VERIFY_SUCCESS,
-    component: VerifySuccessComponent,
+    loadComponent: () =>
+      import('./domains/modules/auth/pages/verify-success/verify-success.component').then((m) => m.VerifySuccessComponent),
     canActivate: [RedirectGuard]
   },
   {
     path: ROUTE_CONSTANTS.AUTH.VERIFY_EMAIL,
-    component: VerifyMailComponent,
+    loadComponent: () =>
+      import('./domains/modules/auth/pages/verify-mail/verify-mail.component').then((m) => m.VerifyMailComponent),
     canActivate: [RedirectGuard]
   },
   {
     path: ROUTE_CONSTANTS.AUTH.VERIFY_REQUEST,
-    component: VerifyRequestComponent,
+    loadComponent: () =>
+      import('./domains/modules/auth/pages/verify-request/verify-request.component').then((m) => m.VerifyRequestComponent),
     canActivate: [RedirectGuard]
   }
 ];
