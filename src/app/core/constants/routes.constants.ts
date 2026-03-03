@@ -53,6 +53,8 @@ export const ROUTE_CONSTANTS = {
     PANEL_PRODUCTOS: 'panel-productos',
     OFFERS_MENU: 'offers-menu',
     MENU: 'menu',
+    USERS: 'users',
+    ORDERS_BY_CUSTOMER: 'orders-by-customer',
     CATEGORIES: 'categories',
     SUBCATEGORIES: 'subcategories',
     PRODUCTS: 'products',

@@ -33,6 +33,20 @@ export const adminRoutes: Routes = [
         loadComponent: () => import('./domains/pages/MenuProducts/menu/menu.component').then(m => m.MenuComponent)
       },
       {
+        path: ROUTE_CONSTANTS.ADMIN.USERS,
+        loadComponent: () =>
+          import('./domains/pages/MenuProducts/users-management/users-management.component').then(
+            m => m.UsersManagementComponent
+          )
+      },
+      {
+        path: ROUTE_CONSTANTS.ADMIN.ORDERS_BY_CUSTOMER,
+        loadComponent: () =>
+          import('./domains/pages/MenuProducts/orders-by-customer/orders-by-customer.component').then(
+            m => m.OrdersByCustomerComponent
+          )
+      },
+      {
         path: ROUTE_CONSTANTS.ADMIN.CATEGORIES,
         loadComponent: () => import('./domains/pages/MenuProducts/categories/categories.component').then(m => m.CategoriesComponent)
       },

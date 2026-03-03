@@ -8,6 +8,12 @@ import { SessionService } from './session.service';
 import { ProfileService } from './profile.service';
 import { catchError, map } from 'rxjs/operators';
 
+interface CreateUserPayload {
+  email: string;
+  password: string;
+  role?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -22,12 +28,34 @@ export class UserService {
     private readonly profileService: ProfileService
   ) {}
 
+  getUsers(): Observable<ApiUser[]> {
+    return this.http.get<ApiUser[] | { data?: ApiUser[]; users?: ApiUser[] }>(`${this.apiUrl}/users`).pipe(
+      map((response) => {
+        if (Array.isArray(response)) {
+          return response;
+        }
+        return response.data ?? response.users ?? [];
+      })
+    );
+  }
+
   getUserById(userId: number): Observable<ApiUser> {
     return this.http.get<ApiUser>(`${this.apiUrl}/users/${userId}`);
   }
 
-  updateUser(userId: number, payload: Partial<Pick<ApiUser, 'email'>>): Observable<ApiUser> {
+  createUser(payload: CreateUserPayload): Observable<ApiUser> {
+    return this.http.post<ApiUser>(`${this.apiUrl}/users`, payload);
+  }
+
+  updateUser(
+    userId: number,
+    payload: Partial<Pick<ApiUser, 'email' | 'role' | 'isEmailVerified'>>
+  ): Observable<ApiUser> {
     return this.http.patch<ApiUser>(`${this.apiUrl}/users/${userId}`, payload);
+  }
+
+  deleteUser(userId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/users/${userId}`);
   }
 
   getCurrentUserId(): number | null {

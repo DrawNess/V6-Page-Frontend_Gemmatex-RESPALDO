@@ -7,6 +7,7 @@ import { UserService } from './user.service';
 import { SessionService } from './session.service';
 import { catchError } from 'rxjs/operators';
 import { ProfileService } from './profile.service';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +22,19 @@ export class CustomerService {
     private readonly profileService: ProfileService
   ) {}
 
+  getCustomers(): Observable<ApiCustomer[]> {
+    return this.http
+      .get<ApiCustomer[] | { data?: ApiCustomer[]; customers?: ApiCustomer[] }>(`${this.apiUrl}/customers`)
+      .pipe(
+        map((response) => {
+          if (Array.isArray(response)) {
+            return response;
+          }
+          return response.data ?? response.customers ?? [];
+        })
+      );
+  }
+
   getCustomerById(customerId: number): Observable<ApiCustomer> {
     return this.http.get<ApiCustomer>(`${this.apiUrl}/customers/${customerId}`);
   }
@@ -30,6 +44,10 @@ export class CustomerService {
     payload: Partial<Pick<ApiCustomer, 'name' | 'lastName' | 'phone'>>
   ): Observable<ApiCustomer> {
     return this.http.patch<ApiCustomer>(`${this.apiUrl}/customers/${customerId}`, payload);
+  }
+
+  deleteCustomer(customerId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/customers/${customerId}`);
   }
 
   private buildCandidateIds(userId: number): number[] {
