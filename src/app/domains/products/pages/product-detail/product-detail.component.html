@@ -240,13 +240,18 @@
                  flex items-center justify-center gap-2 shadow-sm hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0
                  border border-[#2563EB] overflow-hidden group"
           (click)="addToCart()"
-          [disabled]="isOutOfStock()"
+          [disabled]="isOutOfStock() || isAdding()"
           [class.btn-adding]="isAdding()"
           [class.btn-added]="added()"
         >
           <!-- Shine effect -->
           <div class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
 
+          @if (added()) {
+            <svg class="relative z-10 w-5 h-5 animate-bounce-in flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+            </svg>
+          }
           <span class="relative z-10 transition-all duration-150" [class.scale-95]="isAdding()">
             {{
               isOutOfStock()

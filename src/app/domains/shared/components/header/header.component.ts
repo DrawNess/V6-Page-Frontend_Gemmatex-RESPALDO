@@ -1,5 +1,5 @@
-import { Component, inject, signal, computed, effect, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, signal, computed, effect, untracked, OnInit, OnDestroy } from '@angular/core';
+import { CurrencyPipe } from '@angular/common';
 import { Product } from '../../models/product.model';
 import { CartService } from '../../services/cart.service';
 import { Router, NavigationEnd, RouterLink } from '@angular/router';
@@ -18,17 +18,17 @@ type HeaderSubcategory = { id: number; name: string; slug?: string };
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CurrencyPipe, RouterLink],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
-export class HeaderComponent implements OnDestroy {
+export class HeaderComponent implements OnInit, OnDestroy {
 
   hideSideMenu = signal(true);
   private cartService = inject(CartService);
   cart = this.cartService.cart;
   total = this.cartService.total;
-  searchOpen = false;
+  searchOpen = signal(false);
   badgeBump = signal(false);
   cartPop = signal(false);
   private bumpTimer: ReturnType<typeof setTimeout> | null = null;
@@ -44,44 +44,17 @@ export class HeaderComponent implements OnDestroy {
     this.hideSideMenu.update(prevState => !prevState);
   }
 
-  toggleSearch() {
-    this.searchOpen = !this.searchOpen;
-  }
-  closeSearch() {
-    this.searchOpen = false;
-  }
+  toggleSearch() { this.searchOpen.update(v => !v); }
+  closeSearch() { this.searchOpen.set(false); }
 
   private closeTimer: any = null;
-  desktopMenuOpen = false;
+  desktopMenuOpen = signal(false);
 
-  toggleDesktopMenu() {
-    this.desktopMenuOpen = !this.desktopMenuOpen;
-  }
+  toggleDesktopMenu() { this.desktopMenuOpen.update(v => !v); }
+  closeDesktopMenu() { this.desktopMenuOpen.set(false); }
 
-  closeDesktopMenu() {
-    this.desktopMenuOpen = false;
-  }
-  // Tip opcional (ajusta a tu modelo real)
-  private keyOf(p: any): string {
-    return String(p?.id ?? p?.slug);
-  }
-  removeFromCart(product: any) {
-    const key = this.keyOf(product);
-    let removed = false;
-    this.cart.set(
-      this.cart().filter(item => {
-        if (!removed && this.keyOf(item) === key) {
-          removed = true;               // elimina solo una
-          return false;
-        }
-        return true;
-      })
-    );
-  }
-  removeAllFromCart(product: any) {
-    const key = this.keyOf(product);
-    this.cart.set(this.cart().filter(item => this.keyOf(item) !== key));
-  }
+  removeFromCart(product: Product) { this.cartService.removeFromCart(product); }
+  removeAllFromCart(product: Product) { this.cartService.removeAllFromCart(product); }
 /* ---------------- */
   private unitPrice(p: Product): number {
     const d = Number(p.discountPrice);
@@ -123,8 +96,8 @@ export class HeaderComponent implements OnDestroy {
     this.router.events
       .pipe(filter(e => e instanceof NavigationEnd))
       .subscribe(() => {
-        this.desktopMenuOpen = false;
-        this.searchOpen = false;
+        this.desktopMenuOpen.set(false);
+        this.searchOpen.set(false);
         setTimeout(() => {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }, 0);
@@ -135,12 +108,10 @@ export class HeaderComponent implements OnDestroy {
     });
   }
 /** Sheet (menú móvil estilo Apple) */
-  sheetOpen = false;
+  sheetOpen = signal(false);
 
-  openSheet() { this.sheetOpen = true; document.body.style.overflow = 'hidden'; }
-  closeSheet() { this.sheetOpen = false; document.body.style.overflow = ''; }
-
-  trackByCat = (_: number, c: Category) => c.id;
+  openSheet() { this.sheetOpen.set(true); document.body.style.overflow = 'hidden'; }
+  closeSheet() { this.sheetOpen.set(false); document.body.style.overflow = ''; }
 
   private subcatSrv = inject(SubcategoryService);
 
@@ -238,7 +209,7 @@ export class HeaderComponent implements OnDestroy {
   constructor() {
     effect(() => {
       const current = this.cartCount();
-      const prev = this.prevCount();
+      const prev = untracked(() => this.prevCount());
       if (current > prev) {
         this.triggerCartFeedback();
       }

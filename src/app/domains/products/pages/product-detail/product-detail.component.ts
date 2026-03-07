@@ -212,7 +212,7 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
       this.addAnimTimeout = setTimeout(() => {
         this.isAdding.set(false);
         this.added.set(false);
-      }, 900);
+      }, 2500);
     });
   }
 

@@ -17,24 +17,25 @@
       <!-- Subnav de Categorías -->
       <div class="hidden lg:flex justify-center absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2">
         <div class="flex items-center gap-1">
-          <div
-            class="relative"
-            *ngFor="let cat of headerCategories(); trackBy: trackByCat"
-            (mouseenter)="openCat(cat)"
-          >
-            <button
-              type="button"
-              class="px-4 py-2 text-[15px] font-medium text-slate-700
-                     hover:text-slate-900 rounded-lg
-                     transition-colors duration-150
-                     focus:outline-none"
-              (click)="goToCategory(cat)"
-              [attr.aria-label]="'Ver ' + cat.name"
-              [class.text-slate-900]="openCatId === cat.id"
+          @for (cat of headerCategories(); track cat.id) {
+            <div
+              class="relative"
+              (mouseenter)="openCat(cat)"
             >
-              {{ cat.name }}
-            </button>
-          </div>
+              <button
+                type="button"
+                class="px-4 py-2 text-[15px] font-medium text-slate-700
+                       hover:text-slate-900 rounded-lg
+                       transition-colors duration-150
+                       focus:outline-none"
+                (click)="goToCategory(cat)"
+                [attr.aria-label]="'Ver ' + cat.name"
+                [class.text-slate-900]="openCatId === cat.id"
+              >
+                {{ cat.name }}
+              </button>
+            </div>
+          }
         </div>
       </div>
 
@@ -46,7 +47,7 @@
           class="hidden lg:inline-flex items-center justify-center h-11 w-11 rounded-xl
                  text-slate-700 hover:bg-slate-100 transition-all duration-200 active:scale-95"
           (click)="toggleSearch()"
-          [attr.aria-expanded]="searchOpen"
+          [attr.aria-expanded]="searchOpen()"
           aria-label="Buscar productos"
         >
           <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -61,24 +62,24 @@
                  text-slate-700 hover:bg-slate-100 transition-all duration-200
                  active:scale-95"
           (click)="toggleDesktopMenu()"
-          [attr.aria-expanded]="desktopMenuOpen"
+          [attr.aria-expanded]="desktopMenuOpen()"
           aria-label="Abrir menú principal"
         >
           <span class="flex flex-col gap-[4.5px] w-5 h-5 items-center justify-center">
             <span
               class="h-[2px] w-5 rounded-full bg-current transition-all duration-300 origin-center"
-              [class.rotate-45]="desktopMenuOpen"
-              [class.translate-y-[6.5px]]="desktopMenuOpen"
+              [class.rotate-45]="desktopMenuOpen()"
+              [class.translate-y-[6.5px]]="desktopMenuOpen()"
             ></span>
             <span
               class="h-[2px] w-5 rounded-full bg-current transition-all duration-300"
-              [class.opacity-0]="desktopMenuOpen"
-              [class.scale-0]="desktopMenuOpen"
+              [class.opacity-0]="desktopMenuOpen()"
+              [class.scale-0]="desktopMenuOpen()"
             ></span>
             <span
               class="h-[2px] w-5 rounded-full bg-current transition-all duration-300 origin-center"
-              [class.-rotate-45]="desktopMenuOpen"
-              [class.-translate-y-[6.5px]]="desktopMenuOpen"
+              [class.-rotate-45]="desktopMenuOpen()"
+              [class.-translate-y-[6.5px]]="desktopMenuOpen()"
             ></span>
           </span>
         </button>
@@ -154,25 +155,24 @@
 
           <!-- Lista de subcategorías en una sola columna -->
           <div class="col-span-9">
-            <ng-container *ngIf="subcatsMap.get(openCatId)?.length; else loadingOrEmpty">
+            @if (subcatsMap.get(openCatId)?.length) {
               <div class="flex flex-col gap-2">
-                <a
-                  *ngFor="let sc of subcatsMap.get(openCatId)"
-                  (click)="goToSubcategory(getCurrentCategory()!, sc)"
-                  class="group inline-flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-50 transition cursor-pointer"
-                >
-                  <span class="text-sm font-semibold text-slate-900 group-hover:text-[#0B5ED7] transition-colors">
-                    {{ sc.name }}
-                  </span>
-                </a>
+                @for (sc of subcatsMap.get(openCatId)!; track sc.id) {
+                  <a
+                    (click)="goToSubcategory(getCurrentCategory()!, sc)"
+                    class="group inline-flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-50 transition cursor-pointer"
+                  >
+                    <span class="text-sm font-semibold text-slate-900 group-hover:text-[#0B5ED7] transition-colors">
+                      {{ sc.name }}
+                    </span>
+                  </a>
+                }
               </div>
-            </ng-container>
-
-            <ng-template #loadingOrEmpty>
+            } @else {
               <div class="text-sm text-slate-500 text-center py-8">
                 {{ subcatsLoading ? 'Cargando…' : 'Sin subcategorías disponibles' }}
               </div>
-            </ng-template>
+            }
           </div>
 
         </div>
@@ -180,7 +180,7 @@
     </div>
   }
   <!-- Dropdown del menú principal -->
-  @if (desktopMenuOpen) {
+  @if (desktopMenuOpen()) {
     <div class="absolute left-0 right-0 top-full z-[55] animate-dropdown">
       <div class="bg-white border-b border-slate-200 shadow-lg">
         <div class="mx-auto max-w-7xl px-8 py-12">
@@ -293,24 +293,28 @@
 </nav>
 
 <!-- Overlay oscuro para categorías -->
-<div
-  *ngIf="openCatId"
-  class="fixed inset-0 bg-black/20 z-40"
-  (click)="closeCat()"
-></div>
+@if (openCatId) {
+  <div
+    class="fixed inset-0 bg-black/20 z-40"
+    (click)="closeCat()"
+  ></div>
+}
 
 <!-- Overlay para menú principal -->
-<div *ngIf="desktopMenuOpen" class="fixed inset-0 z-40 bg-black/10" (click)="closeDesktopMenu()"></div>
+@if (desktopMenuOpen()) {
+  <div class="fixed inset-0 z-40 bg-black/10" (click)="closeDesktopMenu()"></div>
+}
 
 <!-- Overlay para búsqueda -->
-<div
-  *ngIf="searchOpen"
-  class="fixed inset-0 z-40 bg-black/30 backdrop-blur-[1px]"
-  (click)="closeSearch()"
-></div>
+@if (searchOpen()) {
+  <div
+    class="fixed inset-0 z-40 bg-black/30 backdrop-blur-[1px]"
+    (click)="closeSearch()"
+  ></div>
+}
 
 <!-- Panel búsqueda (desktop, centrado) -->
-@if (searchOpen) {
+@if (searchOpen()) {
   <div class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
     <div
       class="pointer-events-auto w-[min(720px,92vw)] rounded-[18px] border border-black/20 bg-white/90 p-[18px_20px_14px] shadow-[0_24px_70px_rgba(0,0,0,.16)] backdrop-blur-xl animate-dropdown"
@@ -359,15 +363,16 @@
 }
 <!-- ===== Sheet móvil estilo Apple (full-screen + bottom sheet) ===== -->
 <!-- Overlay -->
-<div
-  *ngIf="sheetOpen"
-  class="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm animate-fadeIn"
-  (click)="closeSheet()"
-></div>
+@if (sheetOpen()) {
+  <div
+    class="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm animate-fadeIn"
+    (click)="closeSheet()"
+  ></div>
+}
 
 <!-- Panel -->
+@if (sheetOpen()) {
 <section
-  *ngIf="sheetOpen"
   class="fixed inset-x-0 bottom-0 z-[70] w-full animate-dropdown
          rounded-t-[28px] shadow-2xl border-t border-white/10
          bg-gradient-to-b from-[#1E2041] to-[#0B0E2A]/95 backdrop-blur-xl
@@ -405,7 +410,8 @@
 
     <!-- Catálogo (acordeón dinámico por categoría) -->
     <div class="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
-      <div *ngFor="let cat of headerCategories(); trackBy: trackByCat" class="border-b border-white/10 last:border-b-0">
+      @for (cat of headerCategories(); track cat.id) {
+      <div class="border-b border-white/10 last:border-b-0">
         <button
           class="w-full flex items-center justify-between px-4 py-3 text-left font-semibold hover:bg-white/5 transition"
           (click)="toggleCatAccordion(cat)"
@@ -428,7 +434,8 @@
           <div class="overflow-hidden">
             <div class="px-3 pb-3">
               <ul class="space-y-1.5">
-                <li *ngFor="let sc of subcatsMap.get(cat.id) || []">
+                @for (sc of subcatsMap.get(cat.id) || []; track sc.id) {
+                <li>
                   <a
                     (click)="goToSubcategory(cat, sc); closeSheet()"
                     class="flex items-center justify-between gap-2 rounded-xl px-3 py-2
@@ -441,16 +448,20 @@
                     <svg class="w-4 h-4 opacity-60" viewBox="0 0 24 24" fill="currentColor"><path d="m9 6 6 6-6 6"/></svg>
                   </a>
                 </li>
+                }
 
                 <!-- fallback -->
-                <li *ngIf="(subcatsMap.get(cat.id) || []).length === 0" class="px-3 py-2 text-sm text-white/70">
-                  Sin subcategorías
-                </li>
+                 @if ((subcatsMap.get(cat.id) || []).length === 0) {
+                   <li class="px-3 py-2 text-sm text-white/70">
+                     Sin subcategorías
+                   </li>
+                 }
               </ul>
             </div>
           </div>
         </div>
       </div>
+      }
     </div>
 
     <!-- Resto de secciones -->
@@ -467,6 +478,7 @@
 
   </div>
 </section>
+}
 
 <!-- Overlay (clic para cerrar) -->
 <div
