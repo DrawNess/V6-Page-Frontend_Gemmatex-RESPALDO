@@ -1,152 +1,183 @@
-/* Animaciones sutiles */
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* ROOT */
+.lux-root {
+  min-height: 100vh;
+  background: radial-gradient(circle at 30% 20%, #1e293b, #020617 70%);
+  color: #e2e8f0;
+  position: relative;
+  overflow: hidden;
 }
 
-@keyframes slide-in-left {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+/* glow fondo */
+.lux-bg-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 70% 40%, rgba(59,130,246,0.15), transparent 60%);
+  filter: blur(80px);
 }
 
-@keyframes slide-in-right {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+/* layout */
+.lux-container {
+  max-width: 1500px;
+  margin: auto;
+  padding: 60px 20px;
+  position: relative;
+  z-index: 10;
 }
 
-@keyframes zoom-in {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+.lux-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 40px;
 }
 
-@keyframes pop-in {
-  0% {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+/* cards */
+.lux-card {
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 20px;
+  border-radius: 16px;
+  transition: 0.4s;
 }
 
-@keyframes bounce-in {
-  0% {
-    opacity: 0;
-    transform: scale(0);
-  }
-  50% {
-    transform: scale(1.2);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+.lux-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
 }
 
-@keyframes pulse-ring {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+/* text */
+.lux-brand {
+  font-size: 11px;
+  opacity: 0.6;
+  text-transform: uppercase;
 }
 
-@keyframes pulse-slow {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.6;
-  }
+.lux-title {
+  font-size: 28px;
+  font-weight: 800;
+  margin-top: 8px;
 }
 
-.animate-fade-in-up {
-  animation: fade-in-up 0.6s ease-out forwards;
-  opacity: 0;
+.lux-sub {
+  font-size: 14px;
+  opacity: 0.7;
+  margin-top: 10px;
 }
 
-.animate-slide-in-left {
-  animation: slide-in-left 0.6s ease-out forwards;
-  opacity: 0;
+.lux-meta {
+  margin-top: 10px;
+  font-size: 12px;
+  opacity: 0.5;
 }
 
-.animate-slide-in-right {
-  animation: slide-in-right 0.6s ease-out forwards;
-  opacity: 0;
+/* specs */
+.lux-section {
+  font-size: 12px;
+  text-transform: uppercase;
+  opacity: 0.6;
+  margin-bottom: 10px;
 }
 
-.animate-zoom-in {
-  animation: zoom-in 0.8s ease-out forwards;
-  opacity: 0;
+.lux-spec {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
 }
 
-.animate-fade-in {
-  animation: fade-in-up 0.6s ease-out forwards;
-  opacity: 0;
+/* IMAGE */
+.lux-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.animate-pop-in {
-  animation: pop-in 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
-  opacity: 0;
+.lux-image-wrap {
+  position: relative;
 }
 
-.animate-bounce-in {
-  animation: bounce-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+/* glow dinámico */
+.lux-orb {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, #3b82f6, transparent 70%);
+  filter: blur(60px);
+  animation: float 6s ease-in-out infinite;
 }
 
-.animate-pulse-ring {
-  animation: pulse-ring 2s ease-in-out infinite;
+@keyframes float {
+  0%,100% { transform: translateY(0px);}
+  50% { transform: translateY(-20px);}
 }
 
-.animate-pulse-slow {
-  animation: pulse-slow 3s ease-in-out infinite;
+/* imagen */
+.lux-image {
+  max-height: 500px;
+  object-fit: contain;
+  transition: 0.6s;
 }
 
-@keyframes btn-success {
-  0%   { transform: scale(1); }
-  30%  { transform: scale(1.04); }
-  60%  { transform: scale(0.98); }
-  100% { transform: scale(1); }
+.lux-image:hover {
+  transform: scale(1.05);
 }
 
-.cart-btn.btn-added {
-  background-color: #1e40af !important;
-  border-color: #1e40af !important;
-  color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(30, 64, 175, 0.4);
-  animation: btn-success 0.35s ease-out;
+/* thumbs */
+.lux-thumbs {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
 }
 
-.cart-btn.btn-added:hover {
-  background-color: #1e3a8a !important;
-  border-color: #1e3a8a !important;
+.lux-thumb {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  overflow: hidden;
+  opacity: 0.4;
+  transition: 0.3s;
+}
+
+.lux-thumb.active {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* price */
+.lux-price-label {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.lux-price {
+  font-size: 36px;
+  font-weight: 800;
+  margin-top: 5px;
+}
+
+/* button */
+.lux-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.lux-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(59,130,246,0.4);
+}
+
+/* benefits */
+.lux-benefits {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  opacity: 0.7;
 }
