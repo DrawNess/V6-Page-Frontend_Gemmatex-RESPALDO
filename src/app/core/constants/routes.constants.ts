@@ -61,7 +61,9 @@ export const ROUTE_CONSTANTS = {
     MENU_ADDS: 'menu-adds',
     HERO_SLIDES: 'menu-adds/hero-slides',
     OFFERS_ADDS: 'menu-adds/offers-adds',
-    PROMO: 'menu-adds/promo'
+    PROMO: 'menu-adds/promo',
+    VARIANTS: 'variants',
+    ORDERS_ADMIN: 'orders-admin'
   },
 
   /**

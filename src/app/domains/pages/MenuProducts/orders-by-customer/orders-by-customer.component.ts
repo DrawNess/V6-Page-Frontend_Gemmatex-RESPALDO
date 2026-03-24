@@ -3,10 +3,8 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
-import { ApiCustomer, ApiOrder, ApiOrderItem } from '@shared/models/user-portal.model';
-import { CustomerService } from '@shared/services/customer.service';
+import { ApiOrder, ApiOrderItem } from '@shared/models/user-portal.model';
 import { OrderService } from '@shared/services/order.service';
-import { forkJoin } from 'rxjs';
 
 type CustomerOrdersSummary = {
   customerId: number;
@@ -27,21 +25,19 @@ type CustomerOrdersSummary = {
 })
 export class OrdersByCustomerComponent {
   private readonly orderService = inject(OrderService);
-  private readonly customerService = inject(CustomerService);
   private readonly adminBase = `/${ROUTE_CONSTANTS.SECRET_BASE}`;
 
-  readonly backMenuUrl = `${this.adminBase}/${ROUTE_CONSTANTS.ADMIN.MENU}`;
+  readonly backMenuUrl  = `${this.adminBase}/${ROUTE_CONSTANTS.ADMIN.MENU}`;
   readonly usersAdminUrl = `${this.adminBase}/${ROUTE_CONSTANTS.ADMIN.USERS}`;
 
-  readonly loading = signal(false);
+  readonly loading  = signal(false);
   readonly errorMsg = signal('');
   readonly successMsg = signal('');
 
   readonly orders = signal<ApiOrder[]>([]);
-  readonly customers = signal<ApiCustomer[]>([]);
   readonly selectedCustomerId = signal<number | null>(null);
-  readonly selectedOrderId = signal<number | null>(null);
-  readonly searchText = signal('');
+  readonly selectedOrderId    = signal<number | null>(null);
+  readonly searchText         = signal('');
 
   readonly customersWithOrdersCount = computed(() => this.summaries().length);
   readonly totalOrdersCount = computed(() => this.orders().length);
@@ -50,16 +46,11 @@ export class OrdersByCustomerComponent {
   );
 
   readonly summaries = computed<CustomerOrdersSummary[]>(() => {
-    const customersById = new Map<number, ApiCustomer>(
-      this.customers().map((customer) => [Number(customer.id), customer])
-    );
     const grouped = new Map<number, ApiOrder[]>();
 
     for (const order of this.orders()) {
       const customerId = this.toPositiveNumber(order.customerId);
-      if (!customerId) {
-        continue;
-      }
+      if (!customerId) continue;
       const list = grouped.get(customerId) ?? [];
       list.push(order);
       grouped.set(customerId, list);
@@ -67,25 +58,23 @@ export class OrdersByCustomerComponent {
 
     const summaries: CustomerOrdersSummary[] = [];
     for (const [customerId, orders] of grouped.entries()) {
-      const knownCustomer = customersById.get(customerId) ?? null;
-      const orderWithCustomer = orders.find((item) => !!item.customer)?.customer ?? null;
-      const customerName = this.resolveCustomerName(knownCustomer, orderWithCustomer);
-      const customerEmail = this.resolveCustomerEmail(knownCustomer, orderWithCustomer);
-      const customerPhone = knownCustomer?.phone ?? orderWithCustomer?.phone ?? '-';
-      const totalSpent = orders.reduce((acc, order) => acc + this.getOrderTotal(order), 0);
-      const lastOrderAt = orders
-        .map((item) => item.createdAt)
-        .filter((value): value is string => !!value)
-        .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0] ?? null;
+      // Use customer embedded in any order of this customer
+      const embedded = orders.find(o => !!o.customer)?.customer ?? null;
+      const name  = embedded ? `${embedded.name ?? ''} ${embedded.lastName ?? ''}`.trim() : '';
+      const email = embedded?.user?.email ?? '-';
+      const phone = embedded?.phone ?? '-';
 
       summaries.push({
         customerId,
-        customerName,
-        customerEmail,
-        customerPhone,
+        customerName:  name  || `Cliente #${customerId}`,
+        customerEmail: email,
+        customerPhone: phone,
         ordersCount: orders.length,
-        totalSpent,
-        lastOrderAt,
+        totalSpent: orders.reduce((acc, o) => acc + this.getOrderTotal(o), 0),
+        lastOrderAt: orders
+          .map(o => o.createdAt)
+          .filter((v): v is string => !!v)
+          .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0] ?? null,
       });
     }
 
@@ -94,85 +83,64 @@ export class OrdersByCustomerComponent {
 
   readonly filteredSummaries = computed(() => {
     const term = this.searchText().trim().toLowerCase();
-    if (!term) {
-      return this.summaries();
-    }
-
-    return this.summaries().filter((summary) => {
-      return (
-        String(summary.customerId).includes(term) ||
-        summary.customerName.toLowerCase().includes(term) ||
-        summary.customerEmail.toLowerCase().includes(term) ||
-        summary.customerPhone.toLowerCase().includes(term)
-      );
-    });
+    if (!term) return this.summaries();
+    return this.summaries().filter(s =>
+      String(s.customerId).includes(term) ||
+      s.customerName.toLowerCase().includes(term) ||
+      s.customerEmail.toLowerCase().includes(term) ||
+      s.customerPhone.toLowerCase().includes(term)
+    );
   });
 
   readonly selectedSummary = computed(() => {
-    const customerId = this.selectedCustomerId();
-    if (!customerId) {
-      return null;
-    }
-    return this.summaries().find((item) => item.customerId === customerId) ?? null;
+    const id = this.selectedCustomerId();
+    return id ? (this.summaries().find(s => s.customerId === id) ?? null) : null;
   });
 
   readonly selectedCustomerOrders = computed(() => {
-    const customerId = this.selectedCustomerId();
-    if (!customerId) {
-      return [];
-    }
+    const id = this.selectedCustomerId();
+    if (!id) return [];
     return this.orders()
-      .filter((order) => this.toPositiveNumber(order.customerId) === customerId)
+      .filter(o => this.toPositiveNumber(o.customerId) === id)
       .sort((a, b) => {
-        const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-        return bTime - aTime;
+        const at = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bt = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return bt - at;
       });
   });
 
   readonly selectedOrder = computed(() => {
-    const orderId = this.selectedOrderId();
-    if (!orderId) {
-      return null;
-    }
-    return this.selectedCustomerOrders().find((order) => order.id === orderId) ?? null;
+    const id = this.selectedOrderId();
+    return id ? (this.selectedCustomerOrders().find(o => o.id === id) ?? null) : null;
   });
 
-  constructor() {
-    this.refresh();
-  }
+  constructor() { this.refresh(); }
 
   refresh(): void {
     this.loading.set(true);
     this.errorMsg.set('');
     this.successMsg.set('');
 
-    forkJoin({
-      orders: this.orderService.getOrders(),
-      customers: this.customerService.getCustomers(),
-    }).subscribe({
-      next: ({ orders, customers }) => {
+    this.orderService.getOrders().subscribe({
+      next: (orders) => {
         this.orders.set(orders);
-        this.customers.set(customers);
         this.loading.set(false);
         this.successMsg.set('Panel de pedidos actualizado.');
 
         if (!this.selectedCustomerId() && this.summaries().length > 0) {
-          const first = this.summaries()[0];
-          this.selectCustomer(first.customerId);
+          this.selectCustomer(this.summaries()[0].customerId);
         }
       },
       error: () => {
         this.loading.set(false);
-        this.errorMsg.set('No se pudo cargar pedidos/clientes. Verifica permisos de admin.');
+        this.errorMsg.set('No se pudieron cargar los pedidos. Verifica que el servidor esté activo.');
       },
     });
   }
 
   selectCustomer(customerId: number): void {
     this.selectedCustomerId.set(customerId);
-    const firstOrder = this.selectedCustomerOrders()[0];
-    this.selectedOrderId.set(firstOrder?.id ?? null);
+    this.selectedOrderId.set(this.selectedCustomerOrders()[0]?.id ?? null);
   }
 
   selectOrder(orderId: number): void {
@@ -185,47 +153,41 @@ export class OrdersByCustomerComponent {
   }
 
   getOrderTotal(order: ApiOrder | null): number {
-    if (!order) {
-      return 0;
-    }
-    if (typeof order.total === 'number') {
-      return order.total;
-    }
+    if (!order) return 0;
+    if (typeof order.total === 'number') return order.total;
     return this.getOrderItems(order).reduce((sum, item) => {
-      const amount = Number(item.amount ?? item.OrderProduct?.amount ?? 0);
-      const price = Number(item.price ?? 0);
-      return sum + amount * price;
+      const amount = Number(item.amount ?? (item as any)?.['OrderProduct']?.amount ?? 0);
+      return sum + amount * Number(item.price ?? 0);
     }, 0);
   }
 
   getItemAmount(item: ApiOrderItem): number {
-    return Number(item.amount ?? item.OrderProduct?.amount ?? 0);
+    return Number(item.amount ?? (item as any)?.['OrderProduct']?.amount ?? 0);
   }
 
   getItemName(item: ApiOrderItem): string {
-    return item.name ?? item.sku ?? `Producto #${item.productId ?? '-'}`;
+    return String(item.name ?? item.sku ?? `Variante #${item.variantId ?? '-'}`);
   }
 
   getItemSubtotal(item: ApiOrderItem): number {
     return this.getItemAmount(item) * Number(item.price ?? 0);
   }
 
+  readonly STATUS_META: Record<string, { label: string; color: string }> = {
+    pendiente:  { label: 'Pendiente',  color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
+    confirmado: { label: 'Confirmado', color: 'bg-blue-100 text-blue-800 border-blue-300' },
+    en_curso:   { label: 'En curso',   color: 'bg-indigo-100 text-indigo-800 border-indigo-300' },
+    enviado:    { label: 'Enviado',    color: 'bg-purple-100 text-purple-800 border-purple-300' },
+    entregado:  { label: 'Entregado',  color: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+    cancelado:  { label: 'Cancelado',  color: 'bg-red-100 text-red-800 border-red-300' },
+  };
+
+  statusMeta(status?: string | null): { label: string; color: string } {
+    return this.STATUS_META[status ?? ''] ?? { label: status ?? '—', color: 'bg-slate-100 text-slate-700 border-slate-300' };
+  }
+
   private toPositiveNumber(value: unknown): number | null {
     const parsed = Number(value);
-    if (!Number.isInteger(parsed) || parsed <= 0) {
-      return null;
-    }
-    return parsed;
-  }
-
-  private resolveCustomerName(customer: ApiCustomer | null, fallback: ApiCustomer | null): string {
-    const first = customer?.name ?? fallback?.name ?? '';
-    const last = customer?.lastName ?? fallback?.lastName ?? '';
-    const fullName = `${first} ${last}`.trim();
-    return fullName || `Cliente #${customer?.id ?? fallback?.id ?? '?'}`;
-  }
-
-  private resolveCustomerEmail(customer: ApiCustomer | null, fallback: ApiCustomer | null): string {
-    return customer?.user?.email ?? fallback?.user?.email ?? '-';
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
   }
 }

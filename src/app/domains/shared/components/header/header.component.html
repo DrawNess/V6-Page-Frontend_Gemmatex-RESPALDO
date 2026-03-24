@@ -536,7 +536,7 @@
         Tu carrito está vacío.
       </div>
     } @else {
-      @for (item of groupedCart(); track item.product.id || item.product.slug) {
+      @for (item of groupedCart(); track item.product.variantId) {
         <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-200/70
                     bg-white/85 backdrop-blur hover:shadow-md transition">
           <img [src]="item.product.imageUrl" [alt]="item.product.name"

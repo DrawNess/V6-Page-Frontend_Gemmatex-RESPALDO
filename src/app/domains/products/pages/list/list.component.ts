@@ -13,7 +13,7 @@ import { Announcement } from '@shared/models/announcement.model';
 
 import { Product } from '@shared/models/product.model';
 import { ProductService } from '@shared/services/product.service';
-import { CartService } from '@shared/services/cart.service';
+import { CartService, CartItem } from '@shared/services/cart.service';
 import { ProductComponent } from '@products/components/product/product.component';
 
 
@@ -257,7 +257,20 @@ export default class ListComponent implements OnInit, OnDestroy {
 
   // === acciones ===
   addToCart(p: Product) {
-    this.cartService.addToCart(p);
+    const variant = p.variants?.find(v => v.is_active && v.stock > 0) ?? p.variants?.[0];
+    if (!variant) return;
+    const item: CartItem = {
+      variantId: variant.id,
+      productId: p.id,
+      name: p.name,
+      sku: variant.sku,
+      price: Number(variant.price),
+      discountPrice: variant.discountPrice != null ? Number(variant.discountPrice) : null,
+      imageUrl: variant.imageUrl || p.imageUrl,
+      colorName: variant.color?.name ?? null,
+      colorHex: variant.color?.hex ?? null,
+    };
+    this.cartService.addToCart(item);
   }
 
   // === navegación carrusel ===

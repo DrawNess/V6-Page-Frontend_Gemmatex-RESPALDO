@@ -21,20 +21,13 @@ export interface ApiCustomer {
 export interface ApiOrderItem {
   id: number;
   orderId?: number;
-  productId?: number;
+  variantId?: number;
   amount?: number;
   price?: number;
   name?: string;
   sku?: string;
   imageUrl?: string;
   brand?: string;
-  OrderProduct?: {
-    id?: number;
-    amount?: number;
-    orderId?: number;
-    productId?: number;
-    createdAt?: string;
-  };
   createdAt?: string;
   updatedAt?: string;
   [key: string]: unknown;

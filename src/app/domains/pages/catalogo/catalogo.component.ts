@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ProductComponent } from '@products/components/product/product.component';
 import { Product } from '@shared/models/product.model';
-import { CartService } from '@shared/services/cart.service';
+import { CartService, CartItem } from '@shared/services/cart.service';
 import { PaginationMeta, ProductService } from '@shared/services/product.service';
 import { CategoryService } from '@shared/services/category.service';
 import { Category } from '@shared/models/category.model';
@@ -60,7 +60,22 @@ export class CatalogoComponent {
   ngAfterViewInit() { setTimeout(() => this.rouletteResume(), 0); }
   ngOnDestroy() { this.roulettePause(); }
 
-  addToCart(product: Product) { this.cartService.addToCart(product); }
+  addToCart(product: Product) {
+    const variant = product.variants?.find(v => v.is_active && v.stock > 0) ?? product.variants?.[0];
+    if (!variant) return;
+    const item: CartItem = {
+      variantId: variant.id,
+      productId: product.id,
+      name: product.name,
+      sku: variant.sku,
+      price: Number(variant.price),
+      discountPrice: variant.discountPrice != null ? Number(variant.discountPrice) : null,
+      imageUrl: variant.imageUrl || product.imageUrl,
+      colorName: variant.color?.name ?? null,
+      colorHex: variant.color?.hex ?? null,
+    };
+    this.cartService.addToCart(item);
+  }
 
   private getProducts() {
     this.loading.set(true);

@@ -126,8 +126,13 @@
           [class.bg-blue-50]="selectedOrderId() === order.id"
           [class.border-slate-200]="selectedOrderId() !== order.id"
         >
-          <p class="font-semibold text-slate-900">Pedido #{{ order.id }}</p>
-          <p class="text-xs text-slate-600">Estado: {{ order.status || '-' }}</p>
+          <div class="flex items-center justify-between gap-2">
+            <p class="font-semibold text-slate-900">Pedido #{{ order.id }}</p>
+            <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold"
+                  [ngClass]="statusMeta(order.status).color">
+              {{ statusMeta(order.status).label }}
+            </span>
+          </div>
           <div class="mt-1 flex items-center justify-between text-xs text-slate-600">
             <span>{{ order.createdAt ? (order.createdAt | date: 'yyyy-MM-dd HH:mm') : '-' }}</span>
             <span>{{ getOrderTotal(order) | number: '1.2-2' }}</span>
@@ -142,7 +147,13 @@
       <ng-container *ngIf="selectedOrder() as order; else noOrderSelected">
         <div class="mb-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm">
           <p><span class="font-semibold">Pedido:</span> #{{ order.id }}</p>
-          <p><span class="font-semibold">Estado:</span> {{ order.status || '-' }}</p>
+          <div class="flex items-center gap-2">
+            <span class="font-semibold">Estado:</span>
+            <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold"
+                  [ngClass]="statusMeta(order.status).color">
+              {{ statusMeta(order.status).label }}
+            </span>
+          </div>
           <p><span class="font-semibold">Fecha:</span> {{ order.createdAt ? (order.createdAt | date: 'yyyy-MM-dd HH:mm') : '-' }}</p>
           <p><span class="font-semibold">Total:</span> {{ getOrderTotal(order) | number: '1.2-2' }}</p>
         </div>

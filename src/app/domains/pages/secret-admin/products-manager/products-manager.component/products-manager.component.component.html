@@ -54,7 +54,7 @@
                 <img [src]="p.imageUrl" [alt]="p.name" class="h-12 w-12 rounded object-cover border" loading="lazy">
                 </td>
                 <td class="px-3 py-2 font-medium text-slate-900">{{ p.name }}</td>
-                <td class="px-3 py-2">{{ p.price | currency:'Bs. ':'symbol':'1.2-2' }}</td>
+                <td class="px-3 py-2">{{ p.variants?.[0]?.price | currency:'Bs. ':'symbol':'1.2-2' }}</td>
                 <!-- <td class="px-3 py-2">{{ (p as any).stock ?? 0 }}</td> -->
                 <td class="px-3 py-2">
                 <!-- <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs"

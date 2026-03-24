@@ -438,7 +438,7 @@ export class UsersManagementComponent {
 
   addItemToOrder(): void {
     const orderId = Number(this.orderItemOrderId);
-    const productId = Number(this.orderItemProductId);
+    const variantId = Number(this.orderItemProductId);
     const amount = Number(this.orderItemAmount);
 
     if (!Number.isInteger(orderId) || orderId <= 0) {
@@ -446,8 +446,8 @@ export class UsersManagementComponent {
       this.globalSuccess.set('');
       return;
     }
-    if (!Number.isInteger(productId) || productId <= 0) {
-      this.globalError.set('Ingresa un productId valido.');
+    if (!Number.isInteger(variantId) || variantId <= 0) {
+      this.globalError.set('Ingresa un variantId valido.');
       this.globalSuccess.set('');
       return;
     }
@@ -460,7 +460,7 @@ export class UsersManagementComponent {
     this.addingOrderItem.set(true);
     this.clearMessages();
 
-    this.orderService.addItem({ orderId, productId, amount }).subscribe({
+    this.orderService.addItem({ orderId, variantId, amount }).subscribe({
       next: (updatedOrder) => {
         this.addingOrderItem.set(false);
         this.selectedOrder.set(updatedOrder);
@@ -516,7 +516,7 @@ export class UsersManagementComponent {
       return order.total;
     }
     return this.getOrderItems(order).reduce((sum, item) => {
-      const amount = Number(item?.amount ?? item?.OrderProduct?.amount ?? 0);
+      const amount = Number(item?.amount ?? (item as any)?.['OrderProduct']?.amount ?? 0);
       const price = Number(item?.price ?? 0);
       return sum + amount * price;
     }, 0);

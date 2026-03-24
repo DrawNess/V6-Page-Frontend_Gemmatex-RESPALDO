@@ -8,6 +8,7 @@ import {
   FormGroup,
   Validators
 } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 
 import { ProductService } from '@shared/services/product.service';
 import { CategoryService } from '@shared/services/category.service';
@@ -16,11 +17,12 @@ import { SubcategoryService } from '@shared/services/subcategory.service';
 import { Product } from '@shared/models/product.model';
 import { Category } from '@shared/models/category.model';
 import { Subcategory } from '@shared/models/subcategory.model';
+import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
 
 
 @Component({
     selector: 'app-products',
-    imports: [CommonModule, FormsModule, ReactiveFormsModule],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
     templateUrl: './products.component.html',
     styleUrl: './products.component.css'
 })
@@ -48,20 +50,17 @@ export class ProductsComponent implements OnInit {
   editingProduct: Product | null = null;
   form: FormGroup;
 
+  private readonly adminBase = `/${ROUTE_CONSTANTS.SECRET_BASE}`;
+
   constructor(
     private productService: ProductService,
     private categoryService: CategoryService,
     private subcategoryService: SubcategoryService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private router: Router
   ) {
     this.form = this.fb.group({
       name: ['', Validators.required],
-      sku: [''],
-      price: [0, [Validators.required]],
-      discountPrice: [0],
-      stock: [0, [Validators.required]],
-      shortDescription: [''],
-      description: [''],
       brand: [''],
       imageUrl: ['']
     });
@@ -155,11 +154,11 @@ export class ProductsComponent implements OnInit {
     const onlyActive = this.filters.showOnlyActive;
 
     this.filteredProducts = this.products.filter((p) => {
+      const variantSkus = (p.variants ?? []).map(v => v.sku.toLowerCase()).join(' ');
       const matchesSearch =
         !term ||
         p.name.toLowerCase().includes(term) ||
-        (p.sku && p.sku.toLowerCase().includes(term)) ||
-        (p.description && p.description.toLowerCase().includes(term));
+        variantSkus.includes(term);
 
       const matchesSubcat =
         !subId ||
@@ -181,12 +180,6 @@ export class ProductsComponent implements OnInit {
 
     this.form.reset({
       name: product.name,
-      sku: product.sku,
-      price: product.price,
-      discountPrice: product.discountPrice,
-      stock: product.stock,
-      shortDescription: product.shortDescription,
-      description: product.description,
       brand: product.brand,
       imageUrl: product.imageUrl
     });
@@ -208,12 +201,6 @@ export class ProductsComponent implements OnInit {
 
     const body = {
       name: formValues.name,
-      sku: formValues.sku,
-      price: formValues.price,
-      discountPrice: formValues.discountPrice,
-      stock: formValues.stock,
-      shortDescription: formValues.shortDescription,
-      description: formValues.description,
       brand: formValues.brand,
       imageUrl: formValues.imageUrl
     };
@@ -257,6 +244,13 @@ export class ProductsComponent implements OnInit {
         this.error = err?.error?.message || 'Error al eliminar el producto.';
       }
     });
+  }
+
+  goToVariants(productId: number): void {
+    this.router.navigate(
+      [this.adminBase, ROUTE_CONSTANTS.ADMIN.VARIANTS],
+      { queryParams: { productId } }
+    );
   }
 
   // Manejo de error en la imagen

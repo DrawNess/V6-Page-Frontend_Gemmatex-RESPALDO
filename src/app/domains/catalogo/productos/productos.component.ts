@@ -9,8 +9,6 @@ import { ProductComponent } from '@products/components/product/product.component
 import { SubcategoryService } from '@shared/services/subcategory.service';
 import { Subcategory } from '@shared/models/subcategory.model';
 import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
-import { groupEpsonInkProducts } from '@shared/utils/ink-grouping.util';
-import { normalizeInkText } from '@shared/utils/ink-utils';
 
 @Component({
   selector: 'app-productos',
@@ -200,7 +198,7 @@ export class ProductosComponent {
     ids: number[],
     term: string
   ): Observable<{ data: Product[]; meta: PaginationMeta }> {
-    const requests = ids.map((id) => this.getAllProductsBySubcategory(id)); // Consulta todos los productos para cada subcategoría activa.
+    const requests = ids.map((id) => this.getAllProductsBySubcategory(id));
     return forkJoin(requests).pipe(
       map((groups) => {
         const unique = new Map<number, Product>(); // Evita duplicados cuando un producto llega desde más de una subcategoría.
@@ -210,14 +208,12 @@ export class ProductosComponent {
           }
         }
 
-        let merged = Array.from(unique.values()); // Dataset consolidado de subcategorías seleccionadas.
-        const q = term.trim().toLowerCase(); // Normaliza el término de búsqueda para comparación case-insensitive.
+        let processed = Array.from(unique.values());
+        const q = term.trim().toLowerCase();
         if (q) {
-          merged = merged.filter((p) => this.matchesTerm(p, q)); // Aplica filtro de texto al dataset consolidado.
+          processed = processed.filter((p) => this.matchesTerm(p, q));
         }
-        const shouldGroup = this.shouldApplyInkSubcategoryGrouping(ids); // Gate estricto: solo subcategoría Tintas/tntas.
-        const processed = shouldGroup ? groupEpsonInkProducts(merged) : merged; // Agrupación habilitada únicamente en el contexto permitido.
-        processed.sort((a, b) => Number(a.id) - Number(b.id)); // Orden estable por id para paginación consistente.
+        processed.sort((a, b) => Number(a.id) - Number(b.id));
 
         const totalItems = processed.length; // Total final después de filtro y agrupación condicional.
         const pageSize = this.pageSize; // Tamaño de página fijo del catálogo.
@@ -246,43 +242,14 @@ export class ProductosComponent {
     );
   }
 
-  private normalizeScopeText(value: unknown): string {
-    return normalizeInkText(value);
-  }
-
-  private isTintasSubcategoryName(sub: Subcategory): boolean {
-    const name = this.normalizeScopeText(sub.name);
-    const slug = this.normalizeScopeText(sub.slug);
-    return name === 'tintas' || name === 'tntas' || slug === 'tintas' || slug === 'tntas';
-  }
-
-  private isInkGroupingSubcategory(sub: Subcategory | undefined): boolean {
-    if (!sub) return false;
-    return this.isTintasSubcategoryName(sub);
-  }
-
-  private shouldApplyInkSubcategoryGrouping(selectedIds: number[]): boolean {
-    if (!selectedIds.length) return false; // Sin subcategorías activas, nunca agrupamos aquí.
-
-    const selectedSet = new Set(selectedIds);
-    const selectedSubcategories = this.subcategories().filter((s) => selectedSet.has(s.id));
-    if (!selectedSubcategories.length) return false; // Sin metadata de subcategorías, no arriesgar agrupado incorrecto.
-
-    // Gate estricto: solo cuando TODAS las subcategorías seleccionadas son Tintas/tntas.
-    return selectedSubcategories.every((s) => this.isInkGroupingSubcategory(s));
-  }
-
   private matchesTerm(p: Product, q: string): boolean {
-    const parts: string[] = [
+    const variantTags = (p.variants ?? []).flatMap(v => v.tags ?? []);
+    const haystack = [
       p.name ?? '',
-      (p as any).description ?? '',
-      (p as any).shortDescription ?? '',
-      (p as any).brand ?? '',
-      (p as any).subcategory?.name ?? '',
-      (p as any).category?.name ?? ''
-    ];
-    const tags = ((p as any).tags ?? []) as string[];
-    const haystack = [...parts, ...tags].join(' ').toLowerCase();
+      p.brand ?? '',
+      p.subcategory?.name ?? '',
+      ...variantTags
+    ].join(' ').toLowerCase();
     return haystack.includes(q);
   }
 

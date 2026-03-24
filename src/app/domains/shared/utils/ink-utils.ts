@@ -46,31 +46,31 @@ export function normalizeInkText(value: unknown): string {
 
 export function productInkHaystack(p?: Product | null): string {
   if (!p) return '';
+  const pa = p as any;
   return normalizeInkText(
     [
       p.name,
       p.slug,
-      p.sku,
+      pa.sku,
       p.brand,
-      (p as any)?.subcategory?.name,
-      (p as any)?.subcategory?.slug,
-      (p as any)?.subcategory,
-      (p as any)?.category?.name,
-      (p as any)?.category?.slug,
-      (p as any)?.categoryName,
-      ...(Array.isArray((p as any)?.tags) ? (p as any).tags : []),
+      pa?.subcategory?.name,
+      pa?.subcategory?.slug,
+      pa?.category?.name,
+      pa?.categoryName,
+      ...(Array.isArray(pa?.tags) ? pa.tags : []),
     ].join(' ')
   );
 }
 
 export function productInkModelHaystack(p?: Product | null): string {
   if (!p) return '';
+  const pa = p as any;
   return normalizeInkText(
     [
       p.name,
       p.slug,
-      p.sku,
-      ...(Array.isArray((p as any)?.tags) ? (p as any).tags : []),
+      pa.sku,
+      ...(Array.isArray(pa?.tags) ? pa.tags : []),
     ].join(' ')
   );
 }
@@ -118,7 +118,8 @@ export function isInkSubcategoryStrict(p?: Product | null): boolean {
 }
 
 export function detectInkColor(p: Product): InkColor {
-  const haystack = `${p.name || ''} ${p.slug || ''} ${p.sku || ''}`.toLowerCase();
+  const pa = p as any;
+  const haystack = `${p.name || ''} ${p.slug || ''} ${pa.sku || ''}`.toLowerCase();
   // Prioridad de detección: primero variantes específicas para evitar colisión
   // (ej: "yellow fluor" no debe caer como "yellow").
   const detectionPriority = [
@@ -136,7 +137,8 @@ export function detectInkColor(p: Product): InkColor {
 
 export function inkBaseKey(p?: Product | null): string | null {
   if (!p) return null;
-  const source = `${p.slug || ''} ${p.name || ''} ${p.sku || ''}`.toLowerCase();
+  const pa = p as any;
+  const source = `${p.slug || ''} ${p.name || ''} ${pa.sku || ''}`.toLowerCase();
   if (!source) return null;
 
   // normalizamos, eliminando paréntesis y signos
@@ -176,7 +178,8 @@ export function swatchForColor(label: string): string {
 export function cleanInkName(p: Product): string {
   if (!isInkSubcategory(p)) return p.name || '';
 
-  const source = (p.name || p.slug || '').trim();
+  const pa = p as any;
+  const source = (p.name || p.slug || pa.sku || '').trim();
   if (!source) return '';
 
   const normalized = source.replace(/_+/g, ' ').replace(/\s+/g, ' ').trim();

@@ -85,7 +85,8 @@ export class OffersComponent implements OnInit{
   // Editar inline
   editingId = signal<number | null>(null);
   // Nota: para edición usamos strings en galleryUrls/tags para el textarea/input
-  editRow = signal<Partial<Offer> & { galleryUrls?: string; tags?: string }>({});
+  // galleryUrls y tags se almacenan como string para edición en textarea
+  editRow = signal<any>({});
 
   // Lista filtrada + ordenada
   filteredSorted = computed<Offer[]>(() => {

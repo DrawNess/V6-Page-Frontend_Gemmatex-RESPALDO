@@ -1,0 +1,359 @@
+<section class="w-full bg-white min-h-screen">
+  <div class="mx-auto max-w-7xl px-4 py-6">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between gap-3 mb-1">
+      <div class="flex items-center gap-3">
+        <a [routerLink]="productsUrl" class="text-blue-700 hover:underline text-sm">‹ Productos</a>
+        <span class="text-slate-300">/</span>
+        <h1 class="text-xl sm:text-2xl font-extrabold text-blue-800">
+          Variantes
+          <span *ngIf="product()" class="font-normal text-slate-600">— {{ product()?.name }}</span>
+        </h1>
+      </div>
+      <button class="rounded-lg border px-3 py-1.5 text-sm hover:bg-slate-50" (click)="loadVariants()">
+        ↻ Actualizar
+      </button>
+    </div>
+
+    <!-- Alertas -->
+    <div class="mt-3 space-y-2">
+      <div *ngIf="error()" class="px-3 py-2 rounded-lg bg-red-50 text-red-800 border border-red-200 text-sm">
+        {{ error() }}
+      </div>
+      <div *ngIf="okMsg()" class="px-3 py-2 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 text-sm">
+        {{ okMsg() }}
+      </div>
+    </div>
+
+    <!-- Botón crear / form nuevo -->
+    <div class="mt-4">
+      <button
+        class="rounded-xl bg-blue-600 text-white px-4 py-2 text-sm font-semibold hover:bg-blue-700"
+        (click)="showCreateForm.set(!showCreateForm())">
+        {{ showCreateForm() ? '✕ Cancelar' : '+ Nueva variante' }}
+      </button>
+
+      <!-- Formulario crear -->
+      <div *ngIf="showCreateForm()" class="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <h2 class="text-base font-semibold text-slate-800 mb-3">Crear variante</h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+
+          <!-- SKU -->
+          <label class="block">
+            <span class="text-xs text-slate-600">SKU *</span>
+            <input type="text" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                   [ngModel]="newVariant().sku" (ngModelChange)="setNew('sku', $event)" />
+          </label>
+
+          <!-- Color -->
+          <label class="block">
+            <span class="text-xs text-slate-600">Color</span>
+            <select class="mt-1 w-full rounded-lg border px-3 py-2 text-sm bg-white"
+                    [ngModel]="newVariant().colorId" (ngModelChange)="setNew('colorId', $event ? +$event : null)">
+              <option [ngValue]="null">— Sin color —</option>
+              <option *ngFor="let c of colors()" [ngValue]="c.id">{{ c.name }}</option>
+            </select>
+          </label>
+
+          <!-- Marca -->
+          <label class="block">
+            <span class="text-xs text-slate-600">Marca *</span>
+            <input type="text" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                   [ngModel]="newVariant().brand" (ngModelChange)="setNew('brand', $event)" />
+          </label>
+
+          <!-- Precio -->
+          <label class="block">
+            <span class="text-xs text-slate-600">Precio *</span>
+            <input type="number" step="0.01" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                   [ngModel]="newVariant().price" (ngModelChange)="setNew('price', $event)" />
+          </label>
+
+          <!-- Precio oferta -->
+          <label class="block">
+            <span class="text-xs text-slate-600">Precio oferta</span>
+            <input type="number" step="0.01" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                   [ngModel]="newVariant().discountPrice" (ngModelChange)="setNew('discountPrice', $event)" />
+          </label>
+
+          <!-- Stock -->
+          <label class="block">
+            <span class="text-xs text-slate-600">Stock *</span>
+            <input type="number" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                   [ngModel]="newVariant().stock" (ngModelChange)="setNew('stock', $event)" />
+          </label>
+
+          <!-- Unidad de medida -->
+          <label class="block">
+            <span class="text-xs text-slate-600">Unidad de medida *</span>
+            <input type="text" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                   placeholder="ej: unidad, kg, ml"
+                   [ngModel]="newVariant().unitOfMeasure" (ngModelChange)="setNew('unitOfMeasure', $event)" />
+          </label>
+
+          <!-- Dimensiones -->
+          <label class="block">
+            <span class="text-xs text-slate-600">Dimensiones *</span>
+            <input type="text" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                   placeholder="ej: Talles S al XL"
+                   [ngModel]="newVariant().dimensions" (ngModelChange)="setNew('dimensions', $event)" />
+          </label>
+
+          <!-- Imagen URL -->
+          <label class="block">
+            <span class="text-xs text-slate-600">Imagen principal *</span>
+            <input type="url" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                   placeholder="https://..."
+                   [ngModel]="newVariant().imageUrl" (ngModelChange)="setNew('imageUrl', $event)" />
+          </label>
+
+          <!-- Descripción corta -->
+          <label class="block sm:col-span-2 lg:col-span-3">
+            <span class="text-xs text-slate-600">Descripción corta *</span>
+            <input type="text" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                   [ngModel]="newVariant().shortDescription" (ngModelChange)="setNew('shortDescription', $event)" />
+          </label>
+
+          <!-- Descripción larga -->
+          <label class="block sm:col-span-2 lg:col-span-3">
+            <span class="text-xs text-slate-600">Descripción *</span>
+            <textarea rows="3" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                      [ngModel]="newVariant().description" (ngModelChange)="setNew('description', $event)"></textarea>
+          </label>
+
+          <!-- Gallery URLs -->
+          <label class="block sm:col-span-2">
+            <span class="text-xs text-slate-600">Galería (URLs separadas por coma o línea)</span>
+            <textarea rows="2" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                      [ngModel]="newVariant().galleryUrls" (ngModelChange)="setNew('galleryUrls', $event)"></textarea>
+          </label>
+
+          <!-- Tags -->
+          <label class="block">
+            <span class="text-xs text-slate-600">Tags (coma o línea)</span>
+            <textarea rows="2" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                      [ngModel]="newVariant().tags" (ngModelChange)="setNew('tags', $event)"></textarea>
+          </label>
+
+          <!-- Outlet + Activo -->
+          <div class="flex items-center gap-6 sm:col-span-2 lg:col-span-3">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" class="h-4 w-4 rounded"
+                     [ngModel]="newVariant().outlet" (ngModelChange)="setNew('outlet', $event)" />
+              <span class="text-sm text-slate-700">Outlet</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" class="h-4 w-4 rounded"
+                     [ngModel]="newVariant().is_active" (ngModelChange)="setNew('is_active', $event)" />
+              <span class="text-sm text-slate-700">Activo</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="mt-4 flex justify-end gap-2">
+          <button type="button" class="rounded-lg border px-4 py-2 text-sm hover:bg-slate-100"
+                  (click)="showCreateForm.set(false)">Cancelar</button>
+          <button type="button"
+                  class="rounded-lg bg-blue-600 text-white px-4 py-2 text-sm font-semibold hover:bg-blue-700 disabled:opacity-50"
+                  [disabled]="saving()"
+                  (click)="create()">
+            {{ saving() ? 'Guardando…' : 'Crear variante' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estado de carga -->
+    <div *ngIf="loading()" class="mt-6 text-slate-500 text-sm">Cargando variantes…</div>
+
+    <!-- Tabla de variantes -->
+    <div *ngIf="!loading()" class="mt-4 overflow-x-auto rounded-xl border border-slate-200">
+      <table class="min-w-[900px] w-full text-sm">
+        <thead class="bg-slate-50 text-slate-600">
+          <tr>
+            <th class="px-3 py-2 text-left">ID</th>
+            <th class="px-3 py-2 text-left">Color</th>
+            <th class="px-3 py-2 text-left">SKU</th>
+            <th class="px-3 py-2 text-left">Precio</th>
+            <th class="px-3 py-2 text-left">P.Oferta</th>
+            <th class="px-3 py-2 text-left">Stock</th>
+            <th class="px-3 py-2 text-left">Outlet</th>
+            <th class="px-3 py-2 text-left">Activo</th>
+            <th class="px-3 py-2 text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <ng-container *ngFor="let v of variants(); trackBy: trackById">
+
+            <!-- Fila normal -->
+            <tr *ngIf="editingId() !== v.id" class="border-t hover:bg-slate-50">
+              <td class="px-3 py-2 text-slate-500">{{ v.id }}</td>
+
+              <!-- Color swatch -->
+              <td class="px-3 py-2">
+                <div class="flex items-center gap-2">
+                  <span *ngIf="v.color"
+                        class="inline-block w-5 h-5 rounded-full border border-slate-300 flex-shrink-0"
+                        [style.background-color]="v.color.hex"></span>
+                  <span class="text-slate-700">{{ v.color?.name || '—' }}</span>
+                </div>
+              </td>
+
+              <td class="px-3 py-2 font-medium text-slate-900">{{ v.sku }}</td>
+              <td class="px-3 py-2">Bs {{ v.price | number:'1.2-2' }}</td>
+              <td class="px-3 py-2">
+                <span *ngIf="v.discountPrice" class="text-emerald-700">Bs {{ v.discountPrice | number:'1.2-2' }}</span>
+                <span *ngIf="!v.discountPrice" class="text-slate-400">—</span>
+              </td>
+              <td class="px-3 py-2">{{ v.stock }}</td>
+              <td class="px-3 py-2">
+                <span [class]="v.outlet ? 'text-orange-600 font-semibold' : 'text-slate-400'">
+                  {{ v.outlet ? 'Sí' : 'No' }}
+                </span>
+              </td>
+              <td class="px-3 py-2">
+                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                      [ngClass]="v.is_active
+                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                        : 'bg-red-50 text-red-700 border border-red-200'">
+                  {{ v.is_active ? 'Sí' : 'No' }}
+                </span>
+              </td>
+              <td class="px-3 py-2 text-right">
+                <button class="rounded-lg border px-2 py-1 text-xs hover:bg-slate-100 mr-1"
+                        (click)="startEdit(v)">Editar</button>
+                <button class="rounded-lg border border-red-300 text-red-700 px-2 py-1 text-xs hover:bg-red-50"
+                        (click)="remove(v)">Eliminar</button>
+              </td>
+            </tr>
+
+            <!-- Fila edición inline -->
+            <tr *ngIf="editingId() === v.id" class="border-t bg-blue-50">
+              <td colspan="9" class="px-4 py-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+
+                  <label class="block">
+                    <span class="text-xs text-slate-600">SKU *</span>
+                    <input type="text" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                           [ngModel]="editRow().sku" (ngModelChange)="setEdit('sku', $event)" />
+                  </label>
+
+                  <label class="block">
+                    <span class="text-xs text-slate-600">Color</span>
+                    <select class="mt-1 w-full rounded-lg border px-3 py-2 text-sm bg-white"
+                            [ngModel]="editRow().colorId" (ngModelChange)="setEdit('colorId', $event ? +$event : null)">
+                      <option [ngValue]="null">— Sin color —</option>
+                      <option *ngFor="let c of colors()" [ngValue]="c.id">{{ c.name }}</option>
+                    </select>
+                  </label>
+
+                  <label class="block">
+                    <span class="text-xs text-slate-600">Marca</span>
+                    <input type="text" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                           [ngModel]="editRow().brand" (ngModelChange)="setEdit('brand', $event)" />
+                  </label>
+
+                  <label class="block">
+                    <span class="text-xs text-slate-600">Precio</span>
+                    <input type="number" step="0.01" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                           [ngModel]="editRow().price" (ngModelChange)="setEdit('price', $event)" />
+                  </label>
+
+                  <label class="block">
+                    <span class="text-xs text-slate-600">Precio oferta</span>
+                    <input type="number" step="0.01" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                           [ngModel]="editRow().discountPrice" (ngModelChange)="setEdit('discountPrice', $event)" />
+                  </label>
+
+                  <label class="block">
+                    <span class="text-xs text-slate-600">Stock</span>
+                    <input type="number" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                           [ngModel]="editRow().stock" (ngModelChange)="setEdit('stock', $event)" />
+                  </label>
+
+                  <label class="block">
+                    <span class="text-xs text-slate-600">Unidad de medida</span>
+                    <input type="text" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                           [ngModel]="editRow().unitOfMeasure" (ngModelChange)="setEdit('unitOfMeasure', $event)" />
+                  </label>
+
+                  <label class="block">
+                    <span class="text-xs text-slate-600">Dimensiones</span>
+                    <input type="text" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                           [ngModel]="editRow().dimensions" (ngModelChange)="setEdit('dimensions', $event)" />
+                  </label>
+
+                  <label class="block">
+                    <span class="text-xs text-slate-600">Imagen principal</span>
+                    <input type="url" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                           [ngModel]="editRow().imageUrl" (ngModelChange)="setEdit('imageUrl', $event)" />
+                  </label>
+
+                  <label class="block sm:col-span-2 lg:col-span-3">
+                    <span class="text-xs text-slate-600">Descripción corta</span>
+                    <input type="text" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                           [ngModel]="editRow().shortDescription" (ngModelChange)="setEdit('shortDescription', $event)" />
+                  </label>
+
+                  <label class="block sm:col-span-2 lg:col-span-3">
+                    <span class="text-xs text-slate-600">Descripción</span>
+                    <textarea rows="3" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                              [ngModel]="editRow().description" (ngModelChange)="setEdit('description', $event)"></textarea>
+                  </label>
+
+                  <label class="block sm:col-span-2">
+                    <span class="text-xs text-slate-600">Galería (URLs separadas por coma o línea)</span>
+                    <textarea rows="2" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                              [ngModel]="editRow().galleryUrls" (ngModelChange)="setEdit('galleryUrls', $event)"></textarea>
+                  </label>
+
+                  <label class="block">
+                    <span class="text-xs text-slate-600">Tags</span>
+                    <textarea rows="2" class="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
+                              [ngModel]="editRow().tags" (ngModelChange)="setEdit('tags', $event)"></textarea>
+                  </label>
+
+                  <div class="flex items-center gap-6 sm:col-span-2 lg:col-span-3">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" class="h-4 w-4 rounded"
+                             [ngModel]="editRow().outlet" (ngModelChange)="setEdit('outlet', $event)" />
+                      <span class="text-sm text-slate-700">Outlet</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" class="h-4 w-4 rounded"
+                             [ngModel]="editRow().is_active" (ngModelChange)="setEdit('is_active', $event)" />
+                      <span class="text-sm text-slate-700">Activo</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="mt-4 flex justify-end gap-2">
+                  <button type="button" class="rounded-lg border px-4 py-2 text-sm hover:bg-white"
+                          (click)="cancelEdit()">Cancelar</button>
+                  <button type="button"
+                          class="rounded-lg bg-blue-600 text-white px-4 py-2 text-sm font-semibold hover:bg-blue-700 disabled:opacity-50"
+                          [disabled]="saving()"
+                          (click)="saveEdit(v.id)">
+                    {{ saving() ? 'Guardando…' : 'Guardar cambios' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+          </ng-container>
+
+          <tr *ngIf="!loading() && variants().length === 0">
+            <td colspan="9" class="px-3 py-8 text-center text-slate-500">
+              Este producto no tiene variantes aún. Crea la primera con el botón de arriba.
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>

@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
 import { adminGuard } from '@core/guards/admin.guard';
+import { AdminLayoutComponent } from './domains/pages/admin-layout/admin-layout.component';
 
 const SECRET_BASE = ROUTE_CONSTANTS.SECRET_BASE;
 
@@ -9,7 +10,10 @@ export const adminRoutes: Routes = [
     path: SECRET_BASE,
     canActivate: [adminGuard],
     canActivateChild: [adminGuard],
+    component: AdminLayoutComponent,
     children: [
+      // Redirect a productos por defecto
+      { path: '', redirectTo: ROUTE_CONSTANTS.ADMIN.PRODUCTS, pathMatch: 'full' },
       {
         path: ROUTE_CONSTANTS.ADMIN.MENU_SECRETO,
         loadComponent: () =>
@@ -47,6 +51,13 @@ export const adminRoutes: Routes = [
           )
       },
       {
+        path: ROUTE_CONSTANTS.ADMIN.ORDERS_ADMIN,
+        loadComponent: () =>
+          import('./domains/pages/MenuProducts/orders-admin/orders-admin.component').then(
+            m => m.OrdersAdminComponent
+          )
+      },
+      {
         path: ROUTE_CONSTANTS.ADMIN.CATEGORIES,
         loadComponent: () => import('./domains/pages/MenuProducts/categories/categories.component').then(m => m.CategoriesComponent)
       },
@@ -73,6 +84,10 @@ export const adminRoutes: Routes = [
       {
         path: ROUTE_CONSTANTS.ADMIN.PROMO,
         loadComponent: () => import('./domains/pages/MenuProducts/adds/promo/promo.component').then(m => m.PromoComponent)
+      },
+      {
+        path: ROUTE_CONSTANTS.ADMIN.VARIANTS,
+        loadComponent: () => import('./domains/pages/MenuProducts/variants/variants.component').then(m => m.VariantsComponent)
       }
     ]
   }

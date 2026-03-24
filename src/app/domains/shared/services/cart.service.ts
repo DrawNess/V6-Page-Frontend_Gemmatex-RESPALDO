@@ -1,7 +1,18 @@
 import { Injectable, computed, effect, signal } from '@angular/core';
-import { Product } from '../models/product.model';
 import { TokenService } from './token.service';
 import { SessionService } from './session.service';
+
+export interface CartItem {
+  variantId: number;
+  productId: number;
+  name: string;
+  sku: string;
+  price: number;
+  discountPrice: number | null;
+  imageUrl: string;
+  colorName?: string | null;
+  colorHex?: string | null;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -12,11 +23,10 @@ export class CartService {
   private activeStorageKey = this.guestKey;
   private syncing = false;
 
-  cart = signal<Product[]>([]);
-  total = computed(() => {
-    const cart = this.cart();
-    return cart.reduce((total, product) => total + product.price, 0);
-  })
+  cart = signal<CartItem[]>([]);
+  total = computed(() =>
+    this.cart().reduce((sum, item) => sum + (item.discountPrice ?? item.price), 0)
+  );
 
   constructor(
     private readonly tokenService: TokenService,
@@ -26,9 +36,7 @@ export class CartService {
 
     effect(() => {
       const list = this.cart();
-      if (this.syncing) {
-        return;
-      }
+      if (this.syncing) return;
       this.writeCart(this.activeStorageKey, list);
     });
   }
@@ -45,24 +53,22 @@ export class CartService {
     return this.guestKey;
   }
 
-  private readCart(key: string): Product[] {
+  private readCart(key: string): CartItem[] {
     try {
       const raw = localStorage.getItem(key);
-      if (!raw) {
-        return [];
-      }
+      if (!raw) return [];
       const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? (parsed as Product[]) : [];
+      return Array.isArray(parsed) ? (parsed as CartItem[]) : [];
     } catch {
       return [];
     }
   }
 
-  private writeCart(key: string, cart: Product[]): void {
+  private writeCart(key: string, cart: CartItem[]): void {
     localStorage.setItem(key, JSON.stringify(cart));
   }
 
-  private setCartWithoutPersist(cart: Product[]): void {
+  private setCartWithoutPersist(cart: CartItem[]): void {
     this.syncing = true;
     this.cart.set(cart);
     this.syncing = false;
@@ -76,9 +82,7 @@ export class CartService {
       return;
     }
 
-    if (nextKey === this.activeStorageKey) {
-      return;
-    }
+    if (nextKey === this.activeStorageKey) return;
 
     const previousKey = this.activeStorageKey;
     const previousCart = this.cart();
@@ -91,27 +95,24 @@ export class CartService {
     this.writeCart(nextKey, merged);
   }
 
-  /* addToCart(product: Product) {
-    this.cart.update(state => [...state, product]);
-  } */
- addToCart(product: Product) {
+  addToCart(item: CartItem) {
     this.syncWithCurrentSession();
-    this.cart.update(list => [...list, product]);
+    this.cart.update(list => [...list, item]);
   }
 
-  /** Alias para compatibilidad con el header (botón “+”) */
-  addOne(product: Product) {
-    this.addToCart(product);
-  }
-  private keyOf(p: Product): string {
-    return String((p as any).id ?? (p as any).slug ?? (p as any).sku ?? p.name);
+  addOne(item: CartItem) {
+    this.addToCart(item);
   }
 
-  removeFromCart(product: Product) {
+  private keyOf(item: CartItem): string {
+    return String(item.variantId);
+  }
+
+  removeFromCart(item: CartItem) {
     this.syncWithCurrentSession();
     this.cart.update(list => {
-      const key = this.keyOf(product);
-      const idx = list.findIndex(p => this.keyOf(p) === key);
+      const key = this.keyOf(item);
+      const idx = list.findIndex(i => this.keyOf(i) === key);
       if (idx === -1) return list;
       const next = list.slice();
       next.splice(idx, 1);
@@ -119,10 +120,10 @@ export class CartService {
     });
   }
 
-  removeAllFromCart(product: Product) {
+  removeAllFromCart(item: CartItem) {
     this.syncWithCurrentSession();
-    const key = this.keyOf(product);
-    this.cart.update(list => list.filter(p => this.keyOf(p) !== key));
+    const key = this.keyOf(item);
+    this.cart.update(list => list.filter(i => this.keyOf(i) !== key));
   }
 
   clear() {

@@ -1,35 +1,14 @@
-/* import { Subcategory } from "@shared/services/subcategory.service"; */
-import { Subcategory } from "./subcategory.model";
+import { Subcategory } from './subcategory.model';
+import { Variant } from './variant.model';
 
 export interface Product {
-
-    /* id: number;
-    title: string;
-    description: string;
-    price: number;
-    images: string[];
-    creationAt: string; */
   id: number;
   name: string;
   slug: string;
-  description: string;
-  shortDescription: string;
   brand: string;
   imageUrl: string;
-  galleryUrls: string;
-  price: number;
-  discountPrice: number;
-  sku: string;
-  stock: number;
-  unitOfMeasure: string;
-  dimensions: string;
-  tags: string[];
   is_active: boolean;
-  created_at: string;
-  updated_at: string;
+  subcategoryId?: number;
   subcategory?: Subcategory;
-  /** Selecciones locales cuando el producto admite variantes (ej. tintas por color) */
-  selectedColor?: string;
-  selectedPrinter?: string;
-  /* category: 1; */
+  variants?: Variant[];
 }

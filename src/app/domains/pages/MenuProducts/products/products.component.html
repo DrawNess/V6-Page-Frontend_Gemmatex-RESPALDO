@@ -139,23 +139,23 @@
               {{ p.name }}
             </div>
             <div class="text-xs text-slate-500">
-              SKU: {{ p.sku || '—' }}
+              SKU: {{ p.variants?.[0]?.sku || '—' }}
             </div>
           </td>
 
           <!-- Precio -->
           <td class="px-3 py-2 text-slate-800 whitespace-nowrap">
             <div>
-              Bs {{ p.price | number: '1.2-2' }}
+              Bs {{ p.variants?.[0]?.price | number: '1.2-2' }}
             </div>
-            <div *ngIf="p.discountPrice" class="text-xs text-emerald-600">
-              Oferta: Bs {{ p.discountPrice | number: '1.2-2' }}
+            <div *ngIf="p.variants?.[0]?.discountPrice" class="text-xs text-emerald-600">
+              Oferta: Bs {{ p.variants?.[0]?.discountPrice | number: '1.2-2' }}
             </div>
           </td>
 
           <!-- Stock -->
           <td class="px-3 py-2 text-slate-800">
-            {{ p.stock }}
+            {{ p.variants?.[0]?.stock ?? '—' }}
           </td>
 
           <!-- Subcategoría -->
@@ -182,6 +182,13 @@
                 class="rounded-lg border px-3 py-1.5 text-sm bg-white hover:bg-slate-50"
                 (click)="openEditModal(p)">
                 Editar
+              </button>
+
+              <button
+                type="button"
+                class="rounded-lg border border-indigo-300 text-indigo-700 px-3 py-1.5 text-sm bg-white hover:bg-indigo-50"
+                (click)="goToVariants(p.id)">
+                Variantes{{ (p.variants?.length ?? 0) > 0 ? ' (' + p.variants!.length + ')' : '' }}
               </button>
 
               <button

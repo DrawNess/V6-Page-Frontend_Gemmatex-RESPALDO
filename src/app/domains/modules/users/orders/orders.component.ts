@@ -1,11 +1,26 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { catchError, of, switchMap } from 'rxjs';
+import { catchError, of } from 'rxjs';
 import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
 import { ApiCustomer, ApiOrder, ApiOrderItem } from '@shared/models/user-portal.model';
 import { OrderService } from '@shared/services/order.service';
 import { CustomerService } from '@shared/services/customer.service';
+
+interface OrderDetailCache {
+  loading: boolean;
+  items: ApiOrderItem[];
+  fetched: boolean;
+}
+
+const STATUS_META: Record<string, { label: string; color: string }> = {
+  pendiente:  { label: 'Pendiente',  color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
+  confirmado: { label: 'Confirmado', color: 'bg-blue-100 text-blue-800 border-blue-300' },
+  en_curso:   { label: 'En curso',   color: 'bg-indigo-100 text-indigo-800 border-indigo-300' },
+  enviado:    { label: 'Enviado',    color: 'bg-purple-100 text-purple-800 border-purple-300' },
+  entregado:  { label: 'Entregado',  color: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+  cancelado:  { label: 'Cancelado',  color: 'bg-red-100 text-red-800 border-red-300' },
+};
 
 @Component({
   selector: 'app-orders',
@@ -20,8 +35,9 @@ export class OrdersComponent implements OnInit {
   errorMsg = '';
   orders: ApiOrder[] = [];
   customer: ApiCustomer | null = null;
-  selectedOrder: ApiOrder | null = null;
   selectedOrderId: number | null = null;
+  selectedOrder: ApiOrder | null = null;
+  detailCache = new Map<number, OrderDetailCache>();
 
   constructor(
     private readonly orderService: OrderService,
@@ -45,26 +61,25 @@ export class OrdersComponent implements OnInit {
     this.loading = true;
     this.errorMsg = '';
 
-    this.orderService.getMyOrders().pipe(
-      catchError(() => of([] as ApiOrder[])),
-      switchMap((orders) => {
-        if (orders.length > 0) {
-          return of(orders);
-        }
-        return this.orderService.getOrders();
-      }),
-    ).subscribe({
+    this.orderService.getMyOrders().subscribe({
       next: (orders) => {
-        this.orders = [...orders].sort((a, b) => {
+        this.orders = [...(orders ?? [])].sort((a, b) => {
           const aTime = new Date(a.createdAt ?? 0).getTime();
           const bTime = new Date(b.createdAt ?? 0).getTime();
           return bTime - aTime;
         });
         this.loading = false;
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        this.errorMsg = 'No se pudieron cargar tus pedidos.';
+        console.error('[Orders] Error al cargar pedidos:', err);
+        if (err?.status === 401) {
+          this.errorMsg = 'Tu sesión expiró. Vuelve a iniciar sesión.';
+        } else if (err?.status === 403) {
+          this.errorMsg = 'No tienes permiso para ver pedidos.';
+        } else {
+          this.errorMsg = `No se pudieron cargar tus pedidos (${err?.status ?? 'error de red'}). Intenta nuevamente.`;
+        }
       },
     });
   }
@@ -73,50 +88,83 @@ export class OrdersComponent implements OnInit {
     return order.id;
   }
 
-  getOrderItems(order: ApiOrder | null): ApiOrderItem[] {
-    if (!order) {
-      return [];
+  toggleDetail(order: ApiOrder): void {
+    if (this.selectedOrderId === order.id) {
+      this.selectedOrder = null;
+      this.selectedOrderId = null;
+      return;
     }
-    const raw = (order as any).items ?? (order as any).orderItems ?? (order as any).products ?? [];
+    this.selectedOrderId = order.id;
+    this.selectedOrder = order;
+    this.fetchDetailIfNeeded(order);
+  }
+
+  private fetchDetailIfNeeded(order: ApiOrder): void {
+    const cached = this.detailCache.get(order.id);
+    // Si ya tenemos items en el objeto o ya los fetcheamos, no hacer nada
+    const embeddedItems = this.getOrderItems(order);
+    if ((cached?.fetched) || embeddedItems.length > 0) return;
+
+    this.detailCache.set(order.id, { loading: true, items: [], fetched: false });
+
+    this.orderService.getOrderById(order.id).pipe(
+      catchError(() => of(null))
+    ).subscribe(detail => {
+      const items = detail ? this.extractItems(detail) : [];
+      this.detailCache.set(order.id, { loading: false, items, fetched: true });
+    });
+  }
+
+  private extractItems(order: ApiOrder): ApiOrderItem[] {
+    const raw = order?.items ?? (order as any).orderItems ?? (order as any).products ?? [];
     return Array.isArray(raw) ? (raw as ApiOrderItem[]) : [];
   }
 
-  getOrderCustomerName(order: ApiOrder | null): string {
-    if (!order?.customer) {
-      return this.getCustomerFullName();
-    }
-    const fullName = `${order.customer.name ?? ''} ${order.customer.lastName ?? ''}`.trim();
-    return fullName || this.getCustomerFullName();
+  isDetailLoading(orderId: number): boolean {
+    return this.detailCache.get(orderId)?.loading ?? false;
   }
 
-  getOrderCustomerEmail(order: ApiOrder | null): string {
-    const email = (order as any)?.customer?.user?.email;
-    if (typeof email === 'string' && email.trim()) {
-      return email;
-    }
-    return this.customer?.user?.email ?? this.customer?.name ?? '-';
+  statusMeta(status?: string | null): { label: string; color: string } {
+    return STATUS_META[status ?? ''] ?? { label: status ?? 'Pendiente', color: 'bg-slate-100 text-slate-700 border-slate-300' };
+  }
+
+  getCustomerFullName(): string {
+    const fullName = `${this.customer?.name ?? ''} ${this.customer?.lastName ?? ''}`.trim();
+    return fullName || 'Cliente';
+  }
+
+  getOrderItems(order: ApiOrder | null): ApiOrderItem[] {
+    if (!order) return [];
+    const raw = (order as any).items ?? (order as any).orderItems ?? (order as any).products ?? [];
+    const embedded: ApiOrderItem[] = Array.isArray(raw) ? (raw as ApiOrderItem[]) : [];
+    if (embedded.length > 0) return embedded;
+    // Fallback: usar caché de detalle lazy-loaded
+    return this.detailCache.get(order.id)?.items ?? [];
+  }
+
+  getOrderTotal(order: ApiOrder | null): number {
+    if (!order) return 0;
+    if (typeof order.total === 'number') return order.total;
+    return this.getOrderItems(order).reduce((sum, item) => {
+      const amt = Number(item.amount ?? (item as any)?.['OrderProduct']?.amount ?? 0);
+      return sum + amt * Number(item.price ?? 0);
+    }, 0);
   }
 
   getItemName(item: ApiOrderItem): string {
     const product = (item as any).product ?? (item as any).Product ?? null;
-    const name = product?.name ?? (item as any).name ?? null;
-    if (typeof name === 'string' && name.trim()) {
-      return name;
-    }
-    const productId = item.productId ?? (item as any).product?.id;
-    return productId ? `Producto #${productId}` : 'Producto';
+    const name = product?.name ?? (item as any).name ?? (item as any).description ?? null;
+    if (typeof name === 'string' && name.trim()) return name;
+    return item.sku ? `SKU: ${item.sku}` : `Variante #${item.variantId ?? '-'}`;
   }
 
   getItemAmount(item: ApiOrderItem): number {
-    return Number(item.amount ?? item.OrderProduct?.amount ?? 0);
+    // La API devuelve la cantidad en OrderProduct.amount (tabla pivot)
+    return Number((item as any).OrderProduct?.amount ?? item.amount ?? 0);
   }
 
   getItemPrice(item: ApiOrderItem): number {
-    return Number(item.price ?? (item as any).discountPrice ?? 0);
-  }
-
-  getItemProductId(item: ApiOrderItem): number | string {
-    return item.productId ?? item.OrderProduct?.productId ?? item.id ?? '-';
+    return Number(item.price ?? 0);
   }
 
   getItemSku(item: ApiOrderItem): string {
@@ -128,24 +176,6 @@ export class OrdersComponent implements OnInit {
   }
 
   getItemSubtotal(item: ApiOrderItem): number {
-    const amount = this.getItemAmount(item);
-    const price = this.getItemPrice(item);
-    return amount * price;
+    return this.getItemAmount(item) * this.getItemPrice(item);
   }
-
-  getCustomerFullName(): string {
-    const fullName = `${this.customer?.name ?? ''} ${this.customer?.lastName ?? ''}`.trim();
-    return fullName || 'Cliente';
-  }
-
-  toggleDetail(order: ApiOrder): void {
-    if (this.selectedOrderId === order.id) {
-      this.selectedOrder = null;
-      this.selectedOrderId = null;
-      return;
-    }
-    this.selectedOrderId = order.id;
-    this.selectedOrder = order;
-  }
-
 }

@@ -58,7 +58,7 @@
             </span>
           </ng-template>
 
-          <span *ngIf="product?.tags?.includes('fluor')"
+          <span *ngIf="false"
                 class="rounded-full bg-yellow-400/90 px-2 py-0.5 text-[10px] font-semibold text-black shadow">
             FLÚOR
           </span>
@@ -82,10 +82,7 @@
             <span class="h-2 w-2 rounded-full bg-slate-900 border border-white/20"></span>
             {{ product.subcategory || 'Producto' }}
           </span>
-          <span *ngIf="product?.created_at" class="text-[10px] text-slate-400">
-            · {{ product.created_at | date:'shortDate' }}
-          </span>
-          <span class="ml-auto text-[10px] text-slate-400">SKU: {{ product.sku }}</span>
+          <span *ngIf="sku" class="ml-auto text-[10px] text-slate-400">SKU: {{ sku }}</span>
         </div>
 
         <!-- Título -->
@@ -97,15 +94,15 @@
         <div class="mt-1 flex items-baseline gap-2">
           <ng-container *ngIf="hasDiscount; else priceNormal">
             <span class="text-xl font-bold text-slate-900">
-              {{ product.discountPrice | currency:'BOB':'symbol':'1.2-2' }}
+              {{ discountPrice | currency:'BOB':'symbol':'1.2-2' }}
             </span>
             <span class="text-sm text-slate-400 line-through">
-              {{ product.price | currency:'BOB':'symbol':'1.2-2' }}
+              {{ price | currency:'BOB':'symbol':'1.2-2' }}
             </span>
           </ng-container>
           <ng-template #priceNormal>
             <span class="text-xl font-bold text-slate-900">
-              {{ product.price | currency:'BOB':'symbol':'1.2-2' }}
+              {{ price | currency:'BOB':'symbol':'1.2-2' }}
             </span>
           </ng-template>
         </div>

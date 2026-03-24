@@ -1,7 +1,6 @@
 import { Component, inject, signal, computed, effect, untracked, OnInit, OnDestroy } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
-import { Product } from '../../models/product.model';
-import { CartService } from '../../services/cart.service';
+import { CartService, CartItem } from '../../services/cart.service';
 import { Router, NavigationEnd, RouterLink } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
@@ -53,35 +52,27 @@ export class HeaderComponent implements OnInit, OnDestroy {
   toggleDesktopMenu() { this.desktopMenuOpen.update(v => !v); }
   closeDesktopMenu() { this.desktopMenuOpen.set(false); }
 
-  removeFromCart(product: Product) { this.cartService.removeFromCart(product); }
-  removeAllFromCart(product: Product) { this.cartService.removeAllFromCart(product); }
-/* ---------------- */
-  private unitPrice(p: Product): number {
-    const d = Number(p.discountPrice);
-    const base = Number(p.price);
-    return !isNaN(d) && d > 0 ? d : base;
-  }
-  /* Agrupar items */
-  groupedCart = computed(() => {
-    const map = new Map<string, { product: Product; count: number; unitPrice: number }>();
+  removeFromCart(item: CartItem) { this.cartService.removeFromCart(item); }
+  removeAllFromCart(item: CartItem) { this.cartService.removeAllFromCart(item); }
 
-    for (const p of this.cart()) {
-      const key = String(p?.id ?? p?.slug);
-      const price = this.unitPrice(p);
+  private unitPrice(item: CartItem): number {
+    return item.discountPrice ?? item.price;
+  }
+
+  groupedCart = computed(() => {
+    const map = new Map<string, { product: CartItem; count: number; unitPrice: number }>();
+    for (const item of this.cart()) {
+      const key = String(item.variantId);
+      const price = this.unitPrice(item);
       const cur = map.get(key);
-      if (cur) {
-        cur.count += 1;
-      } else {
-        map.set(key, { product: p, count: 1, unitPrice: price });
-      }
+      if (cur) cur.count += 1;
+      else map.set(key, { product: item, count: 1, unitPrice: price });
     }
     return Array.from(map.values());
   });
-  // Suma una unidad del mismo producto
-  addOne(p: Product) {
-    this.cartService.addToCart(p);
-    // Alternativa: manipular el signal directamente
-    // this.cart.set([...this.cart(), p]);
+
+  addOne(item: CartItem) {
+    this.cartService.addToCart(item);
   }
 
   onSearch(q: string) {

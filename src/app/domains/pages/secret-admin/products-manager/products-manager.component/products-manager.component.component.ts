@@ -55,7 +55,7 @@ export class ProductsManagerComponentComponent {
         p.name ?? '',
         (p as any).shortDescription ?? '',
         (p as any).description ?? '',
-        ...(p.tags ?? [])
+        ...((p as any).tags ?? [])
       ].join(' ').toLowerCase();
       return s.includes(q);
     });
@@ -94,16 +94,16 @@ export class ProductsManagerComponentComponent {
     this.editing.set(p);
     this.form.reset({
       name: p.name ?? '',
-      price: p.price ?? 0,
+      price: (p as any).price ?? 0,
       discountPrice: (p as any).discountPrice ?? null,
       imageUrl: p.imageUrl ?? '',
       category: Number((p as any).category) || null,
       subcategory: (p as any).subcategory ?? '',
       stock: (p as any).stock ?? 0,
-      is_active: (p as any).is_active ?? true,
+      is_active: p.is_active ?? true,
       shortDescription: (p as any).shortDescription ?? '',
       description: (p as any).description ?? '',
-      tags: (p.tags ?? []).join(',')
+      tags: ((p as any).tags ?? []).join(',')
     });
     this.showModal.set(true);
   }
