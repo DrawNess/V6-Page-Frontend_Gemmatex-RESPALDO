@@ -54,13 +54,13 @@ export const publicRoutes: Routes = [
     path: ROUTE_CONSTANTS.PUBLIC.CHECKOUT,
     canActivate: [customerGuard],
     loadComponent: () =>
-      import('./domains/pages/pay/checkout/checkout.component').then((m) => m.CheckoutComponent)
+      import('./domains/modules/users/pay/checkout/checkout.component').then((m) => m.CheckoutComponent)
   },
   {
     path: ROUTE_CONSTANTS.PUBLIC.SHIPPING,
     canActivate: [customerGuard],
     loadComponent: () =>
-      import('./domains/pages/pay/shipping/shipping.component').then((m) => m.ShippingComponent)
+      import('./domains/modules/users/pay/shipping/shipping.component').then((m) => m.ShippingComponent)
   },
   {
     path: ROUTE_CONSTANTS.PUBLIC.RECURSOS.PERFILES_COLOR,

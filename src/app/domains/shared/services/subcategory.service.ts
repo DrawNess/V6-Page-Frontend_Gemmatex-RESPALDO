@@ -109,6 +109,15 @@ export class SubcategoryService {
     );
   }
 
+  create(body: Partial<Subcategory>) {
+    return this.http.post<Subcategory>(`${this.base}/subcategories`, body);
+  }
+
+  update(id: string | number, body: Partial<Subcategory>) {
+    return this.http.patch<Subcategory>(`${this.base}/subcategories/${id}`, body);
+  }
+
+  delete(id: string | number) {
+    return this.http.delete<void>(`${this.base}/subcategories/${id}`);
+  }
 }
-// src/app/shared/services/subcategory.service.ts
-// src/app/shared/services/subcategory.service.ts

@@ -30,4 +30,15 @@ export class CategoryService {
     );
   }
 
+  create(body: Partial<Category>) {
+    return this.http.post<Category>(`${this.base}/categories`, body);
+  }
+
+  update(id: string | number, body: Partial<Category>) {
+    return this.http.patch<Category>(`${this.base}/categories/${id}`, body);
+  }
+
+  delete(id: string | number) {
+    return this.http.delete<void>(`${this.base}/categories/${id}`);
+  }
 }

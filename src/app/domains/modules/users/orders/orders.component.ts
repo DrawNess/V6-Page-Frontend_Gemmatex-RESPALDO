@@ -22,6 +22,8 @@ const STATUS_META: Record<string, { label: string; color: string }> = {
   cancelado:  { label: 'Cancelado',  color: 'bg-red-100 text-red-800 border-red-300' },
 };
 
+const STATUS_STEPS = ['pendiente', 'confirmado', 'en_curso', 'enviado', 'entregado'];
+
 @Component({
   selector: 'app-orders',
   imports: [CommonModule, RouterLink],
@@ -69,6 +71,7 @@ export class OrdersComponent implements OnInit {
           return bTime - aTime;
         });
         this.loading = false;
+        this.selectFirst();
       },
       error: (err) => {
         this.loading = false;
@@ -153,9 +156,14 @@ export class OrdersComponent implements OnInit {
 
   getItemName(item: ApiOrderItem): string {
     const product = (item as any).product ?? (item as any).Product ?? null;
-    const name = product?.name ?? (item as any).name ?? (item as any).description ?? null;
+    // 1. Nombre del producto (relación anidada)
+    const name = product?.name ?? (item as any).name ?? null;
     if (typeof name === 'string' && name.trim()) return name;
-    return item.sku ? `SKU: ${item.sku}` : `Variante #${item.variantId ?? '-'}`;
+    // 2. Descripción corta de la variante (máx 80 chars)
+    const desc = String((item as any).description ?? '').trim();
+    if (desc) return desc.length > 80 ? desc.slice(0, 77) + '…' : desc;
+    // 3. SKU como último recurso
+    return item.sku ?? `Variante #${item.variantId ?? '-'}`;
   }
 
   getItemAmount(item: ApiOrderItem): number {
@@ -177,5 +185,39 @@ export class OrdersComponent implements OnInit {
 
   getItemSubtotal(item: ApiOrderItem): number {
     return this.getItemAmount(item) * this.getItemPrice(item);
+  }
+
+  // Progress bar helpers
+  readonly statusSteps = STATUS_STEPS;
+
+  getStatusStepIndex(status?: string | null): number {
+    if (status === 'cancelado') return -1;
+    return STATUS_STEPS.indexOf(status ?? 'pendiente');
+  }
+
+  isStepCompleted(status: string | null | undefined, stepIdx: number): boolean {
+    return this.getStatusStepIndex(status) >= stepIdx;
+  }
+
+  isStepActive(status: string | null | undefined, stepIdx: number): boolean {
+    return this.getStatusStepIndex(status) === stepIdx;
+  }
+
+  isCancelled(status?: string | null): boolean {
+    return status === 'cancelado';
+  }
+
+  getOrderDetail(order: ApiOrder | null): string {
+    return String((order as any)?.detail ?? '').trim();
+  }
+
+  stepLabel(step: string): string {
+    return STATUS_META[step]?.label ?? step;
+  }
+
+  selectFirst(): void {
+    if (this.orders.length && !this.selectedOrderId) {
+      this.toggleDetail(this.orders[0]);
+    }
   }
 }

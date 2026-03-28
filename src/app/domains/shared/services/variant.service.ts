@@ -43,4 +43,12 @@ export class VariantService {
   deleteVariant(id: number): Observable<{ id: number }> {
     return this.http.delete<{ id: number }>(`${this.base}/variants/${id}`);
   }
+
+  bulkUpload(file: File, dryRun = true) {
+    const fd = new FormData();
+    fd.append('file', file);
+    return this.http.post<{ created?: number; updated?: number; errors?: unknown[] }>(
+      `${this.base}/variants/bulk?dryRun=${dryRun}`, fd
+    );
+  }
 }

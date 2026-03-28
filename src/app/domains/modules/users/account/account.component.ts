@@ -8,7 +8,6 @@ import { CustomerService } from '@shared/services/customer.service';
 import { ApiCustomer, ApiUser } from '@shared/models/user-portal.model';
 import { catchError, forkJoin, of } from 'rxjs';
 import { finalize } from 'rxjs/operators';
-import { ProfileService } from '@shared/services/profile.service';
 
 @Component({
   selector: 'app-account',
@@ -21,6 +20,14 @@ export class AccountComponent implements OnInit {
   readonly userInfoPath = `/${ROUTE_CONSTANTS.USER.BASE}/${ROUTE_CONSTANTS.USER.INFO}`;
   readonly userOrdersPath = `/${ROUTE_CONSTANTS.USER.BASE}/${ROUTE_CONSTANTS.USER.ORDERS}`;
 
+  navOpen = false;
+  navItems = [
+    { label: 'Resumen', path: this.userBasePath, description: 'Panel principal' },
+    { label: 'Información', path: this.userInfoPath, description: 'Datos y contacto' },
+    { label: 'Dirección', path: `/${ROUTE_CONSTANTS.USER.BASE}/${ROUTE_CONSTANTS.USER.ADDRESS}`, description: 'Dirección de entrega' },
+    { label: 'Pedidos', path: this.userOrdersPath, description: 'Historial y seguimiento' },
+  ];
+
   loading = false;
   user: ApiUser | null = null;
   customer: ApiCustomer | null = null;
@@ -29,7 +36,6 @@ export class AccountComponent implements OnInit {
   constructor(
     private readonly userService: UserService,
     private readonly customerService: CustomerService,
-    private readonly profileService: ProfileService,
     private readonly authService: AuthService,
     private readonly router: Router
   ) {}
@@ -42,13 +48,10 @@ export class AccountComponent implements OnInit {
     this.loading = true;
     this.errorMsg = '';
 
-    this.profileService.getMeDetails().pipe(
-      catchError(() =>
-        forkJoin({
-          user: this.userService.getCurrentUser(),
-          customer: this.customerService.getCurrentCustomer().pipe(catchError(() => of(null)))
-        })
-      ),
+    forkJoin({
+      user: this.userService.getCurrentUser().pipe(catchError(() => of(null))),
+      customer: this.customerService.getMyCustomer().pipe(catchError(() => of(null))),
+    }).pipe(
       finalize(() => {
         this.loading = false;
       })
@@ -66,6 +69,34 @@ export class AccountComponent implements OnInit {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/auth/login']);
+  }
+
+  toggleNav(): void {
+    this.navOpen = !this.navOpen;
+  }
+
+  isActive(path: string): boolean {
+    return this.router.url === path || this.router.url.startsWith(path + '/');
+  }
+
+  getCustomerFullName(): string {
+    const fullName = `${this.customer?.name ?? ''} ${this.customer?.lastName ?? ''}`.trim();
+    return fullName || 'Cliente';
+  }
+
+  getInitials(): string {
+    const name = `${this.customer?.name ?? ''} ${this.customer?.lastName ?? ''}`.trim();
+    if (!name) return 'CL';
+    return name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((n) => n[0]?.toUpperCase())
+      .join('');
+  }
+
+  maskedRole(): string {
+    return this.user?.role === 'admin' ? 'Admin' : 'Cliente';
   }
 
 }

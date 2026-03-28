@@ -35,6 +35,7 @@ export interface ProductListParams {
 }
 
 export interface ProductSearchParams {
+  q?: string;
   name?: string;
   tag?: string;
   page?: number;
@@ -139,42 +140,34 @@ export class ProductService {
     return this.mapPaginatedResponse(this.http.get<PaginatedResponse<Product> | Product[]>(url), page, pageSize); // Usa helper común para mantener código limpio.
   }
 
-  // GET /products/search (paginado)
-  searchProducts(params: ProductSearchParams): Observable<PaginatedResponse<Product>> {
-    const {
-      name,
-      tag,
-      page = 1,
-      pageSize = ProductService.DEFAULT_PAGE_SIZE,
-      page_size,
-      limit,
-      offset
-    } = params;
-    const query = this.buildParams({ name, tag, page, pageSize, page_size, limit, offset });
-    const url = `${this.base}/search?${query.toString()}`;
-    return this.mapPaginatedResponse(this.http.get<PaginatedResponse<Product> | Product[]>(url), page, pageSize); // Mismo criterio de normalización que en listProducts.
-  }
-
-  // búsqueda robusta: intenta por nombre y, si no hay resultados, reintenta por tag
-  searchProductsByTerm(
+  // GET /products/search?q=<term> — búsqueda cruzada (nombre, marca, SKU, tags, descripción)
+  searchByQ(
     term: string,
-    params: Omit<ProductSearchParams, 'name' | 'tag'> = {}
+    params: Pick<ProductSearchParams, 'page' | 'pageSize'> = {}
   ): Observable<PaginatedResponse<Product>> {
     const q = term.trim();
+    const page = params.page ?? 1;
+    const pageSize = params.pageSize ?? ProductService.DEFAULT_PAGE_SIZE;
+
     if (!q) {
-      return of(this.normalizePaginatedProducts(
-        [],
-        Number(params.page) || 1,
-        Number(params.pageSize) || ProductService.DEFAULT_PAGE_SIZE
-      ));
+      return of(this.normalizePaginatedProducts([], page, pageSize));
     }
 
-    return this.searchProducts({ ...params, name: q }).pipe(
-      switchMap((res) => {
-        if ((res.data?.length ?? 0) > 0) return of(res);
-        return this.searchProducts({ ...params, tag: q });
-      })
+    const query = this.buildParams({ q, page, pageSize });
+    const url = `${this.base}/search?${query.toString()}`;
+    return this.mapPaginatedResponse(
+      this.http.get<PaginatedResponse<Product> | Product[]>(url),
+      page,
+      pageSize
     );
+  }
+
+  // GET /products/search (paginado, por campos individuales — uso interno/admin)
+  searchProducts(params: ProductSearchParams): Observable<PaginatedResponse<Product>> {
+    const { name, tag, page = 1, pageSize = ProductService.DEFAULT_PAGE_SIZE, page_size, limit, offset } = params;
+    const query = this.buildParams({ name, tag, page, pageSize, page_size, limit, offset });
+    const url = `${this.base}/search?${query.toString()}`;
+    return this.mapPaginatedResponse(this.http.get<PaginatedResponse<Product> | Product[]>(url), page, pageSize);
   }
 
   // GET /products/:id/related?limit=...
@@ -239,6 +232,11 @@ export class ProductService {
   }
 
 
+  // POST /products
+  createProduct(body: Partial<Product> & Record<string, unknown>) {
+    return this.http.post<Product>(this.base, body);
+  }
+
   // PATCH /products/:id
   patchProduct(id: string | number, partial: Partial<Product> & Record<string, unknown>) {
     return this.http.patch<Product>(`${this.base}/${id}`, partial);
@@ -247,5 +245,21 @@ export class ProductService {
   // DELETE /products/:id
   deleteProduct(id: string | number) {
     return this.http.delete<void>(`${this.base}/${id}`);
+  }
+
+  // POST /add-products/bulk  (form-data: file)
+  bulkUploadProducts(file: File, dryRun = true) {
+    const fd = new FormData();
+    fd.append('file', file);
+    const url = `${environment.API_URL}/add-products/bulk?dryRun=${dryRun}`;
+    return this.http.post<{ created?: number; updated?: number; errors?: unknown[] }>(url, fd);
+  }
+
+  // POST /products/bulk-price-update  (form-data: file)
+  bulkPriceUpdate(file: File, dryRun = true, strict = false) {
+    const fd = new FormData();
+    fd.append('file', file);
+    const url = `${this.base}/bulk-price-update?dryRun=${dryRun}&strict=${strict}`;
+    return this.http.post<{ updated?: number; errors?: unknown[] }>(url, fd);
   }
 }

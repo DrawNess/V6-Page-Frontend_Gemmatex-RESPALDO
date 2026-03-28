@@ -85,7 +85,7 @@ export class CatalogoComponent {
     const requestCategoryId = this.category_id
       ?? (selectedCats.size === 1 ? String([...selectedCats][0]) : undefined);
     const req$ = q
-      ? this.productService.searchProductsByTerm(q, {
+      ? this.productService.searchByQ(q, {
           page: this.page(),
           pageSize: this.pageSize
         })

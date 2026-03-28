@@ -110,7 +110,7 @@ export class ProductosComponent {
     const req$ = selectedSubIds.length
       ? this.listProductsBySelectedSubs(selectedSubIds, q)
       : q
-      ? this.productService.searchProductsByTerm(q, {
+      ? this.productService.searchByQ(q, {
           page: this.page(),
           pageSize: this.pageSize
         })

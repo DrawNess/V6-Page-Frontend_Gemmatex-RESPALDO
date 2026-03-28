@@ -24,6 +24,11 @@ export const userRoutes: Routes = [
         path: ROUTE_CONSTANTS.USER.ORDERS,
         loadComponent: () =>
           import('./domains/modules/users/orders/orders.component').then((m) => m.OrdersComponent),
+      },
+      {
+        path: ROUTE_CONSTANTS.USER.ADDRESS,
+        loadComponent: () =>
+          import('./domains/modules/users/address/address.component').then((m) => m.AddressComponent),
       }
     ]
   }

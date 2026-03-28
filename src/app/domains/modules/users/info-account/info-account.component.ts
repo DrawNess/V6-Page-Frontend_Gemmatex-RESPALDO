@@ -1,17 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { catchError, forkJoin, of } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
-import { AuthService } from '@shared/services/auth.service';
 import { CustomerService } from '@shared/services/customer.service';
 import { UserService } from '@shared/services/user.service';
 import { ApiCustomer, ApiUser } from '@shared/models/user-portal.model';
-import { ProfileService } from '@shared/services/profile.service';
+import { AuthService } from '@shared/services/auth.service';
 
 type NullableCustomer = ApiCustomer | null;
+type CustomerWithEmail = ApiCustomer & { email?: string };
 
 @Component({
   selector: 'app-info-account',
@@ -21,15 +21,28 @@ type NullableCustomer = ApiCustomer | null;
 })
 export class InfoAccountComponent implements OnInit {
   readonly accountPath = `/${ROUTE_CONSTANTS.USER.BASE}`;
+  readonly userInfoPath = `/${ROUTE_CONSTANTS.USER.BASE}/${ROUTE_CONSTANTS.USER.INFO}`;
+  readonly userOrdersPath = `/${ROUTE_CONSTANTS.USER.BASE}/${ROUTE_CONSTANTS.USER.ORDERS}`;
+  readonly userAddressPath = `/${ROUTE_CONSTANTS.USER.BASE}/${ROUTE_CONSTANTS.USER.ADDRESS}`;
+  readonly navItems = [
+    { label: 'Resumen', path: this.accountPath, description: 'Panel principal' },
+    { label: 'Información', path: this.userInfoPath, description: 'Datos y contacto' },
+    { label: 'Dirección', path: this.userAddressPath, description: 'Dirección de entrega' },
+    { label: 'Pedidos', path: this.userOrdersPath, description: 'Historial y seguimiento' },
+  ];
 
   loading = false;
   saving = false;
+  navOpen = false;
   user: ApiUser | null = null;
   customer: ApiCustomer | null = null;
   errorMsg = '';
   successMsg = '';
-  passwordMsg = '';
   passwordLoading = false;
+  modalOpen = false;
+  modalTitle = '';
+  modalText = '';
+  modalType: 'success' | 'error' = 'success';
 
   form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -42,8 +55,8 @@ export class InfoAccountComponent implements OnInit {
     private readonly fb: FormBuilder,
     private readonly userService: UserService,
     private readonly customerService: CustomerService,
-    private readonly profileService: ProfileService,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly router: Router
   ) {}
 
   ngOnInit(): void {
@@ -55,25 +68,18 @@ export class InfoAccountComponent implements OnInit {
     this.errorMsg = '';
     this.successMsg = '';
 
-    this.profileService.getMeDetails().pipe(
-      catchError(() =>
-        forkJoin([
-          this.userService.getCurrentUser(),
-          this.customerService.getCurrentCustomer().pipe(catchError(() => of(null))),
-        ])
-      ),
+    forkJoin<[NullableCustomer, ApiUser | null]>([
+      this.customerService.getMyCustomer().pipe(catchError(() => of(null as NullableCustomer))),
+      this.userService.getCurrentUser().pipe(catchError(() => of(null as ApiUser | null))),
+    ]).pipe(
       finalize(() => (this.loading = false))
     ).subscribe({
-      next: (response) => {
-        const [user, customer] = Array.isArray(response)
-          ? (response as [ApiUser, NullableCustomer])
-          : [response.user, response.customer];
-
+      next: ([customer, user]) => {
         this.user = user;
         this.customer = customer;
 
         this.form.patchValue({
-          email: user.email ?? '',
+          email: (customer as CustomerWithEmail)?.email ?? user?.email ?? '',
           name: customer?.name ?? '',
           lastName: customer?.lastName ?? '',
           phone: customer?.phone ?? '',
@@ -83,6 +89,30 @@ export class InfoAccountComponent implements OnInit {
         this.errorMsg = 'No se pudo cargar tu información de cuenta.';
       },
     });
+  }
+
+  toggleNav(): void {
+    this.navOpen = !this.navOpen;
+  }
+
+  isActive(path: string): boolean {
+    return this.router.url === path || this.router.url.startsWith(path + '/');
+  }
+
+  getInitials(): string {
+    const name = `${this.customer?.name ?? ''} ${this.customer?.lastName ?? ''}`.trim();
+    if (!name) return 'CL';
+    return name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((n) => n[0]?.toUpperCase())
+      .join('');
+  }
+
+  getCustomerFullName(): string {
+    const fullName = `${this.customer?.name ?? ''} ${this.customer?.lastName ?? ''}`.trim();
+    return fullName || 'Cliente';
   }
 
   saveChanges(): void {
@@ -101,7 +131,6 @@ export class InfoAccountComponent implements OnInit {
 
     const { email, name, lastName, phone } = this.form.getRawValue();
     const updatePayload = {
-      email: email.trim().toLowerCase(),
       name: name.trim(),
       lastName: lastName.trim(),
       phone: phone.trim(),
@@ -109,46 +138,41 @@ export class InfoAccountComponent implements OnInit {
 
     this.saving = true;
 
-    this.profileService.updateMe(updatePayload).pipe(
-      catchError(() => {
-        const userRequest$ = this.userService.updateUser(this.user!.id, {
-          email: updatePayload.email,
-        });
-        const customerRequest$ = this.customer
-          ? this.customerService
-              .updateCustomer(this.customer.id, {
-                name: updatePayload.name,
-                lastName: updatePayload.lastName,
-                phone: updatePayload.phone,
-              })
-              .pipe(catchError(() => of(null)))
-          : of(null);
-        return forkJoin([userRequest$, customerRequest$]);
-      }),
+    this.customerService.updateMyCustomer(updatePayload).pipe(
       finalize(() => (this.saving = false))
     ).subscribe({
-      next: (response) => {
-        if (Array.isArray(response)) {
-          const [updatedUser, updatedCustomer] = response as [ApiUser, NullableCustomer];
-          this.user = updatedUser;
-          this.customer = updatedCustomer ?? this.customer;
-        } else {
-          this.user = response.user;
-          this.customer = response.customer;
-        }
+      next: (updatedCustomer: CustomerWithEmail) => {
+        this.customer = updatedCustomer ?? this.customer;
+
+        // Refresca el formulario con los datos finales
+        this.form.patchValue({
+          email: updatedCustomer?.email ?? this.user?.email ?? email,
+          name: this.customer?.name ?? '',
+          lastName: this.customer?.lastName ?? '',
+          phone: this.customer?.phone ?? '',
+        });
         this.successMsg = 'Datos actualizados correctamente.';
+        this.openModal(
+          'success',
+          'Cambios guardados',
+          'Actualizamos tu nombre y teléfono. Si no lo solicitaste, contacta soporte.'
+        );
       },
       error: () => {
         this.errorMsg = 'No se pudieron guardar los cambios. Verifica los datos e intenta nuevamente.';
+        this.openModal(
+          'error',
+          'No se guardó',
+          'Revisa los datos e inténtalo de nuevo. Si persiste, contacta soporte.'
+        );
       },
     });
   }
 
-  sendPasswordRecovery(): void {
-    this.passwordMsg = '';
-    const email = this.form.controls.email.value.trim().toLowerCase();
+  goToPasswordRecovery(): void {
+    const email = this.form.getRawValue().email?.trim().toLowerCase();
     if (!email) {
-      this.passwordMsg = 'No hay correo disponible para enviar recuperación.';
+      this.openModal('error', 'No se puede enviar', 'No hay correo disponible para enviar recuperación.');
       return;
     }
 
@@ -157,12 +181,31 @@ export class InfoAccountComponent implements OnInit {
       finalize(() => (this.passwordLoading = false))
     ).subscribe({
       next: () => {
-        this.passwordMsg = 'Te enviamos un correo para cambiar tu contraseña.';
+        this.openModal(
+          'success',
+          'Correo enviado',
+          'Te enviamos un enlace para restablecer tu contraseña. Revisa tu bandeja y spam.'
+        );
       },
       error: () => {
-        this.passwordMsg = 'No se pudo iniciar la recuperación. Intenta nuevamente.';
+        this.openModal(
+          'error',
+          'No se pudo enviar',
+          'Intenta nuevamente o contacta soporte si el problema persiste.'
+        );
       },
     });
+  }
+
+  openModal(type: 'success' | 'error', title: string, text: string): void {
+    this.modalType = type;
+    this.modalTitle = title;
+    this.modalText = text;
+    this.modalOpen = true;
+  }
+
+  closeModal(): void {
+    this.modalOpen = false;
   }
 
 }

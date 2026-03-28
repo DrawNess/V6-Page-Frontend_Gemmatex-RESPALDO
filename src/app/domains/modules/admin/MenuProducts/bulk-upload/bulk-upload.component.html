@@ -1,0 +1,719 @@
+<!-- Toast -->
+@if (toast(); as t) {
+  <div class="fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-lg text-sm font-medium animate-modal-in"
+       [class]="t.type === 'ok' ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'">
+    {{ t.msg }}
+  </div>
+}
+
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-800">Carga Masiva de Catálogo</h1>
+      <p class="text-slate-500 mt-1">Sube tu archivo Excel o CSV para crear y actualizar productos y variantes de forma masiva.</p>
+    </div>
+    <button (click)="goToProducts()"
+            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+      </svg>
+      Volver a Productos
+    </button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- GUIDE SECTION                                              -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
+        </div>
+        <h2 class="text-lg font-semibold text-slate-800">Guía de Instrucciones</h2>
+      </div>
+      <div class="flex items-center gap-2">
+        <button (click)="expandAll()" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">Expandir todo</button>
+        <span class="text-slate-300">|</span>
+        <button (click)="collapseAll()" class="text-xs text-slate-500 hover:text-slate-700 font-medium">Colapsar</button>
+      </div>
+    </div>
+
+    <!-- Section: Columns -->
+    <div class="border-b border-slate-100">
+      <button (click)="toggleSection('columns')"
+              class="w-full px-6 py-3.5 flex items-center justify-between hover:bg-slate-50 transition-colors">
+        <div class="flex items-center gap-3">
+          <span class="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">1</span>
+          <span class="font-medium text-slate-700">Columnas del archivo Excel</span>
+        </div>
+        <svg class="w-5 h-5 text-slate-400 transition-transform" [class.rotate-180]="openSections()['columns']"
+             fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      @if (openSections()['columns']) {
+        <div class="px-6 pb-5 animate-modal-in">
+          <!-- Product columns -->
+          <h4 class="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            Columnas del producto padre
+          </h4>
+          <div class="overflow-x-auto mb-5">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-slate-50">
+                  <th class="px-3 py-2 text-left font-medium text-slate-600 rounded-tl-lg">Columna</th>
+                  <th class="px-3 py-2 text-left font-medium text-slate-600">Obligatoria</th>
+                  <th class="px-3 py-2 text-left font-medium text-slate-600 rounded-tr-lg">Descripción</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr>
+                  <td class="px-3 py-2"><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">productSlug</code></td>
+                  <td class="px-3 py-2"><span class="text-red-600 font-semibold text-xs">Siempre</span></td>
+                  <td class="px-3 py-2 text-slate-600">Identificador del producto. Ej: <code class="text-xs">camisa-oxford</code></td>
+                </tr>
+                <tr>
+                  <td class="px-3 py-2"><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">productName</code></td>
+                  <td class="px-3 py-2"><span class="text-amber-600 font-medium text-xs">Si es nuevo</span></td>
+                  <td class="px-3 py-2 text-slate-600">Nombre del producto</td>
+                </tr>
+                <tr>
+                  <td class="px-3 py-2"><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">productImageUrl</code></td>
+                  <td class="px-3 py-2"><span class="text-amber-600 font-medium text-xs">Si es nuevo</span></td>
+                  <td class="px-3 py-2 text-slate-600">URL de la imagen del producto base</td>
+                </tr>
+                <tr>
+                  <td class="px-3 py-2"><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">subcategoryId</code></td>
+                  <td class="px-3 py-2"><span class="text-amber-600 font-medium text-xs">Si es nuevo</span></td>
+                  <td class="px-3 py-2 text-slate-600">ID entero de la subcategoría</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Variant columns -->
+          <h4 class="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+            Columnas de la variante
+          </h4>
+          <div class="overflow-x-auto mb-5">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-slate-50">
+                  <th class="px-3 py-2 text-left font-medium text-slate-600 rounded-tl-lg">Columna</th>
+                  <th class="px-3 py-2 text-left font-medium text-slate-600">Obligatoria</th>
+                  <th class="px-3 py-2 text-left font-medium text-slate-600 rounded-tr-lg">Descripción</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr>
+                  <td class="px-3 py-2"><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">sku</code></td>
+                  <td class="px-3 py-2"><span class="text-red-600 font-semibold text-xs">Sí</span></td>
+                  <td class="px-3 py-2 text-slate-600">Código único de la variante</td>
+                </tr>
+                <tr>
+                  <td class="px-3 py-2"><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">brand</code></td>
+                  <td class="px-3 py-2"><span class="text-red-600 font-semibold text-xs">Sí</span></td>
+                  <td class="px-3 py-2 text-slate-600">Marca</td>
+                </tr>
+                <tr>
+                  <td class="px-3 py-2"><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">description</code></td>
+                  <td class="px-3 py-2"><span class="text-red-600 font-semibold text-xs">Sí</span></td>
+                  <td class="px-3 py-2 text-slate-600">Descripción larga (mín. 10 caracteres)</td>
+                </tr>
+                <tr>
+                  <td class="px-3 py-2"><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">shortDescription</code></td>
+                  <td class="px-3 py-2"><span class="text-red-600 font-semibold text-xs">Sí</span></td>
+                  <td class="px-3 py-2 text-slate-600">Descripción corta (mín. 10 caracteres)</td>
+                </tr>
+                <tr>
+                  <td class="px-3 py-2"><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">imageUrl</code></td>
+                  <td class="px-3 py-2"><span class="text-red-600 font-semibold text-xs">Sí</span></td>
+                  <td class="px-3 py-2 text-slate-600">URL de la imagen principal</td>
+                </tr>
+                <tr>
+                  <td class="px-3 py-2"><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">price</code></td>
+                  <td class="px-3 py-2"><span class="text-red-600 font-semibold text-xs">Sí</span></td>
+                  <td class="px-3 py-2 text-slate-600">Precio en Bs (punto decimal: <code class="text-xs">185.50</code>)</td>
+                </tr>
+                <tr>
+                  <td class="px-3 py-2"><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">stock</code></td>
+                  <td class="px-3 py-2"><span class="text-red-600 font-semibold text-xs">Sí</span></td>
+                  <td class="px-3 py-2 text-slate-600">Cantidad disponible</td>
+                </tr>
+                <tr>
+                  <td class="px-3 py-2"><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">unitOfMeasure</code></td>
+                  <td class="px-3 py-2"><span class="text-red-600 font-semibold text-xs">Sí</span></td>
+                  <td class="px-3 py-2 text-slate-600">Unidad: <code class="text-xs">unidad</code>, <code class="text-xs">kg</code>, <code class="text-xs">litro</code></td>
+                </tr>
+                <tr>
+                  <td class="px-3 py-2"><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">dimensions</code></td>
+                  <td class="px-3 py-2"><span class="text-red-600 font-semibold text-xs">Sí</span></td>
+                  <td class="px-3 py-2 text-slate-600">Dimensiones o presentación</td>
+                </tr>
+                <tr>
+                  <td class="px-3 py-2"><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">tags</code></td>
+                  <td class="px-3 py-2"><span class="text-red-600 font-semibold text-xs">Sí</span></td>
+                  <td class="px-3 py-2 text-slate-600">Etiquetas separadas por coma</td>
+                </tr>
+                <tr>
+                  <td class="px-3 py-2"><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">outlet</code></td>
+                  <td class="px-3 py-2"><span class="text-red-600 font-semibold text-xs">Sí</span></td>
+                  <td class="px-3 py-2 text-slate-600"><code class="text-xs">true</code> o <code class="text-xs">false</code></td>
+                </tr>
+                <tr class="bg-slate-50/50">
+                  <td class="px-3 py-2"><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">colorId</code></td>
+                  <td class="px-3 py-2"><span class="text-slate-400 text-xs">Opcional</span></td>
+                  <td class="px-3 py-2 text-slate-600">ID del color (dejar vacío si no aplica)</td>
+                </tr>
+                <tr class="bg-slate-50/50">
+                  <td class="px-3 py-2"><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">discountPrice</code></td>
+                  <td class="px-3 py-2"><span class="text-slate-400 text-xs">Opcional</span></td>
+                  <td class="px-3 py-2 text-slate-600">Precio con descuento</td>
+                </tr>
+                <tr class="bg-slate-50/50">
+                  <td class="px-3 py-2"><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">galleryUrls</code></td>
+                  <td class="px-3 py-2"><span class="text-slate-400 text-xs">Opcional</span></td>
+                  <td class="px-3 py-2 text-slate-600">URLs adicionales separadas por coma</td>
+                </tr>
+                <tr class="bg-slate-50/50">
+                  <td class="px-3 py-2"><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">is_active</code></td>
+                  <td class="px-3 py-2"><span class="text-slate-400 text-xs">Opcional</span></td>
+                  <td class="px-3 py-2 text-slate-600"><code class="text-xs">true</code> por defecto</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Alternative header names -->
+          <div class="bg-amber-50 border border-amber-100 rounded-xl p-4 text-sm text-amber-800">
+            <p class="font-semibold mb-2 flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Nombres alternativos aceptados
+            </p>
+            <p class="text-xs text-amber-700 mb-2">El sistema acepta encabezados en español:</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 text-xs font-mono">
+              <span><code>sku</code> = <code>codigo</code></span>
+              <span><code>brand</code> = <code>marca</code></span>
+              <span><code>description</code> = <code>descripcion</code></span>
+              <span><code>price</code> = <code>precio</code></span>
+              <span><code>stock</code> = <code>inventario</code>, <code>cantidad</code></span>
+              <span><code>tags</code> = <code>etiquetas</code></span>
+              <span><code>outlet</code> = <code>es_outlet</code>, <code>oferta</code></span>
+              <span><code>colorId</code> = <code>color_id</code>, <code>id_color</code></span>
+              <span><code>imageUrl</code> = <code>imagen</code></span>
+              <span><code>dimensions</code> = <code>dimensiones</code>, <code>medidas</code></span>
+              <span><code>unitOfMeasure</code> = <code>unidad</code></span>
+              <span><code>subcategoryId</code> = <code>id_subcategoria</code></span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Section: Rules -->
+    <div class="border-b border-slate-100">
+      <button (click)="toggleSection('rules')"
+              class="w-full px-6 py-3.5 flex items-center justify-between hover:bg-slate-50 transition-colors">
+        <div class="flex items-center gap-3">
+          <span class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold">2</span>
+          <span class="font-medium text-slate-700">Reglas importantes para llenar el Excel</span>
+        </div>
+        <svg class="w-5 h-5 text-slate-400 transition-transform" [class.rotate-180]="openSections()['rules']"
+             fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      @if (openSections()['rules']) {
+        <div class="px-6 pb-5 space-y-4 animate-modal-in">
+          <!-- Rule: Product parent -->
+          <div class="bg-blue-50 border border-blue-100 rounded-xl p-4">
+            <h5 class="font-semibold text-blue-800 text-sm mb-2">Regla del producto padre</h5>
+            <ul class="space-y-1.5 text-sm text-blue-700">
+              <li>La <strong>primera fila</strong> de cada <code class="bg-blue-100 px-1 rounded text-xs">productSlug</code> nuevo debe tener <code class="text-xs">productName</code>, <code class="text-xs">productImageUrl</code> y <code class="text-xs">subcategoryId</code>.</li>
+              <li>Las filas siguientes del mismo slug pueden dejar esas 3 columnas <strong>vacías</strong>.</li>
+              <li>Si el <code class="text-xs">productSlug</code> ya existe en la BD, esas columnas siempre pueden ir vacías.</li>
+            </ul>
+          </div>
+
+          <!-- Rule: Upsert -->
+          <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
+            <h5 class="font-semibold text-emerald-800 text-sm mb-2">Upsert automático (crear o actualizar)</h5>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr>
+                    <th class="px-3 py-1.5 text-left font-medium text-emerald-700">Situación</th>
+                    <th class="px-3 py-1.5 text-left font-medium text-emerald-700">Resultado</th>
+                  </tr>
+                </thead>
+                <tbody class="text-emerald-700 divide-y divide-emerald-100">
+                  <tr><td class="px-3 py-1.5"><code class="text-xs">productSlug</code> ya existe</td><td class="px-3 py-1.5">El producto no se modifica, solo se usa como padre</td></tr>
+                  <tr><td class="px-3 py-1.5"><code class="text-xs">sku</code> ya existe</td><td class="px-3 py-1.5">La variante se <strong>actualiza</strong></td></tr>
+                  <tr><td class="px-3 py-1.5"><code class="text-xs">sku</code> no existe</td><td class="px-3 py-1.5">La variante se <strong>crea</strong></td></tr>
+                  <tr><td class="px-3 py-1.5"><code class="text-xs">productSlug</code> no existe</td><td class="px-3 py-1.5">El producto se <strong>crea</strong> (requiere name, image, subcategoryId)</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Rule: Dry-run -->
+          <div class="bg-violet-50 border border-violet-100 rounded-xl p-4">
+            <h5 class="font-semibold text-violet-800 text-sm mb-2">Siempre valida primero (Dry-Run)</h5>
+            <p class="text-sm text-violet-700">Antes de aplicar cambios reales, usa el modo <strong>"Validar (dry-run)"</strong> para detectar todos los errores sin tocar la base de datos. Corrige y repite hasta que esté limpio.</p>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Section: Example -->
+    <div class="border-b border-slate-100">
+      <button (click)="toggleSection('example')"
+              class="w-full px-6 py-3.5 flex items-center justify-between hover:bg-slate-50 transition-colors">
+        <div class="flex items-center gap-3">
+          <span class="w-7 h-7 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-xs font-bold">3</span>
+          <span class="font-medium text-slate-700">Ejemplo práctico con 2 productos</span>
+        </div>
+        <svg class="w-5 h-5 text-slate-400 transition-transform" [class.rotate-180]="openSections()['example']"
+             fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      @if (openSections()['example']) {
+        <div class="px-6 pb-5 animate-modal-in">
+          <div class="overflow-x-auto rounded-xl border border-slate-200">
+            <table class="text-xs whitespace-nowrap">
+              <thead>
+                <tr class="bg-slate-100 text-slate-600">
+                  <th class="px-2 py-2 font-medium">productSlug</th>
+                  <th class="px-2 py-2 font-medium">productName</th>
+                  <th class="px-2 py-2 font-medium">subcategoryId</th>
+                  <th class="px-2 py-2 font-medium">sku</th>
+                  <th class="px-2 py-2 font-medium">brand</th>
+                  <th class="px-2 py-2 font-medium">price</th>
+                  <th class="px-2 py-2 font-medium">stock</th>
+                  <th class="px-2 py-2 font-medium">colorId</th>
+                  <th class="px-2 py-2 font-medium">outlet</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr class="bg-emerald-50/50">
+                  <td class="px-2 py-1.5 font-mono">camisa-oxford</td>
+                  <td class="px-2 py-1.5 font-semibold">Camisa Oxford</td>
+                  <td class="px-2 py-1.5">1</td>
+                  <td class="px-2 py-1.5 font-mono">CAM-001-R</td>
+                  <td class="px-2 py-1.5">MiMarca</td>
+                  <td class="px-2 py-1.5">185.50</td>
+                  <td class="px-2 py-1.5">10</td>
+                  <td class="px-2 py-1.5">1</td>
+                  <td class="px-2 py-1.5">false</td>
+                </tr>
+                <tr>
+                  <td class="px-2 py-1.5 font-mono text-slate-400">camisa-oxford</td>
+                  <td class="px-2 py-1.5 text-slate-300">—</td>
+                  <td class="px-2 py-1.5 text-slate-300">—</td>
+                  <td class="px-2 py-1.5 font-mono">CAM-001-A</td>
+                  <td class="px-2 py-1.5">MiMarca</td>
+                  <td class="px-2 py-1.5">185.50</td>
+                  <td class="px-2 py-1.5">5</td>
+                  <td class="px-2 py-1.5">2</td>
+                  <td class="px-2 py-1.5">false</td>
+                </tr>
+                <tr class="bg-blue-50/50">
+                  <td class="px-2 py-1.5 font-mono">pantalon-chino</td>
+                  <td class="px-2 py-1.5 font-semibold">Pantalón Chino</td>
+                  <td class="px-2 py-1.5">2</td>
+                  <td class="px-2 py-1.5 font-mono">PAN-001-N</td>
+                  <td class="px-2 py-1.5">MiMarca</td>
+                  <td class="px-2 py-1.5">220.00</td>
+                  <td class="px-2 py-1.5">8</td>
+                  <td class="px-2 py-1.5">3</td>
+                  <td class="px-2 py-1.5">false</td>
+                </tr>
+                <tr>
+                  <td class="px-2 py-1.5 font-mono text-slate-400">pantalon-chino</td>
+                  <td class="px-2 py-1.5 text-slate-300">—</td>
+                  <td class="px-2 py-1.5 text-slate-300">—</td>
+                  <td class="px-2 py-1.5 font-mono">PAN-001-U</td>
+                  <td class="px-2 py-1.5">MiMarca</td>
+                  <td class="px-2 py-1.5">220.00</td>
+                  <td class="px-2 py-1.5">4</td>
+                  <td class="px-2 py-1.5 text-slate-300">—</td>
+                  <td class="px-2 py-1.5">false</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-3 text-xs text-slate-500 space-y-1">
+            <p>Fila 1: <code class="bg-slate-100 px-1 rounded">camisa-oxford</code> es nuevo → lleva productName, subcategoryId.</p>
+            <p>Fila 2: mismo slug → esas columnas van vacías.</p>
+            <p>Fila 3: <code class="bg-slate-100 px-1 rounded">pantalon-chino</code> es nuevo → lleva los datos del producto.</p>
+            <p>Fila 4: mismo slug, sin colorId → variante sin color asignado.</p>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Section: Errors -->
+    <div>
+      <button (click)="toggleSection('errors')"
+              class="w-full px-6 py-3.5 flex items-center justify-between hover:bg-slate-50 transition-colors">
+        <div class="flex items-center gap-3">
+          <span class="w-7 h-7 rounded-lg bg-red-100 text-red-600 flex items-center justify-center text-xs font-bold">4</span>
+          <span class="font-medium text-slate-700">Errores frecuentes</span>
+        </div>
+        <svg class="w-5 h-5 text-slate-400 transition-transform" [class.rotate-180]="openSections()['errors']"
+             fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      @if (openSections()['errors']) {
+        <div class="px-6 pb-5 animate-modal-in">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-red-50">
+                  <th class="px-3 py-2 text-left font-medium text-red-700 rounded-tl-lg">Error</th>
+                  <th class="px-3 py-2 text-left font-medium text-red-700">Causa</th>
+                  <th class="px-3 py-2 text-left font-medium text-red-700 rounded-tr-lg">Solución</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-red-50 text-slate-600">
+                <tr>
+                  <td class="px-3 py-2 font-mono text-xs">Faltan columnas obligatorias</td>
+                  <td class="px-3 py-2">El encabezado no tiene alguna columna requerida</td>
+                  <td class="px-3 py-2">Verificar que el encabezado tenga todas las columnas obligatorias</td>
+                </tr>
+                <tr>
+                  <td class="px-3 py-2 font-mono text-xs">Producto no existe y faltan campos</td>
+                  <td class="px-3 py-2">Producto nuevo sin productName, productImageUrl o subcategoryId</td>
+                  <td class="px-3 py-2">Llenar esas columnas en la primera fila del slug nuevo</td>
+                </tr>
+                <tr>
+                  <td class="px-3 py-2 font-mono text-xs">price inválido</td>
+                  <td class="px-3 py-2">La celda tiene texto, vacía o coma decimal</td>
+                  <td class="px-3 py-2">Usar punto decimal: <code class="text-xs">185.50</code></td>
+                </tr>
+                <tr>
+                  <td class="px-3 py-2 font-mono text-xs">description vacía</td>
+                  <td class="px-3 py-2">Menos de 10 caracteres o vacía</td>
+                  <td class="px-3 py-2">Completar con al menos 10 caracteres</td>
+                </tr>
+                <tr>
+                  <td class="px-3 py-2 font-mono text-xs">SKU vacío</td>
+                  <td class="px-3 py-2">La celda de SKU está vacía</td>
+                  <td class="px-3 py-2">Todas las filas deben tener SKU</td>
+                </tr>
+                <tr>
+                  <td class="px-3 py-2 font-mono text-xs">Formato inválido</td>
+                  <td class="px-3 py-2">El archivo no es .xlsx, .xls o .csv</td>
+                  <td class="px-3 py-2">Guardar como Excel o CSV</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- DOWNLOAD TEMPLATES                                         -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    <h3 class="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+        </svg>
+      </div>
+      Descargar Plantillas
+    </h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <!-- Catalog template -->
+      <div class="border border-slate-200 rounded-xl p-4 hover:border-indigo-300 hover:bg-indigo-50/30 transition-colors group">
+        <div class="flex items-start gap-3">
+          <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 group-hover:bg-indigo-200 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <h4 class="font-semibold text-slate-800 text-sm">Plantilla de Catálogo Completo</h4>
+            <p class="text-xs text-slate-500 mt-0.5">Productos + variantes con todas las columnas. Formato CSV.</p>
+            <button (click)="downloadCatalogTemplate()"
+                    class="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-100 rounded-lg hover:bg-indigo-200 transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+              </svg>
+              Descargar plantilla-catalogo.csv
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Price template -->
+      <div class="border border-slate-200 rounded-xl p-4 hover:border-emerald-300 hover:bg-emerald-50/30 transition-colors group">
+        <div class="flex items-start gap-3">
+          <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 group-hover:bg-emerald-200 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <h4 class="font-semibold text-slate-800 text-sm">Plantilla de Precios</h4>
+            <p class="text-xs text-slate-500 mt-0.5">Solo SKU + precio + descuento para actualizar precios masivamente.</p>
+            <button (click)="downloadPriceTemplate()"
+                    class="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-100 rounded-lg hover:bg-emerald-200 transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+              </svg>
+              Descargar plantilla-precios.csv
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- UPLOAD SECTION                                             -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    <h3 class="text-lg font-semibold text-slate-800 mb-5 flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+        </svg>
+      </div>
+      Subir Archivo
+    </h3>
+
+    <!-- Mode selector -->
+    <div class="flex gap-3 mb-5">
+      <button (click)="mode.set('catalog')"
+              class="flex-1 py-3 px-4 rounded-xl border-2 text-sm font-medium transition-all"
+              [class]="mode() === 'catalog'
+                ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'">
+        <div class="flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
+          Catálogo completo
+        </div>
+        <p class="text-xs mt-1 opacity-70">Productos + variantes</p>
+      </button>
+      <button (click)="mode.set('prices')"
+              class="flex-1 py-3 px-4 rounded-xl border-2 text-sm font-medium transition-all"
+              [class]="mode() === 'prices'
+                ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'">
+        <div class="flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Solo precios
+        </div>
+        <p class="text-xs mt-1 opacity-70">Actualizar precio por SKU</p>
+      </button>
+    </div>
+
+    <!-- Dropzone -->
+    <div (drop)="onDrop($event)" (dragover)="onDragOver($event)" (dragleave)="onDragLeave()"
+         class="relative border-2 border-dashed rounded-xl p-8 text-center transition-colors"
+         [class]="dragging()
+           ? 'border-indigo-400 bg-indigo-50'
+           : file() ? 'border-emerald-300 bg-emerald-50/50' : 'border-slate-300 hover:border-slate-400 bg-slate-50/50'">
+
+      @if (!file()) {
+        <svg class="w-12 h-12 mx-auto text-slate-300 mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12l-3-3m0 0l-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+        </svg>
+        <p class="text-sm text-slate-600 font-medium">Arrastra tu archivo aquí o</p>
+        <label class="mt-2 inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-indigo-700 bg-indigo-100 rounded-lg hover:bg-indigo-200 transition-colors cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+          </svg>
+          Seleccionar archivo
+          <input type="file" class="hidden" accept=".xlsx,.xls,.csv" (change)="onFileSelect($event)">
+        </label>
+        <p class="text-xs text-slate-400 mt-2">Formatos: .xlsx, .xls, .csv</p>
+      } @else {
+        <div class="flex items-center justify-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div class="text-left">
+            <p class="text-sm font-semibold text-slate-800">{{ file()!.name }}</p>
+            <p class="text-xs text-slate-500">{{ (file()!.size / 1024).toFixed(1) }} KB</p>
+          </div>
+          <button (click)="removeFile()" class="ml-3 p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      }
+    </div>
+
+    <!-- Dry-run toggle + upload button -->
+    @if (file()) {
+      <div class="mt-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <label class="flex items-center gap-3 select-none">
+          <div class="relative">
+            <input type="checkbox" [checked]="dryRun()" (change)="dryRun.set(!dryRun())"
+                   class="sr-only peer">
+            <div class="w-10 h-6 rounded-full transition-colors peer-checked:bg-amber-500 bg-slate-300"></div>
+            <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4"></div>
+          </div>
+          <span class="text-sm font-medium" [class]="dryRun() ? 'text-amber-700' : 'text-slate-600'">
+            {{ dryRun() ? 'Modo validación (dry-run)' : 'Modo carga real' }}
+          </span>
+        </label>
+
+        @if (!dryRun()) {
+          <div class="flex items-center gap-2 px-3 py-1.5 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.832c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+            </svg>
+            Los cambios se aplicarán a la base de datos
+          </div>
+        }
+
+        <button (click)="upload()" [disabled]="uploading()"
+                class="ml-auto px-6 py-2.5 rounded-xl text-sm font-semibold text-white shadow-sm transition-all disabled:opacity-50"
+                [class]="dryRun()
+                  ? 'bg-amber-500 hover:bg-amber-600'
+                  : 'bg-blue-600 hover:bg-blue-700'">
+          @if (uploading()) {
+            <span class="flex items-center gap-2">
+              <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+              </svg>
+              Procesando...
+            </span>
+          } @else {
+            {{ dryRun() ? 'Validar (dry-run)' : 'Subir y aplicar cambios' }}
+          }
+        </button>
+      </div>
+    }
+
+    <!-- Results -->
+    @if (result(); as res) {
+      <div class="mt-5 space-y-4 animate-modal-in">
+        <!-- Message -->
+        @if (res.message) {
+          <div class="px-4 py-3 rounded-xl text-sm font-medium"
+               [class]="(res.data?.invalidRows?.length ?? 0) > 0 || (res.errors?.length ?? 0) > 0
+                 ? 'bg-red-50 border border-red-200 text-red-700'
+                 : 'bg-emerald-50 border border-emerald-200 text-emerald-700'">
+            {{ res.message }}
+          </div>
+        }
+
+        <!-- Summary -->
+        @if (summaryEntries().length > 0) {
+          <div class="bg-slate-50 rounded-xl border border-slate-200 p-4">
+            <h4 class="text-sm font-semibold text-slate-700 mb-3">Resumen</h4>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              @for (entry of summaryEntries(); track entry[0]) {
+                <div class="bg-white rounded-lg border border-slate-100 px-3 py-2">
+                  <p class="text-xs text-slate-500">{{ formatResultKey(entry[0]) }}</p>
+                  <p class="text-lg font-bold text-slate-800">
+                    @if (entry[1] === true) { <span class="text-amber-600 text-sm">Sí</span> }
+                    @else if (entry[1] === false) { <span class="text-slate-400 text-sm">No</span> }
+                    @else { {{ entry[1] }} }
+                  </p>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Invalid rows -->
+        @if (invalidRows().length > 0) {
+          <div class="bg-red-50 rounded-xl border border-red-200 p-4">
+            <h4 class="text-sm font-semibold text-red-700 mb-3">Filas inválidas ({{ invalidRows().length }})</h4>
+            <div class="overflow-x-auto max-h-60 overflow-y-auto">
+              <table class="w-full text-xs">
+                <thead>
+                  <tr class="text-red-600">
+                    <th class="px-2 py-1.5 text-left font-medium">Fila</th>
+                    <th class="px-2 py-1.5 text-left font-medium">SKU</th>
+                    <th class="px-2 py-1.5 text-left font-medium">Razón</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-red-100">
+                  @for (row of invalidRows(); track row.row) {
+                    <tr>
+                      <td class="px-2 py-1.5 font-mono font-bold">{{ row.row }}</td>
+                      <td class="px-2 py-1.5 font-mono">{{ row.sku }}</td>
+                      <td class="px-2 py-1.5 text-red-600">{{ row.reason }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+
+        <!-- Duplicates -->
+        @if (duplicateRows().length > 0) {
+          <div class="bg-amber-50 rounded-xl border border-amber-200 p-4">
+            <h4 class="text-sm font-semibold text-amber-700 mb-3">SKUs duplicados ({{ duplicateRows().length }})</h4>
+            <p class="text-xs text-amber-600 mb-2">Política: la última fila gana.</p>
+            <div class="overflow-x-auto max-h-40 overflow-y-auto">
+              <table class="w-full text-xs">
+                <thead>
+                  <tr class="text-amber-600">
+                    <th class="px-2 py-1.5 text-left font-medium">SKU</th>
+                    <th class="px-2 py-1.5 text-left font-medium">Primera fila</th>
+                    <th class="px-2 py-1.5 text-left font-medium">Fila repetida</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-amber-100">
+                  @for (d of duplicateRows(); track d.sku) {
+                    <tr>
+                      <td class="px-2 py-1.5 font-mono">{{ d.sku }}</td>
+                      <td class="px-2 py-1.5">{{ d.firstRow }}</td>
+                      <td class="px-2 py-1.5">{{ d.repeatedRow }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+
+        <!-- Generic errors -->
+        @if (res.errors?.length) {
+          <div class="bg-red-50 rounded-xl border border-red-200 p-4">
+            <h4 class="text-sm font-semibold text-red-700 mb-2">Errores</h4>
+            <ul class="text-xs text-red-600 space-y-1 max-h-40 overflow-y-auto">
+              @for (err of res.errors!; track $index) {
+                <li class="flex items-start gap-1.5">
+                  <span class="w-1 h-1 rounded-full bg-red-400 mt-1.5 shrink-0"></span>
+                  {{ err }}
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+</div>

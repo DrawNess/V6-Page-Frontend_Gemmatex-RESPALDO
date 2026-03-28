@@ -1,0 +1,362 @@
+<section class="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div>
+      <button class="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-blue-600 mb-1 transition-colors"
+              (click)="goBackToProducts()">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Productos
+      </button>
+      <h1 class="text-xl font-bold text-slate-900">
+        Variantes{{ product() ? ' — ' + product()!.name : '' }}
+      </h1>
+      <p class="text-sm text-slate-500 mt-0.5">{{ variants().length }} variantes</p>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap">
+      <button class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition-colors"
+              (click)="openCreate()">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+        </svg>
+        Nueva variante
+      </button>
+      <button class="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-700 hover:bg-amber-100 transition-colors"
+              (click)="openBulk()">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+        </svg>
+        Carga masiva
+      </button>
+      <button class="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
+              (click)="loadVariants()" [disabled]="loading()">
+        <svg class="w-4 h-4" [class.animate-spin]="loading()" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  @if (toast(); as t) {
+    <div class="mb-4 rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2"
+         [class]="t.type === 'ok' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'">
+      {{ t.msg }}
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="flex items-center justify-center py-16">
+      <div class="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  } @else {
+    <!-- Table -->
+    <div class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wide">
+            <tr>
+              <th class="px-4 py-3 text-left">Variante</th>
+              <th class="px-4 py-3 text-left">Color</th>
+              <th class="px-4 py-3 text-right">Precio</th>
+              <th class="px-4 py-3 text-right">Dto.</th>
+              <th class="px-4 py-3 text-center">Stock</th>
+              <th class="px-4 py-3 text-center">Outlet</th>
+              <th class="px-4 py-3 text-center">Estado</th>
+              <th class="px-4 py-3 text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            @for (v of variants(); track v.id) {
+              <tr class="hover:bg-slate-50/50 transition-colors">
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-3">
+                    @if (v.imageUrl) {
+                      <img [src]="v.imageUrl" (error)="onImgError($event)"
+                           class="w-10 h-10 rounded-lg object-cover border border-slate-200 flex-shrink-0" />
+                    } @else {
+                      <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 h-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                        </svg>
+                      </div>
+                    }
+                    <div class="min-w-0">
+                      <p class="font-mono text-xs font-semibold text-slate-900">{{ v.sku }}</p>
+                      <p class="text-xs text-slate-400 truncate max-w-[200px]">{{ v.shortDescription || v.brand || '—' }}</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-4 py-3">
+                  @if (v.color || v.colorId) {
+                    <div class="flex items-center gap-1.5">
+                      @if (colorHex(v.colorId)) {
+                        <span class="w-4 h-4 rounded-full border border-slate-200 flex-shrink-0" [style.background]="colorHex(v.colorId)"></span>
+                      }
+                      <span class="text-xs text-slate-600">{{ v.color?.name || colorName(v.colorId) }}</span>
+                    </div>
+                  } @else {
+                    <span class="text-xs text-slate-400">—</span>
+                  }
+                </td>
+                <td class="px-4 py-3 text-right font-mono text-xs text-slate-700">Bs {{ v.price | number:'1.2-2' }}</td>
+                <td class="px-4 py-3 text-right font-mono text-xs">
+                  @if (v.discountPrice && +v.discountPrice > 0) {
+                    <span class="text-emerald-600">Bs {{ v.discountPrice | number:'1.2-2' }}</span>
+                  } @else {
+                    <span class="text-slate-400">—</span>
+                  }
+                </td>
+                <td class="px-4 py-3 text-center">
+                  <span class="text-xs font-medium" [class]="v.stock > 0 ? 'text-emerald-600' : 'text-red-500'">
+                    {{ v.stock }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-center">
+                  @if (v.outlet) {
+                    <span class="inline-flex rounded-full bg-orange-50 px-2 py-0.5 text-[10px] font-bold text-orange-600 uppercase">Outlet</span>
+                  } @else {
+                    <span class="text-slate-400 text-xs">—</span>
+                  }
+                </td>
+                <td class="px-4 py-3 text-center">
+                  <span class="inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase"
+                        [class]="v.is_active ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'">
+                    {{ v.is_active ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-right">
+                  <div class="flex items-center justify-end gap-1">
+                    <button class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                            title="Editar" (click)="openEdit(v)">
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                      </svg>
+                    </button>
+                    <button class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                            title="Eliminar" (click)="confirmDelete(v)">
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="8" class="px-4 py-12 text-center text-slate-400 text-sm">No hay variantes para este producto</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <!-- MODAL Crear/Editar variante -->
+  @if (modalOpen()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" (click)="closeModal()"></div>
+      <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl animate-modal-in max-h-[90vh] flex flex-col">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+          <h2 class="text-lg font-bold text-slate-900">
+            {{ modalMode() === 'create' ? 'Nueva variante' : 'Editar variante' }}
+          </h2>
+          <button class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-colors"
+                  (click)="closeModal()">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="px-6 py-5 space-y-4 overflow-y-auto flex-1">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">SKU *</label>
+              <input type="text" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                     [ngModel]="form().sku" (ngModelChange)="setField('sku', $event)" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Color</label>
+              <select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 outline-none"
+                      [ngModel]="form().colorId ?? ''" (ngModelChange)="setColorId($event)">
+                <option value="">Sin color</option>
+                @for (c of colors(); track c.id) {
+                  <option [value]="c.id">{{ c.name }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Precio *</label>
+              <input type="number" step="0.01" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                     [ngModel]="form().price" (ngModelChange)="setField('price', $event)" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Precio descuento</label>
+              <input type="number" step="0.01" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                     [ngModel]="form().discountPrice" (ngModelChange)="setField('discountPrice', $event)" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Stock *</label>
+              <input type="number" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                     [ngModel]="form().stock" (ngModelChange)="setField('stock', $event)" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Marca</label>
+              <input type="text" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                     [ngModel]="form().brand" (ngModelChange)="setField('brand', $event)" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Imagen principal (URL)</label>
+            <input type="url" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                   [ngModel]="form().imageUrl" (ngModelChange)="setField('imageUrl', $event)" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Galería URLs (separadas por coma)</label>
+            <textarea rows="2" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-none"
+                      [ngModel]="form().galleryUrls" (ngModelChange)="setField('galleryUrls', $event)"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Descripción corta</label>
+            <input type="text" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                   [ngModel]="form().shortDescription" (ngModelChange)="setField('shortDescription', $event)" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Descripción completa</label>
+            <textarea rows="3" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-none"
+                      [ngModel]="form().description" (ngModelChange)="setField('description', $event)"></textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Unidad de medida</label>
+              <input type="text" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                     placeholder="Ej: unidad, metro, litro"
+                     [ngModel]="form().unitOfMeasure" (ngModelChange)="setField('unitOfMeasure', $event)" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Dimensiones</label>
+              <input type="text" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                     placeholder="Ej: 30x40cm"
+                     [ngModel]="form().dimensions" (ngModelChange)="setField('dimensions', $event)" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Tags (separados por coma)</label>
+            <input type="text" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                   [ngModel]="form().tags" (ngModelChange)="setField('tags', $event)" />
+          </div>
+
+          <div class="flex items-center gap-6">
+            <label class="inline-flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
+              <input type="checkbox" class="rounded border-slate-300 text-orange-500 focus:ring-orange-500"
+                     [ngModel]="form().outlet" (ngModelChange)="setField('outlet', $event)" />
+              Outlet
+            </label>
+            <label class="inline-flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
+              <input type="checkbox" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                     [ngModel]="form().is_active" (ngModelChange)="setField('is_active', $event)" />
+              Activa
+            </label>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50/50 rounded-b-2xl">
+          <button class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+                  (click)="closeModal()">Cancelar</button>
+          <button class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+                  [disabled]="saving() || !form().sku.trim()"
+                  (click)="save()">
+            {{ saving() ? 'Guardando...' : (modalMode() === 'create' ? 'Crear' : 'Guardar') }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- MODAL Eliminar -->
+  @if (deleteTarget(); as dt) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" (click)="cancelDelete()"></div>
+      <div class="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl animate-modal-in p-6 text-center">
+        <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
+          <svg class="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-slate-900 mb-1">Eliminar variante</h3>
+        <p class="text-sm text-slate-500 mb-5">¿Eliminar <strong>"{{ dt.sku }}"</strong>?</p>
+        <div class="flex gap-3 justify-center">
+          <button class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50" (click)="cancelDelete()">Cancelar</button>
+          <button class="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700" (click)="executeDelete()">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- MODAL Carga masiva -->
+  @if (bulkOpen()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" (click)="closeBulk()"></div>
+      <div class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl animate-modal-in">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+          <h2 class="text-lg font-bold text-slate-900">Carga masiva de variantes</h2>
+          <button class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100" (click)="closeBulk()">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="px-6 py-5 space-y-4">
+          <div class="rounded-lg border-2 border-dashed border-slate-200 p-6 text-center">
+            <p class="text-sm text-slate-500 mb-2">Archivo .xlsx o .csv</p>
+            <input type="file" accept=".xlsx,.csv" (change)="onBulkFileSelect($event)"
+                   class="text-sm text-slate-600 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 file:font-medium file:cursor-pointer" />
+          </div>
+          <label class="inline-flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
+            <input type="checkbox" class="rounded border-slate-300 text-amber-500 focus:ring-amber-500"
+                   [ngModel]="bulkDryRun()" (ngModelChange)="bulkDryRun.set($event)" />
+            Modo prueba (validar sin guardar)
+          </label>
+          @if (!bulkDryRun()) {
+            <div class="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-700">Los datos se guardarán directamente.</div>
+          }
+          @if (bulkResult(); as res) {
+            <div class="rounded-lg border p-3 text-sm space-y-1"
+                 [class]="(res.errors?.length ?? 0) > 0 ? 'bg-red-50 border-red-200 text-red-700' : 'bg-emerald-50 border-emerald-200 text-emerald-700'">
+              @if (res.created !== undefined) { <p>Creados: {{ res.created }}</p> }
+              @if (res.updated !== undefined) { <p>Actualizados: {{ res.updated }}</p> }
+              @if (res.errors?.length) {
+                <p class="font-semibold">Errores: {{ res.errors!.length }}</p>
+              }
+            </div>
+          }
+        </div>
+        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50/50 rounded-b-2xl">
+          <button class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50" (click)="closeBulk()">Cerrar</button>
+          <button class="rounded-lg px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                  [class]="bulkDryRun() ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-600 hover:bg-blue-700'"
+                  [disabled]="bulkLoading() || !bulkFile()"
+                  (click)="executeBulk()">
+            {{ bulkLoading() ? 'Procesando...' : (bulkDryRun() ? 'Validar' : 'Subir') }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+</section>

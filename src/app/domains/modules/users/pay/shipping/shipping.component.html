@@ -1,0 +1,313 @@
+<section class="w-full min-h-screen bg-slate-50">
+  <div class="mx-auto max-w-5xl px-4 py-8 sm:py-10">
+
+    <!-- Header + progress -->
+    <div class="mb-7">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-0.5">Compra</p>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Coordinar envío</h1>
+        </div>
+        <a [routerLink]="checkoutPath"
+           class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
+          ← Volver
+        </a>
+      </div>
+      <!-- Progress -->
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 rounded-full bg-slate-200 px-3.5 py-1.5 text-xs font-semibold text-slate-500">
+          <span class="flex h-5 w-5 items-center justify-center rounded-full bg-slate-300 text-[11px]">1</span>
+          Tu bolsa
+        </div>
+        <div class="h-px w-12 bg-slate-300"></div>
+        <div class="flex items-center gap-2 rounded-full bg-blue-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm">
+          <span class="flex h-5 w-5 items-center justify-center rounded-full bg-white/25 text-[11px]">2</span>
+          Coordinar envío
+        </div>
+      </div>
+    </div>
+
+    <!-- Estado de éxito -->
+    @if (successMsg()) {
+      <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-8 text-center shadow-sm mb-6">
+        <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
+          <svg class="h-9 w-9 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+        <h2 class="text-xl font-extrabold text-emerald-800 mb-1">¡Pedido registrado!</h2>
+        @if (createdOrderId()) {
+          <p class="text-3xl font-black text-emerald-700 mb-3">Orden #{{ createdOrderId() }}</p>
+        }
+        <p class="text-sm text-emerald-700 mb-6 max-w-sm mx-auto">
+          Se abrirá WhatsApp para coordinar el envío con nuestro equipo.
+        </p>
+        <p class="text-sm text-emerald-700 mb-6 max-w-sm mx-auto">
+          Si no se abrio automáticamente, haz clic en el botón de abajo para iniciar la conversación.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          @if (whatsappUrl()) {
+            <a [href]="whatsappUrl()" target="_blank" rel="noopener"
+               class="inline-flex items-center justify-center gap-2 rounded-xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-green-700 transition-colors">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/>
+              </svg>
+              Abrir WhatsApp
+            </a>
+          }
+          <a [routerLink]="accountOrdersPath"
+             class="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-white px-5 py-2.5 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 transition-colors">
+            Ver mis pedidos
+          </a>
+          <a routerLink="/productos"
+             class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors">
+            Seguir comprando
+          </a>
+        </div>
+      </div>
+    }
+
+    <!-- Error -->
+    @if (errorMsg()) {
+      <div class="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        {{ errorMsg() }}
+      </div>
+    }
+
+    <!-- Carrito vacío -->
+    @if (groupedCart().length === 0 && !successMsg()) {
+      <div class="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm">
+        <p class="font-semibold text-slate-700 mb-2">Tu carrito está vacío</p>
+        <a [routerLink]="checkoutPath" class="text-sm text-blue-600 hover:underline">Volver a tu bolsa</a>
+      </div>
+    }
+
+    <!-- Formulario principal -->
+    @if (groupedCart().length > 0 && !successMsg()) {
+      <div class="grid gap-5 lg:grid-cols-2">
+
+        <!-- Izquierda: resumen de bolsa -->
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 class="mb-4 font-bold text-slate-900">Resumen de tu bolsa</h2>
+
+          <div class="space-y-3 max-h-96 overflow-auto pr-1">
+            <div *ngFor="let item of groupedCart()"
+                 class="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 p-3">
+              <img [src]="item.product.imageUrl"
+                   [alt]="item.product.name"
+                   class="h-14 w-14 flex-shrink-0 rounded-lg border border-slate-200 object-cover bg-white" />
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5 mb-0.5">
+                  @if (item.product.colorHex) {
+                    <span class="inline-block h-3 w-3 flex-shrink-0 rounded-full border border-slate-300"
+                          [style.background-color]="item.product.colorHex"></span>
+                  }
+                  <p class="text-sm font-semibold text-slate-900 truncate">{{ item.product.name }}</p>
+                </div>
+                @if (item.product.colorName) {
+                  <p class="text-xs text-slate-500">{{ item.product.colorName }}</p>
+                }
+                <p class="text-xs text-slate-500">SKU: {{ item.product.sku || '—' }}</p>
+                <span class="mt-1 inline-flex rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                  × {{ item.count }}
+                </span>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <p class="text-sm font-bold text-slate-900">Bs {{ itemSubtotal(item) | number:'1.2-2' }}</p>
+                <p class="text-[11px] text-slate-500">Bs {{ item.unitPrice | number:'1.2-2' }} c/u</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Total -->
+          <div class="mt-4 rounded-xl bg-slate-900 px-5 py-3.5 flex items-center justify-between">
+            <p class="text-xs text-slate-400 uppercase tracking-wide font-semibold">Total productos</p>
+            <p class="text-xl font-extrabold text-white">Bs {{ total() | number:'1.2-2' }}</p>
+          </div>
+
+          <!-- Nota del cliente (preview) -->
+          @if (orderNotes()) {
+            <div class="mt-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
+              <p class="text-xs font-semibold text-blue-700 mb-1">Nota para el vendedor:</p>
+              <p class="text-sm text-blue-800">{{ orderNotes() }}</p>
+            </div>
+          }
+        </div>
+
+        <!-- Derecha: formulario -->
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-5">
+          <h2 class="font-bold text-slate-900">Tus datos de contacto</h2>
+
+          <!-- Datos del cliente (pre-llenados desde el perfil) -->
+          @if (profileLoading()) {
+            <div class="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <svg class="w-4 h-4 animate-spin text-slate-400" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              <span class="text-xs text-slate-500">Cargando tus datos de perfil…</span>
+            </div>
+          }
+
+          <!-- Nombre -->
+          <label class="block">
+            <span class="text-sm font-semibold text-slate-700">Nombre completo <span class="text-red-500">*</span></span>
+            <input
+              type="text"
+              class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-50"
+              placeholder="María García"
+              [ngModel]="customerName()"
+              (ngModelChange)="customerName.set($event)"
+            />
+          </label>
+
+          <!-- Teléfono -->
+          <label class="block">
+            <span class="text-sm font-semibold text-slate-700">WhatsApp de contacto <span class="text-red-500">*</span></span>
+            <input
+              type="tel"
+              class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-50"
+              placeholder="77712345 o 59177712345"
+              [ngModel]="customerPhone()"
+              (ngModelChange)="customerPhone.set($event)"
+            />
+            <p class="mt-1 text-xs text-slate-400">Formato boliviano: 8 dígitos o con prefijo 591</p>
+          </label>
+
+          <!-- WhatsApp alternativo para coordinación -->
+          <label class="block">
+            <span class="text-sm font-semibold text-slate-700">WhatsApp para coordinar entrega</span>
+            <span class="ml-1.5 text-xs text-slate-400">(opcional — si es distinto al tuyo)</span>
+            <input
+              type="tel"
+              class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-50"
+              placeholder="Ej. 77712345 — destinatario, almacén, etc."
+              [ngModel]="deliveryPhone()"
+              (ngModelChange)="deliveryPhone.set($event)"
+            />
+            <p class="mt-1 text-xs text-slate-400">Si el pedido lo recibe otra persona, ingresa su número aquí.</p>
+          </label>
+
+          <!-- Modalidad de entrega -->
+          <div>
+            <p class="mb-2 text-sm font-semibold text-slate-700">Modalidad de entrega</p>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="flex cursor-pointer items-center gap-2.5 rounded-xl border p-3 transition-colors"
+                     [class.border-blue-500]="deliveryMode() === 'pickup_store'"
+                     [class.bg-blue-50]="deliveryMode() === 'pickup_store'"
+                     [class.border-slate-200]="deliveryMode() !== 'pickup_store'">
+                <input type="radio" name="delivery_mode" value="pickup_store"
+                       [checked]="deliveryMode() === 'pickup_store'"
+                       (change)="deliveryMode.set('pickup_store')" />
+                <div>
+                  <p class="text-xs font-semibold text-slate-900">Recojo en tienda</p>
+                  <p class="text-[11px] text-slate-500">Voy a buscar mi pedido</p>
+                </div>
+              </label>
+              <label class="flex cursor-pointer items-center gap-2.5 rounded-xl border p-3 transition-colors"
+                     [class.border-blue-500]="deliveryMode() === 'shipping_coordination'"
+                     [class.bg-blue-50]="deliveryMode() === 'shipping_coordination'"
+                     [class.border-slate-200]="deliveryMode() !== 'shipping_coordination'">
+                <input type="radio" name="delivery_mode" value="shipping_coordination"
+                       [checked]="deliveryMode() === 'shipping_coordination'"
+                       (change)="deliveryMode.set('shipping_coordination')" />
+                <div>
+                  <p class="text-xs font-semibold text-slate-900">Envío a domicilio</p>
+                  <p class="text-[11px] text-slate-500">Coordinar con vendedor</p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Sucursales -->
+          <div>
+            <p class="mb-2 text-sm font-semibold text-slate-700">Sucursal de referencia</p>
+            <div class="space-y-2">
+              <label *ngFor="let b of branches"
+                     class="flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 transition-colors"
+                     [class.border-blue-500]="selectedBranchId() === b.id"
+                     [class.bg-blue-50]="selectedBranchId() === b.id"
+                     [class.border-slate-200]="selectedBranchId() !== b.id">
+                <input type="radio" name="branch" [value]="b.id"
+                       [checked]="selectedBranchId() === b.id"
+                       (change)="selectedBranchId.set(b.id)"
+                       class="mt-0.5 flex-shrink-0" />
+                <div>
+                  <p class="text-sm font-semibold text-slate-900">{{ b.name }}</p>
+                  <p class="text-xs text-slate-500">{{ b.address }}</p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Notas adicionales para coordinación -->
+          <label class="block">
+            <span class="text-sm font-semibold text-slate-700">Comentario para el agente de ventas</span>
+            <span class="ml-1.5 text-xs text-slate-400">(opcional)</span>
+            <textarea
+              rows="2"
+              class="mt-1.5 w-full resize-none rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-50"
+              placeholder="Dirección, referencias, horarios de entrega, observaciones…"
+              [ngModel]="orderNotes()"
+              (ngModelChange)="orderNotes.set($event)"
+            ></textarea>
+          </label>
+
+          <!-- ─── Qué pasa al confirmar ─── -->
+          <div class="rounded-2xl border border-blue-100 bg-blue-50 p-4 space-y-3">
+            <p class="text-xs font-bold text-blue-700 uppercase tracking-wide">¿Qué pasa al confirmar?</p>
+            <ol class="space-y-2.5">
+              <li class="flex items-start gap-2.5 text-xs text-slate-700">
+                <span class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 text-white font-bold text-[11px]">1</span>
+                <span><strong>Tu pedido queda registrado</strong> en el sistema con un número de orden único. Podrás verlo en <em>Mis pedidos</em> en cualquier momento.</span>
+              </li>
+              <li class="flex items-start gap-2.5 text-xs text-slate-700">
+                <span class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 text-white font-bold text-[11px]">2</span>
+                <span><strong>Se abrirá WhatsApp</strong> con el resumen de tu pedido. Un agente de ventas de Gemmatex lo recibirá y se pondrá en contacto contigo.</span>
+              </li>
+              <li class="flex items-start gap-2.5 text-xs text-slate-700">
+                <span class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 text-white font-bold text-[11px]">3</span>
+                <span><strong>El pago se coordina con el agente</strong> por WhatsApp. Aceptamos transferencia bancaria, QR y efectivo en sucursal.</span>
+              </li>
+              <li class="flex items-start gap-2.5 text-xs text-slate-700">
+                <span class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 text-white font-bold text-[11px]">4</span>
+                <span><strong>Una vez confirmado el pago</strong>, el agente actualizará el estado de tu pedido y coordinará el envío o retiro en tienda.</span>
+              </li>
+            </ol>
+            <p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+              <strong>Importante:</strong> Verifica que tu nombre y número de WhatsApp sean correctos antes de confirmar.
+            </p>
+          </div>
+
+          <!-- Botón enviar -->
+          <button
+            type="button"
+            class="w-full rounded-2xl bg-green-600 px-6 py-4 text-base font-extrabold text-white
+                   hover:bg-green-700 disabled:bg-slate-300 disabled:cursor-not-allowed
+                   transition-colors shadow-sm flex items-center justify-center gap-2"
+            [disabled]="!formValid() || loading()"
+            (click)="sendToSeller()">
+            @if (loading()) {
+              <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              Registrando pedido…
+            } @else {
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/>
+              </svg>
+              Confirmar y coordinar por WhatsApp
+            }
+          </button>
+
+          <a [routerLink]="accountOrdersPath"
+             class="block text-center text-xs text-slate-500 hover:text-slate-700 hover:underline transition-colors">
+            Ver mis pedidos anteriores
+          </a>
+        </div>
+      </div>
+    }
+
+  </div>
+</section>

@@ -63,6 +63,7 @@ export const ROUTE_CONSTANTS = {
     OFFERS_ADDS: 'menu-adds/offers-adds',
     PROMO: 'menu-adds/promo',
     VARIANTS: 'variants',
+    BULK_UPLOAD: 'carga-masiva',
     ORDERS_ADMIN: 'orders-admin'
   },
 
@@ -72,6 +73,7 @@ export const ROUTE_CONSTANTS = {
   USER: {
     BASE: 'mi-cuenta',
     INFO: 'informacion',
-    ORDERS: 'pedidos'
+    ORDERS: 'pedidos',
+    ADDRESS: 'direccion'
   }
 } as const;

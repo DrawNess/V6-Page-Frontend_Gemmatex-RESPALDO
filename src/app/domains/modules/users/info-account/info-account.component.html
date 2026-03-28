@@ -1,94 +1,235 @@
-<main class="mx-auto w-full max-w-4xl px-4 py-8">
-  <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-    <div class="flex flex-wrap items-center justify-between gap-3">
-      <div>
-        <p class="text-sm text-slate-500">Mi cuenta</p>
-        <h1 class="text-2xl font-bold text-slate-900">Información de cuenta</h1>
-      </div>
-
+<main class="mx-auto w-full max-w-6xl px-4 py-8">
+  <!-- Header -->
+  <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-widest text-blue-600">Mi cuenta</p>
+      <h1 class="text-2xl font-extrabold text-slate-900">Información de cuenta</h1>
+      <p class="mt-0.5 text-sm text-slate-500">Actualiza correo, nombre y teléfono.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button type="button"
+              class="lg:hidden rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+              (click)="toggleNav()">
+        {{ navOpen ? 'Ocultar menú' : 'Mostrar menú' }}
+      </button>
       <a
         [routerLink]="accountPath"
-        class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+        class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
       >
         Volver
       </a>
     </div>
+  </div>
 
-    @if (loading) {
-      <p class="mt-4 text-sm text-slate-600">Cargando información...</p>
-    }
+  <div class="grid gap-6 lg:grid-cols-[260px_1fr]">
+    <!-- Sidebar -->
+    <aside class="lg:sticky lg:top-6">
+      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div class="flex items-center gap-3 border-b border-slate-100 px-4 py-4">
+          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-base font-extrabold text-white">
+            {{ getInitials() }}
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-slate-900 leading-tight">{{ getCustomerFullName() }}</p>
+            <p class="text-xs text-slate-500 leading-tight">{{ user?.email || 'Sin correo' }}</p>
+            <span class="mt-1 inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-600">
+              {{ user?.role || 'Cliente' }}
+            </span>
+          </div>
+        </div>
 
-    @if (errorMsg) {
-      <div class="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-        {{ errorMsg }}
+        <ng-template #navList>
+          <button
+            *ngFor="let item of navItems"
+            type="button"
+            [routerLink]="item.path"
+            class="group w-full text-left px-4 py-3 transition-all duration-200"
+            [ngClass]="{
+              'bg-blue-50 text-blue-700 font-semibold': isActive(item.path),
+              'text-slate-700 hover:bg-slate-50': !isActive(item.path)
+            }"
+          >
+            <div class="flex items-center justify-between">
+              <span>{{ item.label }}</span>
+              <svg class="h-4 w-4 transition-transform duration-200 text-slate-400 group-hover:translate-x-0.5"
+                   [class.text-blue-500]="isActive(item.path)"
+                   fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+            <p class="mt-0.5 text-[12px] text-slate-500" [class.text-blue-600]="isActive(item.path)">{{ item.description }}</p>
+          </button>
+        </ng-template>
+
+        <nav class="divide-y divide-slate-100 hidden lg:block">
+          <ng-container *ngTemplateOutlet="navList"></ng-container>
+        </nav>
+
+        <nav *ngIf="navOpen" class="divide-y divide-slate-100 border-t border-slate-100 lg:hidden">
+          <ng-container *ngTemplateOutlet="navList"></ng-container>
+        </nav>
       </div>
-    }
+    </aside>
 
-    @if (successMsg) {
-      <div class="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-        {{ successMsg }}
+    <!-- Content -->
+    <section class="space-y-4">
+      @if (loading) {
+        <div class="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm text-sm text-slate-600">
+          Cargando información…
+        </div>
+      }
+
+      @if (errorMsg) {
+        <div class="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 shadow-sm text-sm text-red-700">
+          {{ errorMsg }}
+        </div>
+      }
+
+      @if (successMsg) {
+        <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 shadow-sm text-sm text-emerald-800">
+          {{ successMsg }}
+        </div>
+      }
+
+      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Datos editables</p>
+            <h2 class="text-lg font-extrabold text-slate-900">Información personal</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Los cambios se guardan para tu perfil y pedidos.</p>
+          </div>
+          <span class="hidden md:inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold text-slate-600">
+            Email, nombre y teléfono
+          </span>
+        </div>
+
+        <form class="grid gap-4 p-5 md:grid-cols-2" [formGroup]="form" (ngSubmit)="saveChanges()">
+          <label class="block text-sm text-slate-700 md:col-span-2">
+            Correo
+            <input
+              type="email"
+              class="mt-1 w-full rounded-xl border px-3 py-2.5 bg-slate-50 text-slate-600 cursor-not-allowed"
+              readonly
+              [disabled]="true"
+              formControlName="email"
+            />
+            <p class="mt-2 text-xs text-slate-500">
+              Para cambiar el correo escríbenos a
+              <a href="mailto:sistemas@gemmatex.com.bo" class="font-semibold text-blue-700 underline">
+                sistemas@gemmatex.com.bo
+              </a>.
+              Indica tu nombre completo y cumple una de estas verificaciones:
+              <span class="block mt-1">- Escríbenos desde el correo actual.</span>
+              <span class="block">- O adjunta documento de identidad + número de tu último pedido.</span>
+              <span class="block">- O envía captura del ticket del último pedido que recibiste por WhatsApp a una de nuestras sucursales.</span>
+            </p>
+          </label>
+
+          <label class="block text-sm text-slate-700">
+            Nombre
+            <input
+              type="text"
+              class="mt-1 w-full rounded-xl border px-3 py-2.5 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition"
+              [class.border-red-300]="form.controls.name.invalid && form.controls.name.touched"
+              formControlName="name"
+            />
+            @if (form.controls.name.invalid && form.controls.name.touched) {
+              <p class="mt-1 text-xs text-red-600">Escribe tu nombre (mín. 2 caracteres).</p>
+            }
+          </label>
+
+          <label class="block text-sm text-slate-700">
+            Apellido
+            <input
+              type="text"
+              class="mt-1 w-full rounded-xl border px-3 py-2.5 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition"
+              [class.border-red-300]="form.controls.lastName.invalid && form.controls.lastName.touched"
+              formControlName="lastName"
+            />
+            @if (form.controls.lastName.invalid && form.controls.lastName.touched) {
+              <p class="mt-1 text-xs text-red-600">Escribe tu apellido (mín. 2 caracteres).</p>
+            }
+          </label>
+
+          <label class="block text-sm text-slate-700 md:col-span-2">
+            Teléfono
+            <input
+              type="tel"
+              class="mt-1 w-full rounded-xl border px-3 py-2.5 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition"
+              [class.border-red-300]="form.controls.phone.invalid && form.controls.phone.touched"
+              formControlName="phone"
+            />
+            @if (form.controls.phone.invalid && form.controls.phone.touched) {
+              <p class="mt-1 text-xs text-red-600">Incluye un teléfono válido (mín. 7 dígitos).</p>
+            }
+          </label>
+
+          <div class="md:col-span-2 flex flex-wrap gap-3">
+            <button
+              type="submit"
+              class="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 disabled:opacity-60 transition-colors"
+              [disabled]="saving || loading"
+            >
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              {{ saving ? 'Guardando...' : 'Guardar cambios' }}
+            </button>
+
+            <button
+              type="button"
+              class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60 transition-colors"
+              (click)="goToPasswordRecovery()"
+              [disabled]="passwordLoading"
+            >
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v-6m-3 3h6" />
+              </svg>
+              {{ passwordLoading ? 'Enviando...' : 'Cambiar contraseña' }}
+            </button>
+          </div>
+        </form>
       </div>
-    }
 
-    <form class="mt-6 grid gap-4 md:grid-cols-2" [formGroup]="form" (ngSubmit)="saveChanges()">
-      <label class="block text-sm text-slate-700 md:col-span-2">
-        Correo
-        <input
-          type="email"
-          class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-100"
-          formControlName="email"
-        />
-      </label>
+    </section>
+  </div>
 
-      <label class="block text-sm text-slate-700">
-        Nombre
-        <input
-          type="text"
-          class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-100"
-          formControlName="name"
-        />
-      </label>
-
-      <label class="block text-sm text-slate-700">
-        Apellido
-        <input
-          type="text"
-          class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-100"
-          formControlName="lastName"
-        />
-      </label>
-
-      <label class="block text-sm text-slate-700 md:col-span-2">
-        Teléfono
-        <input
-          type="tel"
-          class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-100"
-          formControlName="phone"
-        />
-      </label>
-
-      <div class="md:col-span-2 flex flex-wrap gap-3">
-        <button
-          type="submit"
-          class="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
-          [disabled]="saving || loading"
-        >
-          {{ saving ? 'Guardando...' : 'Guardar cambios' }}
-        </button>
-
-        <button
-          type="button"
-          class="rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-60"
-          (click)="sendPasswordRecovery()"
-          [disabled]="passwordLoading"
-        >
-          {{ passwordLoading ? 'Enviando...' : 'Cambiar contraseña' }}
-        </button>
+  <!-- Modal de confirmación -->
+  @if (modalOpen) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center px-4">
+      <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" (click)="closeModal()"></div>
+      <div class="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white shadow-2xl">
+        <div class="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
+          <div class="flex h-10 w-10 items-center justify-center rounded-full"
+               [ngClass]="modalType === 'success' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'">
+            @if (modalType === 'success') {
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            } @else {
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            }
+          </div>
+          <div>
+            <h3 class="text-base font-extrabold text-slate-900">{{ modalTitle }}</h3>
+            <p class="text-sm text-slate-600">{{ modalText }}</p>
+          </div>
+          <button type="button" class="ml-auto text-slate-400 hover:text-slate-600" (click)="closeModal()">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="px-5 py-4 flex justify-end gap-2">
+          <button type="button"
+                  class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  (click)="closeModal()">
+            Cerrar
+          </button>
+        </div>
       </div>
-    </form>
-
-    @if (passwordMsg) {
-      <p class="mt-4 text-sm text-slate-700">{{ passwordMsg }}</p>
-    }
-  </section>
+    </div>
+  }
 </main>

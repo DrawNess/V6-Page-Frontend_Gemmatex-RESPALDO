@@ -9,6 +9,10 @@ import { catchError } from 'rxjs/operators';
 import { ProfileService } from './profile.service';
 import { map } from 'rxjs/operators';
 
+type CustomerUpdatePayload = Partial<
+  Pick<ApiCustomer, 'name' | 'lastName' | 'phone' | 'company' | 'region' | 'city' | 'street' | 'streetNumber' | 'apartment'>
+>;
+
 @Injectable({
   providedIn: 'root',
 })
@@ -21,6 +25,14 @@ export class CustomerService {
     private readonly sessionService: SessionService,
     private readonly profileService: ProfileService
   ) {}
+
+  getMyCustomer(): Observable<ApiCustomer> {
+    return this.http
+      .get<ApiCustomer | { data?: ApiCustomer }>(`${this.apiUrl}/customers/me`)
+      .pipe(
+        map((response) => (response as { data?: ApiCustomer }).data ?? (response as ApiCustomer))
+      );
+  }
 
   getCustomers(): Observable<ApiCustomer[]> {
     return this.http
@@ -41,9 +53,25 @@ export class CustomerService {
 
   updateCustomer(
     customerId: number,
-    payload: Partial<Pick<ApiCustomer, 'name' | 'lastName' | 'phone'>>
+    payload: CustomerUpdatePayload
   ): Observable<ApiCustomer> {
     return this.http.patch<ApiCustomer>(`${this.apiUrl}/customers/${customerId}`, payload);
+  }
+
+  updateMyCustomer(payload: CustomerUpdatePayload): Observable<ApiCustomer> {
+    return this.http.patch<ApiCustomer>(`${this.apiUrl}/customers/me`, payload);
+  }
+
+  getMyAddress(): Observable<CustomerUpdatePayload> {
+    return this.http
+      .get<CustomerUpdatePayload | { data?: CustomerUpdatePayload }>(`${this.apiUrl}/customers/me/address`)
+      .pipe(map((response) => (response as { data?: CustomerUpdatePayload }).data ?? (response as CustomerUpdatePayload)));
+  }
+
+  updateMyAddress(payload: CustomerUpdatePayload): Observable<CustomerUpdatePayload> {
+    return this.http
+      .patch<CustomerUpdatePayload | { data?: CustomerUpdatePayload }>(`${this.apiUrl}/customers/me/address`, payload)
+      .pipe(map((response) => (response as { data?: CustomerUpdatePayload }).data ?? (response as CustomerUpdatePayload)));
   }
 
   deleteCustomer(customerId: number): Observable<void> {
@@ -99,30 +127,34 @@ export class CustomerService {
   }
 
   getCurrentCustomer(): Observable<ApiCustomer> {
-    return this.userService.getCurrentUser().pipe(
-      switchMap((user) => {
-        if (!user.id) {
-          return throwError(() => new Error('CUSTOMER_USER_ID_NOT_FOUND'));
-        }
-
-        // Fuente principal: /profile/me para mapear userId -> customerId
-        return this.resolveFromProfileMe(user.id).pipe(
-          switchMap((customerIdFromProfile) => {
-            if (customerIdFromProfile) {
-              return this.getCustomerById(customerIdFromProfile).pipe(
-                switchMap((customer) => {
-                  this.sessionService.rememberCustomerForUser(user.id, customer.id);
-                  return of(customer);
-                })
-              );
+    return this.getMyCustomer().pipe(
+      catchError(() =>
+        this.userService.getCurrentUser().pipe(
+          switchMap((user) => {
+            if (!user.id) {
+              return throwError(() => new Error('CUSTOMER_USER_ID_NOT_FOUND'));
             }
 
-            // Fallback para sesiones antiguas o backends con ids sincronizados.
-            const candidateIds = this.buildCandidateIds(user.id);
-            return this.resolveByCandidates(user.id, candidateIds);
+            // Fuente principal: /profile/me para mapear userId -> customerId
+            return this.resolveFromProfileMe(user.id).pipe(
+              switchMap((customerIdFromProfile) => {
+                if (customerIdFromProfile) {
+                  return this.getCustomerById(customerIdFromProfile).pipe(
+                    switchMap((customer) => {
+                      this.sessionService.rememberCustomerForUser(user.id, customer.id);
+                      return of(customer);
+                    })
+                  );
+                }
+
+                // Fallback para sesiones antiguas o backends con ids sincronizados.
+                const candidateIds = this.buildCandidateIds(user.id);
+                return this.resolveByCandidates(user.id, candidateIds);
+              })
+            );
           })
-        );
-      })
+        )
+      )
     );
   }
 }

@@ -1,10 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { AuthService } from '@shared/services/auth.service';
-import { RequestStatus } from '@models/request-status.model';
 
 @Component({
   selector: 'app-recovery',
@@ -12,12 +11,9 @@ import { RequestStatus } from '@models/request-status.model';
   templateUrl: './recovery.component.html',
   styleUrl: './recovery.component.css',
 })
-export class RecoveryComponent {
+export class RecoveryComponent implements OnInit {
   loading = false;
   submitted = false;
-
-  // Aprender a usar.
-  status: RequestStatus = 'init';
 
   // mensajes
   errorMsg: string | null = null;
@@ -30,8 +26,17 @@ export class RecoveryComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
+
+  ngOnInit(): void {
+    const navEmail = this.router.getCurrentNavigation()?.extras?.state?.['email'] as string | undefined;
+    const queryEmail = this.route.snapshot.queryParamMap.get('email') ?? navEmail;
+    if (queryEmail) {
+      this.form.patchValue({ email: queryEmail });
+    }
+  }
 
   get f() {
     return this.form.controls;
