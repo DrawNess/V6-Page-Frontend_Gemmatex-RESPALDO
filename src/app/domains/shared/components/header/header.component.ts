@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, effect, untracked, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, signal, computed, effect, untracked, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { CartService, CartItem } from '../../services/cart.service';
 import { Router, NavigationEnd, RouterLink } from '@angular/router';
@@ -8,6 +8,9 @@ import { CategoryService } from './../../services/category.service';
 import { Category } from './../../models/category.model';
 
 import { SubcategoryService } from '@shared/services/subcategory.service';
+import { TokenService } from '@shared/services/token.service';
+import { AuthService } from '@shared/services/auth.service';
+import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
 
 
 type HeaderCategory = Category;
@@ -37,6 +40,31 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   private readonly categorySvc = inject(CategoryService);
   private router = inject(Router);
+
+  // ── User account menu ──────────────────────────────
+  private tokenService = inject(TokenService);
+  private authService = inject(AuthService);
+  readonly userMenuOpen = signal(false);
+  readonly isLoggedIn = computed(() => this.tokenService.isAuthenticated());
+  readonly userRole = computed(() => this.tokenService.getRoleFromToken());
+  readonly isAdmin = computed(() => this.userRole() === 'admin');
+
+  toggleUserMenu() { this.userMenuOpen.update(v => !v); }
+  closeUserMenu() { this.userMenuOpen.set(false); }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('[data-user-menu]')) {
+      this.userMenuOpen.set(false);
+    }
+  }
+
+  logout() {
+    this.authService.logout();
+    this.closeUserMenu();
+    this.router.navigate(['/']);
+  }
   headerCategories = signal<Category[]>([]);
 
   toogleSideMenu() {
@@ -89,6 +117,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.desktopMenuOpen.set(false);
         this.searchOpen.set(false);
+        this.userMenuOpen.set(false);
         setTimeout(() => {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }, 0);

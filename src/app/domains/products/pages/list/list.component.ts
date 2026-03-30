@@ -1,16 +1,13 @@
-// src/app/domains/pages/Home/home.component.ts  (o inicio.component.ts)
 import { PromoService } from '@shared/services/promo.service';
 import { Promo } from '@shared/models/promo.model';
-
-import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject, signal, computed, ViewChild, ElementRef } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject, signal, computed, ViewChild, ElementRef, Renderer2 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Title, Meta } from '@angular/platform-browser';
 import { HeroSlideService } from '@shared/services/hero-slide.service';
 import { HeroSlide } from '@shared/models/hero-slide.model';
-
 import { AnnouncementService } from '@shared/services/announcement.service';
 import { Announcement } from '@shared/models/announcement.model';
-
 import { Product } from '@shared/models/product.model';
 import { ProductService } from '@shared/services/product.service';
 import { CartService, CartItem } from '@shared/services/cart.service';
@@ -29,6 +26,11 @@ export default class ListComponent implements OnInit, OnDestroy {
   private static readonly RANDOM_PAGE_SIZE = 24;
   private static readonly RANDOM_PICK_COUNT = 10;
   private static readonly EXTERNAL_URL_RE = /^(https?:\/\/|mailto:|tel:)/i;
+
+  private titleService = inject(Title);
+  private meta = inject(Meta);
+  private doc = inject(DOCUMENT);
+  private renderer = inject(Renderer2);
 
   private heroSrv = inject(HeroSlideService);
 
@@ -65,8 +67,21 @@ export default class ListComponent implements OnInit, OnDestroy {
   readonly currentPromo = signal(0);
 
 
+  private jsonLdScript: HTMLScriptElement | null = null;
+
   /* NG ON INIT */
   ngOnInit() {
+    // SEO
+    this.titleService.setTitle('Gemmatex — Distribuidor Autorizado de Insumos para Impresión en Bolivia');
+    this.meta.updateTag({ name: 'description', content: 'Gemmatex: distribuidor autorizado de tintas, impresoras, vinilos y suministros para impresión digital en Bolivia. Asesoría técnica, envíos a todo el país y soporte postventa.' });
+    this.meta.updateTag({ name: 'keywords', content: 'Gemmatex, tintas, impresoras, vinilo, impresión digital, DTF, UV, Bolivia, La Paz, insumos serigrafía' });
+    this.meta.updateTag({ property: 'og:title', content: 'Gemmatex — Insumos para Impresión en Bolivia' });
+    this.meta.updateTag({ property: 'og:description', content: 'Distribuidor autorizado de tintas, impresoras y suministros para impresión digital. Envíos a todo Bolivia.' });
+    this.meta.updateTag({ property: 'og:type', content: 'website' });
+    this.meta.updateTag({ property: 'og:url', content: 'https://gemmatex.store' });
+    this.meta.updateTag({ name: 'robots', content: 'index, follow' });
+    this.injectJsonLd();
+
     // HERO SLIDES
     this.heroSrv.getAll({ activeNow: true }).subscribe({
       next: (items) => {
@@ -123,10 +138,40 @@ export default class ListComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     document.removeEventListener('visibilitychange', this.onVis);
     this.stop();
-
-    /* CARDS ALEATORIO */
     this.pauseAutoplayRandom();
-    /* =============== */
+    this.removeJsonLd();
+  }
+
+  private injectJsonLd() {
+    const schema = {
+      '@context': 'https://schema.org',
+      '@type': 'LocalBusiness',
+      name: 'Gemmatex',
+      description: 'Distribuidor autorizado de tintas, impresoras, vinilos y suministros para impresión digital en Bolivia.',
+      url: 'https://gemmatex.store',
+      telephone: '+59162579602',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Av. Illampu 682',
+        addressLocality: 'La Paz',
+        addressCountry: 'BO'
+      },
+      openingHoursSpecification: [
+        { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday','Tuesday','Wednesday','Thursday','Friday'], opens: '08:30', closes: '18:30' },
+        { '@type': 'OpeningHoursSpecification', dayOfWeek: 'Saturday', opens: '08:30', closes: '13:00' }
+      ]
+    };
+    this.jsonLdScript = this.renderer.createElement('script');
+    this.jsonLdScript!.type = 'application/ld+json';
+    this.jsonLdScript!.textContent = JSON.stringify(schema);
+    this.renderer.appendChild(this.doc.head, this.jsonLdScript);
+  }
+
+  private removeJsonLd() {
+    if (this.jsonLdScript) {
+      this.renderer.removeChild(this.doc.head, this.jsonLdScript);
+      this.jsonLdScript = null;
+    }
   }
 
   /** HERO AUTOPLAY Y NAVEGACION */

@@ -96,6 +96,56 @@
           </svg>
         </button>
 
+        <!-- User account -->
+        <div class="relative" data-user-menu>
+          @if (isLoggedIn()) {
+            <button
+              class="relative p-2 rounded-full border shadow transition active:scale-95"
+              [class]="userMenuOpen()
+                ? 'bg-slate-200 border-slate-400 text-slate-900'
+                : 'bg-slate-100 border-slate-300 text-slate-700 hover:bg-slate-200'"
+              (click)="toggleUserMenu(); $event.stopPropagation()"
+              aria-label="Mi cuenta" [attr.aria-expanded]="userMenuOpen()"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+              </svg>
+            </button>
+
+            @if (userMenuOpen()) {
+              <div class="fixed right-4 top-[68px] w-48 rounded-xl bg-white border border-slate-200 shadow-xl z-[100] overflow-hidden animate-dropdown"
+                   (click)="$event.stopPropagation()">
+                <div class="py-1">
+                  <a routerLink="/mi-cuenta" (click)="closeUserMenu()"
+                     class="block px-3.5 py-2 text-[13px] text-slate-700 hover:bg-slate-50 transition-colors">Mi cuenta</a>
+                  <a routerLink="/mi-cuenta/pedidos" (click)="closeUserMenu()"
+                     class="block px-3.5 py-2 text-[13px] text-slate-700 hover:bg-slate-50 transition-colors">Mis pedidos</a>
+                  <a routerLink="/mi-cuenta/informacion" (click)="closeUserMenu()"
+                     class="block px-3.5 py-2 text-[13px] text-slate-700 hover:bg-slate-50 transition-colors">Mi información</a>
+                  @if (isAdmin()) {
+                    <div class="mx-3 my-1 border-t border-slate-100"></div>
+                    <a routerLink="/administracion-central-gemmatex-panel-interno" (click)="closeUserMenu()"
+                       class="block px-3.5 py-2 text-[13px] text-blue-700 font-medium hover:bg-blue-50 transition-colors">Panel admin</a>
+                  }
+                  <div class="mx-3 my-1 border-t border-slate-100"></div>
+                  <button (click)="logout()"
+                          class="w-full text-left px-3.5 py-2 text-[13px] text-red-600 hover:bg-red-50 transition-colors">
+                    Cerrar sesión
+                  </button>
+                </div>
+              </div>
+            }
+          } @else {
+            <a routerLink="/auth/login"
+               class="relative p-2 rounded-full bg-slate-100 border border-slate-300 text-slate-700 hover:bg-slate-200 shadow transition active:scale-95 inline-flex"
+               aria-label="Iniciar sesión">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+              </svg>
+            </a>
+          }
+        </div>
+
         <!-- Carrito -->
         <div class="relative">
           <button
@@ -396,6 +446,36 @@
   </div>
 
   <div class="px-4 pb-8 text-white">
+
+    <!-- User -->
+    @if (isLoggedIn()) {
+      <div class="mb-4 grid grid-cols-3 gap-1.5">
+        <a routerLink="/mi-cuenta" (click)="closeSheet()"
+           class="rounded-2xl border border-white/15 bg-white/10 px-3 py-2.5 text-center text-xs font-semibold hover:bg-white/15 transition">
+          Mi cuenta
+        </a>
+        <a routerLink="/mi-cuenta/pedidos" (click)="closeSheet()"
+           class="rounded-2xl border border-white/15 bg-white/10 px-3 py-2.5 text-center text-xs font-semibold hover:bg-white/15 transition">
+          Pedidos
+        </a>
+        <a routerLink="/mi-cuenta/informacion" (click)="closeSheet()"
+           class="rounded-2xl border border-white/15 bg-white/10 px-3 py-2.5 text-center text-xs font-semibold hover:bg-white/15 transition">
+          Perfil
+        </a>
+      </div>
+      @if (isAdmin()) {
+        <a routerLink="/administracion-central-gemmatex-panel-interno" (click)="closeSheet()"
+           class="mb-4 block rounded-2xl border border-blue-400/30 bg-blue-500/15 px-4 py-2.5 text-center text-xs font-semibold text-blue-200 hover:bg-blue-500/25 transition">
+          Panel admin
+        </a>
+      }
+    } @else {
+      <a routerLink="/auth/login" (click)="closeSheet()"
+         class="mb-4 flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-semibold hover:bg-white/15 transition">
+        Iniciar sesión
+      </a>
+    }
+
     <!-- Acciones rápidas -->
     <div class="grid grid-cols-2 gap-2 mb-4">
       <a routerLink="/" (click)="closeSheet()"
@@ -475,6 +555,17 @@
         Recursos
       </a>
     </div>
+
+    @if (isLoggedIn()) {
+      <button
+        class="mt-4 w-full flex items-center justify-center gap-2 rounded-2xl border border-red-400/30 bg-red-500/15 px-4 py-3 text-red-300 font-semibold hover:bg-red-500/25 transition"
+        (click)="logout(); closeSheet()">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>
+        </svg>
+        Cerrar sesión
+      </button>
+    }
 
   </div>
 </section>
