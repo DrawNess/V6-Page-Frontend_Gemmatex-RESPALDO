@@ -5,7 +5,7 @@
   <div class="py-10 text-center text-slate-600">Cargando…</div>
 }
 @if (error()) {
-  <div class="py-4 mx-auto max-w-3xl text-center rounded-xl border border-red-200 bg-red-50 text-red-700">
+  <div class="py-4 mx-auto max-w-3xl text-center border border-red-200 bg-red-50 text-red-700">
     {{ error() }}
   </div>
 }
@@ -84,19 +84,19 @@
 
     <!-- Flechas -->
     <button type="button"
-            class="hidden md:grid place-items-center absolute left-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-white/90 hover:bg-white shadow"
+            class="hidden md:grid place-items-center absolute left-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-md shadow-sm border border-slate-200 promo-arrow"
             (click)="prev()" [attr.aria-label]="'Anterior'">‹</button>
 
     <button type="button"
-            class="hidden md:grid place-items-center absolute right-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-white/90 hover:bg-white shadow"
+            class="hidden md:grid place-items-center absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-md bg-white/90 hover:bg-white shadow-sm border border-slate-200"
             (click)="next()" [attr.aria-label]="'Siguiente'">›</button>
 
     <!-- Dots -->
     <div class="absolute bottom-4 inset-x-0 flex justify-center gap-2">
       <ng-container *ngFor="let _ of slides(); let i = index">
         <button type="button"
-                class="h-2.5 w-2.5 rounded-full transition"
-                [ngClass]="i === current() ? 'bg-white' : 'bg-white/40'"
+                class="h-2 transition"
+                [ngClass]="i === current() ? 'bg-white w-6' : 'bg-white/40 w-2'"
                 (click)="go(i)"
                 [attr.aria-label]="'Ir al slide ' + (i + 1)">
         </button>
@@ -128,11 +128,10 @@
           <ng-container *ngIf="annRouterLink(a) as rlink; else extAnn">
             <a [routerLink]="rlink"
                class="shrink-0 inline-flex items-center gap-2
-                      rounded-full border px-3.5 py-1.5
-                      text-xs sm:text-sm font-medium
+                      rounded-md border px-3.5 py-1.5
+                      text-xs sm:text-sm font-semibold uppercase tracking-wide
                       bg-white/90 hover:bg-white
                       text-slate-800 hover:text-slate-900
-                      shadow-sm hover:shadow
                       transition-all duration-150"
                [ngStyle]="{
                  'background': a.background || '#EAF1FF',
@@ -152,11 +151,10 @@
             <a *ngIf="annHref(a) as href"
                [href]="href" target="_blank" rel="noopener"
                class="shrink-0 inline-flex items-center gap-2
-                      rounded-full border px-3.5 py-1.5
-                      text-xs sm:text-sm font-medium
+                      rounded-md border px-3.5 py-1.5
+                      text-xs sm:text-sm font-semibold uppercase tracking-wide
                       bg-white/90 hover:bg-white
                       text-slate-800 hover:text-slate-900
-                      shadow-sm hover:shadow
                       transition-all duration-150"
                [ngStyle]="{
                  'background': a.background || '#EAF1FF',
@@ -172,11 +170,10 @@
 
             <span *ngIf="!annHref(a)"
                   class="shrink-0 inline-flex items-center gap-2
-                         rounded-full border px-3.5 py-1.5
-                         text-xs sm:text-sm font-medium
+                         border px-3.5 py-1.5
+                         text-xs sm:text-sm font-semibold uppercase tracking-wide
                          bg-white/90
                          text-slate-800
-                         shadow-sm
                          transition-all duration-150"
                   [ngStyle]="{
                     'background': a.background || '#EAF1FF',
@@ -243,25 +240,24 @@
   <div class="mx-auto max-w-7xl px-5 py-8 sm:py-10">
     <!-- Título + flechas -->
     <div class="mb-6 flex items-center justify-between gap-3">
-      <div>
-        <div class="mb-2 inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200/60 px-3 py-1 text-[11px] font-semibold text-blue-700 uppercase tracking-wider">
-          <span class="h-1.5 w-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+      <div class="animate-fade-in-left">
+        <div class="mb-2 inline-flex items-center gap-1.5 rounded-md bg-[#0511F2] px-3 py-1 text-[11px] font-bold text-white uppercase tracking-widest animate-slide-down">
           Recién llegados
         </div>
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-[#0511F2]">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 uppercase tracking-tight animate-fade-in-up delay-100">
           Novedades
         </h2>
-        <p class="mt-1 text-sm text-slate-500">Descubre los últimos productos agregados a nuestro catálogo</p>
+        <p class="mt-1 text-sm text-slate-500 animate-fade-in-up delay-200">Descubre los últimos productos agregados a nuestro catálogo</p>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 animate-fade-in-right">
         <button
           type="button"
-          class="h-9 w-9 grid place-items-center rounded-full border border-slate-300 bg-white hover:bg-slate-50"
+          class="h-9 w-9 grid place-items-center rounded-md border border-slate-300 promo-arrow"
           (click)="prevRandom()" aria-label="Anterior">‹</button>
         <button
           type="button"
-          class="h-9 w-9 grid place-items-center rounded-full border border-slate-300 bg-white hover:bg-slate-50"
+          class="h-9 w-9 grid place-items-center rounded-md border border-slate-300 promo-arrow"
           (click)="nextRandom()" aria-label="Siguiente">›</button>
       </div>
     </div>
@@ -291,10 +287,11 @@
     <div class="mt-8 sm:mt-10 flex justify-center">
       <a
         routerLink="/productos"
-        class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white
-               px-4 py-2.5 sm:px-5 sm:py-3 text-sm sm:text-base
-               font-semibold text-slate-700 hover:bg-slate-50
-               focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300">
+        class="inline-flex items-center gap-2 rounded-lg border-2 border-[#0511F2]
+               px-5 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-base
+               font-bold text-[#0511F2] uppercase tracking-wide
+               focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0511F2]/30
+               btn-ink-outline animate-fade-in-up delay-200">
         Ver todo el catálogo
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" fill="none"
              viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -308,7 +305,7 @@
   <section class="w-full bg-white">
     <div class="mx-auto max-w-7xl px-5 py-8 sm:py-10">
       <div class="h-10 w-48 animate-pulse rounded bg-slate-100"></div>
-      <div class="mt-4 h-[280px] animate-pulse rounded-2xl bg-slate-100"></div>
+      <div class="mt-4 h-[280px] animate-pulse bg-slate-100"></div>
     </div>
   </section>
 }
@@ -328,10 +325,10 @@
 
   @if (!promosLoading() && activePromos().length) {
     <section class="w-full bg-gradient-to-b from-slate-50 to-white py-8">
-    <div class="mx-auto max-w-7xl px-4">
+    <div class="mx-auto max-w-7xl px-4 animate-scale-in">
 
       <!-- Carrusel de promociones -->
-      <div class="relative w-full rounded-2xl overflow-hidden shadow-xl border border-slate-200 group">
+      <div class="relative w-full overflow-hidden rounded-lg border border-slate-200 group">
 
         <!-- Slides de promo -->
         <div class="relative h-[280px] sm:h-[340px] md:h-[420px] lg:h-[480px]">
@@ -453,12 +450,12 @@
         <button
           type="button"
           class="absolute left-4 top-1/2 -translate-y-1/2 z-10
-                 w-12 h-12 rounded-full bg-white/95 backdrop-blur-sm
+                 w-10 h-10 rounded-md bg-white/95 backdrop-blur-sm
                  flex items-center justify-center
-                 shadow-lg hover:bg-white hover:scale-110
-                 transition-all duration-200
+                 border border-slate-200
                  opacity-0 group-hover:opacity-100
-                 disabled:opacity-50 disabled:cursor-not-allowed"
+                 disabled:opacity-50 disabled:cursor-not-allowed
+                 promo-arrow"
           (click)="prevPromo()"
           [disabled]="activePromos().length <= 1"
           aria-label="Promoción anterior"
@@ -471,12 +468,12 @@
         <button
           type="button"
           class="absolute right-4 top-1/2 -translate-y-1/2 z-10
-                 w-12 h-12 rounded-full bg-white/95 backdrop-blur-sm
+                 w-10 h-10 rounded-md bg-white/95 backdrop-blur-sm
                  flex items-center justify-center
-                 shadow-lg hover:bg-white hover:scale-110
-                 transition-all duration-200
+                 border border-slate-200
                  opacity-0 group-hover:opacity-100
-                 disabled:opacity-50 disabled:cursor-not-allowed"
+                 disabled:opacity-50 disabled:cursor-not-allowed
+                 promo-arrow"
           (click)="nextPromo()"
           [disabled]="activePromos().length <= 1"
           aria-label="Siguiente promoción"
@@ -489,11 +486,11 @@
         <!-- Indicadores de progreso (dots) -->
         @if (activePromos().length > 1) {
           <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
-            <div class="flex items-center gap-2 px-4 py-2 bg-black/40 backdrop-blur-md rounded-full">
+            <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-black/50 backdrop-blur-md">
               @for (promo of activePromos(); track promo; let i = $index) {
                 <button
                   type="button"
-                  class="transition-all duration-300 rounded-full"
+                  class="transition-all duration-300"
                   [class.w-8]="i === currentPromo()"
                   [class.w-2]="i !== currentPromo()"
                   [class.h-2]="true"
@@ -513,7 +510,7 @@
         <!-- Contador de slides -->
         @if (activePromos().length > 1) {
           <div class="absolute top-4 right-4 z-10">
-            <div class="px-3 py-1.5 bg-black/60 backdrop-blur-md rounded-full">
+            <div class="px-3 py-1 rounded-md bg-black/60 backdrop-blur-md">
               <span class="text-xs font-semibold text-white">
                 {{ currentPromo() + 1 }} / {{ activePromos().length }}
               </span>
@@ -541,22 +538,22 @@
         Sucursales
       </div> -->
 
-<h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[#0511F2] via-[#12509B] to-[#0511F2]">
-        ¿DÓNDE ENCONTRARNOS?
+<h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight uppercase text-slate-900 animate-fade-in-up">
+        ¿Dónde encontrarnos?
       </h2>
 
-      <p class="text-slate-600 text-sm sm:text-base">
+      <p class="text-slate-500 text-sm sm:text-base animate-fade-in-up delay-100">
         Visítanos en nuestra tienda física o contáctanos para más información.
       </p>
 
       <!-- CTA principal -->
-      <div class="pt-1">
+      <div class="pt-1 animate-fade-in-up delay-200">
         <a
           routerLink="/encuentranos"
-          class="inline-flex items-center gap-2 rounded-xl bg-[#0511F2] px-5 py-2.5
-                 text-sm sm:text-base font-semibold text-white shadow-sm
-                 hover:brightness-110 focus:outline-none
-                 focus-visible:ring-2 focus-visible:ring-blue-300"
+          class="inline-flex items-center gap-2 rounded-lg bg-[#0511F2] px-5 py-2.5
+                 text-sm sm:text-base font-bold text-white uppercase tracking-wide
+                 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300
+                 btn-ink-solid"
           aria-label="Conoce nuestras sucursales">
           Conoce nuestras sucursales
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 24 24" fill="currentColor">
@@ -570,9 +567,9 @@
     <div class="mt-8 sm:mt-10 grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-stretch">
 
       <!-- Mapa -->
-      <div class="relative w-full aspect-[16/9] md:aspect-auto md:h-[440px]">
+      <div class="relative w-full aspect-[16/9] md:aspect-auto md:h-[440px] animate-fade-in-left delay-200">
         <!-- tarjeta mapa -->
-        <div class="relative h-full w-full overflow-hidden rounded-2xl ring-1 ring-blue-100 shadow-xl bg-white">
+        <div class="relative h-full w-full overflow-hidden rounded-lg border border-slate-200 bg-white">
           <iframe
             class="absolute inset-0 w-full h-full"
             src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d7651.226524196067!2d-68.140311!3d-16.495109!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x915f2075ab61618b%3A0x9cb53130882cfa67!2sGEMMATEX!5e0!3m2!1ses!2sbo!4v1757144804844!5m2!1ses!2sbo"
@@ -582,8 +579,8 @@
 
           <!-- chip flotante sobre el mapa -->
           <div class="absolute left-3 bottom-3 sm:left-4 sm:bottom-4 backdrop-blur
-                      rounded-xl border border-white/60 bg-white/80 px-3 py-2 shadow
-                      text-slate-800 inline-flex items-center gap-2">
+                      rounded-md border border-white/60 bg-white/90 px-3 py-2
+                      text-slate-800 inline-flex items-center gap-2 text-sm font-semibold">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#0511F2]" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2C8.1 2 5 5.1 5 9c0 5.3 7 13 7 13s7-7.7 7-13c0-3.9-3.1-7-7-7zm0 9.5c-1.4 0-2.5-1.1-2.5-2.5S10.6 6.5 12 6.5s2.5 1.1 2.5 2.5S13.4 11.5 12 11.5z"/>
             </svg>
@@ -593,17 +590,17 @@
       </div>
 
       <!-- Información -->
-      <div class="flex flex-col justify-center">
-        <div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm">
+      <div class="flex flex-col justify-center animate-fade-in-right delay-300">
+        <div class="rounded-lg border border-slate-200 bg-white p-5 sm:p-6">
           <h3 class="text-xl font-semibold text-slate-900 flex items-center gap-2">
-            <span class="inline-block h-2 w-2 rounded-full bg-[#0511F2]"></span>
+            <span class="inline-block h-2 w-2 bg-[#0511F2]"></span>
             Sucursal principal
           </h3>
           <p class="mt-1 text-slate-600">Av. Illampu 682, La Paz</p>
 
           <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-slate-700">
             <a href="https://wa.me/59162579602" target="_blank" rel="noopener"
-               class="inline-flex items-center justify-center gap-2 rounded-lg border px-3 py-2 hover:bg-slate-50">
+               class="inline-flex items-center justify-center gap-2 rounded-md border px-3 py-2 hover:bg-slate-50">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M20 3.5A10.5 10.5 0 006.1 20.8L3 21l.3-3A10.5 10.5 0 1020 3.5zm-5.1 13.8c-2.8 0-6.1-2.3-6.1-5.3 0-1 .3-1.9.9-2.6l.4-.4c.2-.1.5-.2.7 0 .3.1.7 1.7.8 2 .1.3.1.5-.1.7l-.4.5c-.1.1-.1.3 0 .5.2.4.8 1.3 1.6 1.9.9.7 1.8 1 2.2 1.1.2.1.4 0 .6-.2l.6-.7c.2-.2.4-.2.7-.1.2.1 1.7.7 2 .8.3.1.4.2.5.4 0 .2-.1 1.1-.6 1.6-.4.4-1.1.8-1.8.9-.2 0-.4 0-.9 0z"/>
               </svg>
@@ -614,10 +611,10 @@
           <div class="mt-5 grid grid-cols-2 gap-4 text-sm">
             <div class="space-y-1">
               <h4 class="font-semibold text-slate-800">Horario</h4>
-              <div class="inline-flex items-center gap-2 rounded-lg bg-blue-50 text-blue-800 px-2 py-1">
+              <div class="inline-flex items-center gap-2 bg-blue-50 text-blue-800 px-2 py-1">
                 Lun–Vie: <span class="font-medium">8:30 A 13:00 – 14:00 A 18:30</span>
               </div>
-              <div class="inline-flex items-center gap-2 rounded-lg bg-blue-50 text-blue-800 px-2 py-1">
+              <div class="inline-flex items-center gap-2 bg-blue-50 text-blue-800 px-2 py-1">
                 Sáb: <span class="font-medium">8:30–13:00</span>
               </div>
               <div class="text-slate-500">Dom: Cerrado</div>
@@ -626,8 +623,8 @@
               <h4 class="font-semibold text-slate-800">Servicios en tienda</h4>
 
               <div class="grid grid-cols-1 gap-2">
-                <article class="flex items-start gap-2.5 rounded-xl border border-blue-100 bg-gradient-to-b from-white to-[#f8fbff] p-2.5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-[0_8px_20px_rgba(30,64,175,0.10)]">
-                  <div class="grid h-6 w-6 flex-none place-items-center rounded-lg bg-indigo-100 text-indigo-700">
+                <article class="flex items-start gap-2.5 rounded-md border border-slate-200 bg-white p-2.5 service-card">
+                  <div class="grid h-6 w-6 flex-none place-items-center bg-indigo-100 text-indigo-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
@@ -638,8 +635,8 @@
                   </div>
                 </article>
 
-                <article class="flex items-start gap-2.5 rounded-xl border border-blue-100 bg-gradient-to-b from-white to-[#f8fbff] p-2.5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-[0_8px_20px_rgba(30,64,175,0.10)]">
-                  <div class="grid h-6 w-6 flex-none place-items-center rounded-lg bg-cyan-100 text-cyan-700">
+                <article class="flex items-start gap-2.5 rounded-md border border-slate-200 bg-white p-2.5 service-card">
+                  <div class="grid h-6 w-6 flex-none place-items-center bg-cyan-100 text-cyan-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.55-2.27A1 1 0 0121 8.63v6.74a1 1 0 01-1.45.9L15 14M5 6h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2z"/>
                     </svg>
@@ -650,8 +647,8 @@
                   </div>
                 </article>
 
-                <article class="flex items-start gap-2.5 rounded-xl border border-blue-100 bg-gradient-to-b from-white to-[#f8fbff] p-2.5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-[0_8px_20px_rgba(30,64,175,0.10)]">
-                  <div class="grid h-6 w-6 flex-none place-items-center rounded-lg bg-emerald-100 text-emerald-700">
+                <article class="flex items-start gap-2.5 rounded-md border border-slate-200 bg-white p-2.5 service-card">
+                  <div class="grid h-6 w-6 flex-none place-items-center bg-emerald-100 text-emerald-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M3 7h15l3 4v6a2 2 0 01-2 2h-1a2 2 0 01-2-2H8a2 2 0 01-2 2H5a2 2 0 01-2-2V7zm13 0V5a2 2 0 00-2-2H6a2 2 0 00-2 2v2h12z"/>
                     </svg>
@@ -664,9 +661,9 @@
               </div>
 
               <div class="flex flex-wrap gap-2 pt-1">
-                <span class="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-[0.68rem] font-semibold leading-none text-blue-900">Atención personalizada</span>
-                <span class="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-[0.68rem] font-semibold leading-none text-blue-900">Soporte postventa</span>
-                <span class="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-[0.68rem] font-semibold leading-none text-blue-900">Canal WhatsApp</span>
+                <span class="inline-flex items-center rounded-md border border-blue-200 bg-blue-50 px-2.5 py-1 text-[0.68rem] font-bold uppercase tracking-wide leading-none text-blue-900">Atención personalizada</span>
+                <span class="inline-flex items-center rounded-md border border-blue-200 bg-blue-50 px-2.5 py-1 text-[0.68rem] font-bold uppercase tracking-wide leading-none text-blue-900">Soporte postventa</span>
+                <span class="inline-flex items-center rounded-md border border-blue-200 bg-blue-50 px-2.5 py-1 text-[0.68rem] font-bold uppercase tracking-wide leading-none text-blue-900">Canal WhatsApp</span>
               </div>
             </div>
           </div>
@@ -682,7 +679,7 @@
             </a> -->
             <a
               href="https://wa.me/59162579602" target="_blank" rel="noopener"
-              class="inline-flex items-center gap-2 rounded-lg bg-green-600 text-white px-4 py-2 hover:bg-green-700">
+              class="inline-flex items-center gap-2 rounded-lg bg-green-600 text-white px-4 py-2 font-semibold uppercase text-sm tracking-wide btn-ink-green">
               Escríbenos por WhatsApp
             </a>
           </div>
@@ -695,7 +692,7 @@
 } @placeholder {
   <section class="w-full bg-white">
     <div class="mx-auto max-w-7xl px-4 py-10 sm:py-14">
-      <div class="h-[320px] animate-pulse rounded-2xl bg-slate-100"></div>
+      <div class="h-[320px] animate-pulse bg-slate-100"></div>
     </div>
   </section>
 }
@@ -709,11 +706,11 @@
 
     <!-- Header -->
     <div class="text-center mb-12 sm:mb-14">
-      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[#0511F2] via-[#12509B] to-[#0511F2]">
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight uppercase text-slate-900 animate-fade-in-up">
         ¿Por qué elegir Gemmatex?
       </h2>
 
-      <p class="mt-4 text-slate-500 max-w-2xl mx-auto text-sm sm:text-base">
+      <p class="mt-4 text-slate-500 max-w-2xl mx-auto text-sm sm:text-base animate-fade-in-up delay-100">
         Más de una década respaldando a profesionales de la impresión en Bolivia con productos originales y asesoría especializada.
       </p>
     </div>
@@ -722,15 +719,15 @@
     <div class="grid grid-cols-1 gap-6 md:grid-cols-3 lg:gap-8">
 
       <!-- Card 1 -->
-      <article class="group rounded-2xl border border-slate-200/70 bg-white p-6 sm:p-7 shadow-[0_14px_36px_rgba(15,23,42,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_44px_rgba(15,23,42,0.12)]">
-        <div class="mb-4 grid h-12 w-12 place-items-center rounded-xl bg-blue-100 text-blue-700">
+      <article class="group rounded-lg border border-slate-200 bg-white p-6 sm:p-7 why-card animate-fade-in-up delay-100">
+        <div class="mb-4 grid h-12 w-12 place-items-center rounded-lg bg-[#0511F2]/10 text-[#0511F2] why-icon">
           <!-- icon -->
           <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
           </svg>
         </div>
 
-        <h3 class="text-lg font-bold mb-2 text-blue-900">Productos Originales</h3>
+        <h3 class="text-base font-bold mb-2 text-slate-900 uppercase tracking-wide">Productos Originales</h3>
 
         <p class="text-sm text-slate-500 leading-relaxed">
           Somos distribuidores autorizados. Cada producto cuenta con garantía directa del fabricante, asegurando calidad y durabilidad.
@@ -738,14 +735,14 @@
       </article>
 
       <!-- Card 2 -->
-      <article class="group rounded-2xl border border-slate-200/70 bg-white p-6 sm:p-7 shadow-[0_14px_36px_rgba(15,23,42,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_44px_rgba(15,23,42,0.12)]">
-        <div class="mb-4 grid h-12 w-12 place-items-center rounded-xl bg-blue-100 text-blue-700">
+      <article class="group rounded-lg border border-slate-200 bg-white p-6 sm:p-7 why-card animate-fade-in-up delay-200">
+        <div class="mb-4 grid h-12 w-12 place-items-center rounded-lg bg-[#0511F2]/10 text-[#0511F2] why-icon">
           <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
           </svg>
         </div>
 
-        <h3 class="text-lg font-bold mb-2 text-blue-900">Asesoría Especializada</h3>
+        <h3 class="text-base font-bold mb-2 text-slate-900 uppercase tracking-wide">Asesoría Especializada</h3>
 
         <p class="text-sm text-slate-500 leading-relaxed">
           Nuestro equipo técnico te guía en la elección del equipo y suministros ideales para tu negocio. Experiencia B2B real.
@@ -753,14 +750,14 @@
       </article>
 
       <!-- Card 3 -->
-      <article class="group rounded-2xl border border-slate-200/70 bg-white p-6 sm:p-7 shadow-[0_14px_36px_rgba(15,23,42,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_44px_rgba(15,23,42,0.12)]">
-        <div class="mb-4 grid h-12 w-12 place-items-center rounded-xl bg-blue-100 text-blue-700">
+      <article class="group rounded-lg border border-slate-200 bg-white p-6 sm:p-7 why-card animate-fade-in-up delay-300">
+        <div class="mb-4 grid h-12 w-12 place-items-center rounded-lg bg-[#0511F2]/10 text-[#0511F2] why-icon">
           <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
           </svg>
         </div>
 
-        <h3 class="text-lg font-bold mb-2 text-blue-900">Soporte Inmediato</h3>
+        <h3 class="text-base font-bold mb-2 text-slate-900 uppercase tracking-wide">Soporte Inmediato</h3>
 
         <p class="text-sm text-slate-500 leading-relaxed">
           Atención por WhatsApp, soporte postventa y stock disponible para que tu producción nunca se detenga.
@@ -825,7 +822,7 @@
 
   <div class="relative z-10 mx-auto max-w-4xl px-4 py-16 sm:py-24 text-center">
 
-    <h2 class="animate-fade-in-up text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
+    <h2 class="animate-fade-in-up text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight uppercase">
       Cotiza sin compromiso
     </h2>
 
@@ -837,7 +834,7 @@
 
       <!-- Botón principal -->
       <a href="/productos?categoryId=1"
-         class="inline-flex items-center gap-2 rounded-xl bg-blue-600 text-white px-6 py-3 text-sm sm:text-base font-semibold shadow-md hover:shadow-lg hover:bg-blue-700 hover:-translate-y-0.5 transition-all duration-200">
+         class="inline-flex items-center gap-2 rounded-lg bg-[#0511F2] text-white px-6 py-3 text-sm sm:text-base font-bold uppercase tracking-wide btn-ink-solid">
         Ver catálogo completo
         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
@@ -851,3 +848,5 @@
 }
 
 </main>
+
+<!-- claude --resume 1ea3cfc9-7f27-4dea-a3f1-810d4b258194 -->

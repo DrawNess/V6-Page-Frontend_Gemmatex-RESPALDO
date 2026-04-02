@@ -8,5 +8,5 @@ export const environment = {
   WSP_CBBA: 78859336,
   WSP_EACEIBO: 67017253,
   WSP_EASATE: 69750231,
-  WSP_SCZ: 63565431
+  WSP_SCZ: 78346372
 };
