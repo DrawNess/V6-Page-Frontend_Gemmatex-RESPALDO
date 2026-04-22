@@ -45,7 +45,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private tokenService = inject(TokenService);
   private authService = inject(AuthService);
   readonly userMenuOpen = signal(false);
-  readonly isLoggedIn = computed(() => this.tokenService.isAuthenticated());
+  readonly isLoggedIn = signal(this.tokenService.isAuthenticated());
   readonly userRole = computed(() => this.tokenService.getRoleFromToken());
   readonly isAdmin = computed(() => this.userRole() === 'admin');
 
@@ -62,6 +62,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   logout() {
     this.authService.logout();
+    this.isLoggedIn.set(false);
     this.closeUserMenu();
     this.router.navigate(['/']);
   }
@@ -118,6 +119,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.desktopMenuOpen.set(false);
         this.searchOpen.set(false);
         this.userMenuOpen.set(false);
+        this.isLoggedIn.set(this.tokenService.isAuthenticated());
         setTimeout(() => {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }, 0);

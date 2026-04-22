@@ -1,0 +1,8 @@
+.service-card {
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.service-card:hover {
+  transform: translateX(4px);
+  border-color: #0511F2;
+  box-shadow: 2px 0 0 0 #0511F2;
+}

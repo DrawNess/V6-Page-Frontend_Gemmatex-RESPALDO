@@ -1,283 +1,314 @@
-<div class="relative w-full min-h-screen bg-white text-slate-800 overflow-hidden">
+<div class="w-full bg-white text-slate-800">
+  <div class="max-w-[1400px] mx-auto px-4 py-6 lg:px-6 lg:py-10 animate-fade-in-up">
 
-  <!-- Contenedor principal con animación -->
-  <div class="relative z-20 max-w-[1600px] mx-auto px-6 py-8 animate-fade-in-up">
+    <div class="grid grid-cols-12 gap-5 lg:gap-10 items-start">
 
-    <div class="grid grid-cols-12 gap-6 items-start">
+      <!-- ===== IZQUIERDA ===== -->
+      <div class="col-span-12 lg:col-span-3 order-2 lg:order-1 lg:sticky lg:top-24">
 
-      <!-- ============ COLUMNA IZQUIERDA: Stats y detalles ============ -->
-      <div class="col-span-12 lg:col-span-3 space-y-4 animate-slide-in-left">
+        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden animate-fade-in-up">
 
-        <!-- Nombre y marca -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 hover:shadow-md transition-shadow duration-300">
-          <div class="flex items-center gap-2 mb-3">
-            <span class="text-xs text-slate-500 uppercase tracking-wider">{{ product()?.brand || 'Marca' }}</span>
+          <!-- Marca + nombre + desc -->
+          <div class="px-5 pt-5 pb-4 border-b border-slate-100">
+           <!--  <p class="text-[11px] text-slate-400 uppercase tracking-widest mb-2">
+              {{ product()?.brand || 'Gemmatex' }}
+            </p> -->
+            <h1 class="hidden lg:block text-[22px] font-bold text-slate-900 leading-snug mb-3">
+              {{ product()?.name }}
+            </h1>
+            @if (selectedVariant()?.shortDescription) {
+              <p class="text-sm text-slate-500 leading-relaxed">
+                {{ selectedVariant()?.shortDescription }}
+              </p>
+            }
           </div>
 
-          <h1 class="text-2xl font-black text-slate-900 leading-tight mb-2">
-            {{ product()?.name }}
-          </h1>
-
-          <p class="text-sm text-slate-600 leading-relaxed mb-3">
-            {{ selectedVariant()?.shortDescription || 'Sin descripción corta.' }}
-          </p>
-
-          <div class="flex items-center gap-2 text-xs">
-            <span class="px-2 py-1 bg-slate-100 rounded text-slate-700 border border-slate-200 hover:bg-slate-200 transition-colors">
-              SKU: {{ selectedVariant()?.sku || '—' }}
-            </span>
-            <span class="border border-slate-200 px-2 py-1 rounded text-xs font-bold transition-all"
-                  [class.bg-emerald-50]="!isOutOfStock()"
+          <!-- Stock + SKU -->
+          <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/50">
+            <span class="flex items-center gap-1.5 text-[12px] font-semibold"
                   [class.text-emerald-600]="!isOutOfStock()"
-                  [class.bg-rose-50]="isOutOfStock()"
-                  [class.text-rose-600]="isOutOfStock()">
-              <span class="inline-block w-1.5 h-1.5 rounded-full mr-1"
+                  [class.text-rose-500]="isOutOfStock()">
+              <span class="w-2 h-2 rounded-full flex-shrink-0"
                     [class.bg-emerald-500]="!isOutOfStock()"
                     [class.animate-pulse]="!isOutOfStock()"
-                    [class.bg-rose-500]="isOutOfStock()"></span>
-              {{ isOutOfStock() ? 'AGOTADO' : 'EN STOCK' }}
+                    [class.bg-rose-400]="isOutOfStock()"></span>
+              {{ isOutOfStock() ? 'Agotado' : 'En stock' }}
+            </span>
+            <span class="text-[11px] font-mono text-slate-400 tracking-wide">
+              {{ selectedVariant()?.sku || '—' }}
             </span>
           </div>
-        </div>
 
-        <!-- Stats principales -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 hover:shadow-md transition-shadow duration-300">
-          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
-            <svg class="w-4 h-4 animate-pulse-slow" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-              <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
-            </svg>
-            Especificaciones
-          </h3>
+          <!-- Especificaciones -->
+          <div class="px-5 py-4">
+            <p class="text-[11px] text-slate-400 uppercase tracking-widest mb-3">Especificaciones</p>
+            <div class="space-y-2">
 
-          <div class="space-y-3">
-            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200 hover:bg-slate-100 transition-colors">
-              <span class="text-xs text-slate-500">Unidad</span>
-              <span class="text-sm font-semibold text-slate-900">{{ selectedVariant()?.unitOfMeasure || '—' }}</span>
-            </div>
-            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200 hover:bg-slate-100 transition-colors">
-              <span class="text-xs text-slate-500">Dimensiones</span>
-              <span class="text-sm font-semibold text-slate-900">{{ selectedVariant()?.dimensions || '—' }}</span>
+              <div class="flex items-center justify-between rounded-xl bg-slate-50 border border-slate-200 px-4 py-3">
+                <span class="text-xs text-slate-500 flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M3 12h18M3 18h18"/>
+                  </svg>
+                  Unidad
+                </span>
+                <span class="text-sm font-semibold text-slate-900">{{ selectedVariant()?.unitOfMeasure || '—' }}</span>
+              </div>
+
+              <div class="flex items-center justify-between rounded-xl bg-slate-50 border border-slate-200 px-4 py-3">
+                <span class="text-xs text-slate-500 flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/>
+                  </svg>
+                  Dimensiones
+                </span>
+                <span class="text-sm font-semibold text-slate-900">{{ selectedVariant()?.dimensions || '—' }}</span>
+              </div>
+
             </div>
           </div>
-        </div>
 
+          <!-- Marca -->
+          @if (product()?.brand) {
+            <div class="px-5 py-4 border-t border-slate-100 bg-slate-50/50">
+              <p class="text-[11px] text-slate-400 uppercase tracking-widest mb-1">Marca</p>
+              <p class="text-lg font-bold text-slate-900">{{ product()?.brand }}</p>
+            </div>
+          }
+
+        </div>
       </div>
 
-      <!-- ============ COLUMNA CENTRAL: Imagen del producto ============ -->
-      <div class="col-span-12 lg:col-span-6 flex flex-col items-center justify-center py-10 animate-zoom-in">
+      <!-- ===== CENTRO: Imagen ===== -->
+      <div class="col-span-12 lg:col-span-6 flex flex-col items-center order-1 lg:order-2">
 
-        <!-- Imagen principal con efectos -->
-        <div class="relative group">
-          <!-- Glow effect animado -->
-          <div class="absolute -inset-8 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.08),transparent_60%)] rounded-[28px] blur-2xl opacity-80 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-          <!-- Imagen -->
-          <div class="relative z-10">
-            <img
-              [src]="selectedImage()"
-              [alt]="product()?.name || 'Producto'"
-              class="max-w-full h-auto max-h-[560px] object-contain drop-shadow-md transition-transform duration-500 group-hover:scale-105"
-              loading="eager"
-              fetchpriority="high"
-              decoding="async"
-              width="1000"
-              height="1000"
-              (error)="onCoverError($event)"
-            />
-          </div>
+        <!-- Nombre solo mobile -->
+        <div class="w-full mb-4 lg:hidden">
+          <p class="text-[11px] text-slate-400 uppercase tracking-widest mb-1">{{ product()?.brand || 'Gemmatex' }}</p>
+          <h1 class="text-xl font-bold text-slate-900 leading-snug">{{ product()?.name }}</h1>
         </div>
 
-        <!-- Miniaturas con animación stagger -->
-        <div class="mt-8 flex gap-3 justify-center" *ngIf="(thumbs()?.length || 0) > 1">
+        <!-- Contenedor imagen -->
+        <div class="w-full rounded-2xl lg:rounded-3xl bg-slate-50 flex items-center justify-center py-8 px-4 lg:py-10 lg:px-6 relative overflow-hidden">
+          <!-- Glow sutil de fondo -->
+          <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_60%,rgba(5,17,242,0.04),transparent_65%)]"></div>
+          <img
+            [src]="selectedImage()"
+            [alt]="product()?.name || 'Producto'"
+            class="relative z-10 max-w-full h-auto max-h-[300px] lg:max-h-[480px] object-contain transition-transform duration-500 hover:scale-[1.03] drop-shadow-sm"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+            width="1000"
+            height="1000"
+            (error)="onCoverError($event)"
+          />
+        </div>
+
+        <!-- Miniaturas -->
+        <div class="flex gap-2 justify-center flex-wrap mt-4" *ngIf="(thumbs()?.length || 0) > 1">
           <button
             *ngFor="let img of thumbs(); let i = index; trackBy: trackByThumb"
             type="button"
-            class="group relative w-20 h-20 rounded-xl overflow-hidden border-2 transition-all duration-300 animate-fade-in-up"
-            [style.animation-delay]="(i * 100) + 'ms'"
-            [class.border-sky-500]="img === selectedImage()"
-            [class.shadow-lg]="img === selectedImage()"
-            [class.shadow-sky-200]="img === selectedImage()"
-            [class.scale-110]="img === selectedImage()"
-            [class.border-slate-200]="img !== selectedImage()"
-            [class.opacity-60]="img !== selectedImage()"
-            [class.hover:opacity-100]="img !== selectedImage()"
-            [class.hover:border-slate-300]="img !== selectedImage()"
-            [class.hover:scale-105]="img !== selectedImage()"
+            class="w-16 h-16 rounded-xl overflow-hidden border-2 transition-all duration-200 bg-slate-50"
+            [class.border-[#0511F2]]="img === selectedImage()"
+            [class.shadow-md]="img === selectedImage()"
+            [class.border-transparent]="img !== selectedImage()"
+            [class.opacity-50]="img !== selectedImage()"
+            [class.hover:opacity-80]="img !== selectedImage()"
             (click)="changeCover(img)"
           >
             <img [src]="img" alt="miniatura"
-                 class="w-full h-full object-cover bg-slate-100 transition-transform duration-300 group-hover:scale-110"
+                 class="w-full h-full object-cover"
                  (error)="onThumbError($event)"
-                 loading="lazy"
-                 decoding="async"
-                 width="80"
-                 height="80" />
-                 @if (img === selectedImage()) {
-                   <div class="absolute inset-0 bg-sky-100/60 backdrop-blur-[1px]"></div>
-                 }
+                 loading="lazy" decoding="async" width="64" height="64" />
           </button>
         </div>
 
-        <!-- Descripción centrada -->
-        <div class="mt-10 w-full max-w-3xl text-center animate-fade-in" style="animation-delay: 400ms">
-          <h3 class="text-lg font-bold text-slate-500 uppercase tracking-wider mb-3">Descripción</h3>
-          <p class="text-sm text-slate-700 leading-relaxed">
-            {{ selectedVariant()?.description || 'Sin descripción disponible.' }}
-          </p>
-        </div>
-      </div>
-
-      <!-- ============ COLUMNA DERECHA: Precio y compra ============ -->
-      <div class="col-span-12 lg:col-span-3 space-y-4 animate-slide-in-right">
-
-        <!-- Selector de variantes por color -->
-        @if(hasMultipleVariants()){
-          <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
-
-            <div class="flex items-center justify-between mb-3">
-              <div>
-                <h3 class="text-xs font-semibold text-slate-900 mb-0.5 uppercase tracking-wide">
-                  {{ hasColors() ? 'Color' : 'Variante' }}
-                </h3>
-                @if(selectedVariant()?.color) {
-                  <p class="text-[10px] text-slate-500">
-                    Actual: <span class="font-semibold text-slate-700">{{ selectedVariant()!.color!.name }}</span>
-                  </p>
-                }
-              </div>
-            </div>
-
-            <!-- Grid de variantes -->
-            <div class="flex flex-wrap gap-2">
-              @for(v of activeVariants(); track v.id) {
-                <button
-                  type="button"
-                  class="relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 shadow-sm hover:shadow-md"
-                  [style.background-color]="v.color?.hex || '#94a3b8'"
-                  [class.ring-2]="v.id === selectedVariant()?.id"
-                  [class.ring-slate-600]="v.id === selectedVariant()?.id"
-                  [class.ring-offset-2]="v.id === selectedVariant()?.id"
-                  [class.scale-110]="v.id === selectedVariant()?.id"
-                  [class.border]="isLightColor(v.color?.hex || '#94a3b8')"
-                  [class.border-slate-300]="isLightColor(v.color?.hex || '#94a3b8')"
-                  [class.opacity-40]="v.stock === 0"
-                  (click)="selectVariant(v)"
-                  [title]="v.color?.name || v.sku"
-                >
-                  @if(v.id === selectedVariant()?.id) {
-                    <div class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-slate-700 rounded-full flex items-center justify-center shadow-sm border border-white z-20">
-                      <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-                      </svg>
-                    </div>
-                  }
-                  @if(v.stock === 0) {
-                    <div class="absolute inset-0 flex items-center justify-center bg-white/80 rounded-full">
-                      <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                      </svg>
-                    </div>
-                  }
-                </button>
-              }
-            </div>
-
-            <p class="mt-2 text-[10px] text-slate-400">Los colores pueden variar según tu pantalla</p>
+        <!-- Descripción -->
+        @if (selectedVariant()?.description) {
+          <div class="mt-8 w-full animate-fade-in-up delay-200">
+            <p class="text-[11px] text-slate-400 uppercase tracking-widest mb-2">Descripción</p>
+            <p class="text-sm text-slate-600 leading-relaxed">
+              {{ selectedVariant()?.description }}
+            </p>
           </div>
         }
 
-        <!-- Precio destacado -->
-        <div class="relative overflow-hidden bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:shadow-lg transition-all duration-300 group">
-          <div class="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          <div class="relative">
-            <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Precio de venta</p>
-            <div class="flex items-baseline gap-2 mb-1">
-              <ng-container *ngIf="hasDiscount(); else noDiscount">
-                <span class="text-3xl font-black text-slate-900 transition-all duration-300 group-hover:scale-105">
-                  {{ selectedVariant()?.discountPrice | currency:'BOB':'symbol-narrow':'1.2-2' }}
-                </span>
-                <span class="text-base line-through text-slate-400">
-                  {{ selectedVariant()?.price | currency:'BOB':'symbol-narrow':'1.2-2' }}
-                </span>
-              </ng-container>
-              <ng-template #noDiscount>
-                <span class="text-3xl font-black text-slate-900 transition-all duration-300 group-hover:scale-105">
-                  {{ selectedVariant()?.price | currency:'BOB':'symbol-narrow':'1.2-2' }}
-                </span>
-              </ng-template>
+      </div>
+
+      <!-- ===== DERECHA: Compra ===== -->
+      <div class="col-span-12 lg:col-span-3 order-3 lg:sticky lg:top-24 space-y-3">
+
+        <!-- CARD DE COMPRA: variante + precio + CTA todo junto -->
+        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+
+          <!-- Variantes -->
+          @if (hasMultipleVariants()) {
+            <div class="px-5 pt-5 pb-4 border-b border-slate-100">
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-xs font-semibold text-slate-900 uppercase tracking-wide">
+                  {{ hasColors() ? 'Color' : 'Variante' }}
+                </p>
+                @if (selectedVariant()?.color) {
+                  <p class="text-[11px] text-slate-500">
+                    <span class="font-semibold text-slate-700">{{ selectedVariant()!.color!.name }}</span>
+                  </p>
+                }
+              </div>
+              <div class="flex flex-wrap gap-2">
+                @for (v of activeVariants(); track v.id) {
+                  <button
+                    type="button"
+                    class="relative w-9 h-9 rounded-full transition-all duration-200 shadow-sm"
+                    [style.background-color]="v.color?.hex || '#94a3b8'"
+                    [class.ring-2]="v.id === selectedVariant()?.id"
+                    [class.ring-slate-700]="v.id === selectedVariant()?.id"
+                    [class.ring-offset-2]="v.id === selectedVariant()?.id"
+                    [class.scale-110]="v.id === selectedVariant()?.id"
+                    [class.border]="isLightColor(v.color?.hex || '#94a3b8')"
+                    [class.border-slate-300]="isLightColor(v.color?.hex || '#94a3b8')"
+                    [class.opacity-35]="v.stock === 0"
+                    (click)="selectVariant(v)"
+                    [title]="v.color?.name || v.sku"
+                  >
+                    @if (v.id === selectedVariant()?.id) {
+                      <div class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-slate-700 rounded-full flex items-center justify-center border border-white z-20">
+                        <svg class="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5" d="M5 13l4 4L19 7"/>
+                        </svg>
+                      </div>
+                    }
+                    @if (v.stock === 0) {
+                      <div class="absolute inset-0 flex items-center justify-center bg-white/80 rounded-full">
+                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                      </div>
+                    }
+                  </button>
+                }
+              </div>
+              <p class="mt-2 text-[10px] text-slate-400">Los colores pueden variar según tu pantalla</p>
             </div>
+          }
+
+          <!-- Precio -->
+          <div class="px-5 py-4 border-b border-slate-100">
+            @if (isAuth()) {
+              <p class="text-[11px] text-slate-400 uppercase tracking-widest mb-1">Precio</p>
+              <div class="flex items-baseline gap-2">
+                @if (hasDiscount()) {
+                  <span class="text-3xl font-black text-slate-900">
+                    {{ selectedVariant()?.discountPrice | currency:'BOB':'symbol-narrow':'1.2-2' }}
+                  </span>
+                  <span class="text-sm line-through text-slate-400">
+                    {{ selectedVariant()?.price | currency:'BOB':'symbol-narrow':'1.2-2' }}
+                  </span>
+                } @else {
+                  <span class="text-3xl font-black text-slate-900">
+                    {{ selectedVariant()?.price | currency:'BOB':'symbol-narrow':'1.2-2' }}
+                  </span>
+                }
+              </div>
+            } @else {
+              <div class="flex items-start gap-2.5">
+                <svg class="h-4 w-4 flex-shrink-0 text-amber-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <p class="text-sm text-slate-600">
+                  <a routerLink="/auth/login" class="font-semibold text-[#0511F2] hover:underline">Inicia sesión</a>
+                  para ver el precio.
+                </p>
+              </div>
+            }
           </div>
+
+          <!-- CTAs -->
+          <div class="px-5 py-4 space-y-3">
+
+            <!-- Cantidad -->
+            <div>
+              <p class="text-[11px] text-slate-400 uppercase tracking-widest mb-2">Cantidad</p>
+              <div class="flex items-center gap-3">
+                <div class="flex items-center rounded-xl border border-slate-200 overflow-hidden">
+                  <button type="button"
+                          (click)="decreaseQty()"
+                          class="w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors text-lg font-semibold disabled:opacity-30"
+                          [disabled]="quantity() <= 1">
+                    −
+                  </button>
+                  <span class="w-10 h-10 flex items-center justify-center text-sm font-bold text-slate-900 border-x border-slate-200">
+                    {{ quantity() }}
+                  </span>
+                  <button type="button"
+                          (click)="increaseQty()"
+                          class="w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors text-lg font-semibold">
+                    +
+                  </button>
+                </div>
+              </div>
+              @if (selectedVariant()?.unitOfMeasure) {
+                <p class="mt-2 text-[11px] text-slate-400 uppercase tracking-wide">
+                  Unidad de venta: <span class="font-semibold text-slate-600">{{ selectedVariant()?.unitOfMeasure }}</span>
+                </p>
+              }
+            </div>
+
+            <button
+              class="cart-btn relative w-full bg-[#2563EB] hover:bg-[#1d4ed8]
+                     text-white font-semibold text-sm rounded-xl px-5 py-3 transition-all duration-200
+                     disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed
+                     flex items-center justify-center gap-2 shadow-sm hover:shadow-lg
+                     hover:-translate-y-0.5 active:translate-y-0 overflow-hidden group"
+              (click)="addToCart()"
+              [disabled]="isOutOfStock() || isAdding()"
+              [class.btn-adding]="isAdding()"
+              [class.btn-added]="added()"
+            >
+              <div class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+              @if (added()) {
+                <svg class="relative z-10 w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                </svg>
+              }
+              <span class="relative z-10 transition-all duration-150" [class.scale-95]="isAdding()">
+                {{ isOutOfStock() ? 'AGOTADO' : added() ? '¡AÑADIDO!' : 'AÑADIR AL CARRITO' }}
+              </span>
+              <span *ngIf="isAdding()" class="cart-pulse"></span>
+            </button>
+
+          </div>
+
         </div>
 
-        <!-- Botón de compra con efectos -->
-        <button
-          class="cart-btn relative w-full bg-[#2563EB] hover:bg-[#1d4ed8]
-                 text-white font-semibold text-base rounded-xl px-5 py-3 transition-all duration-200
-                 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed
-                 flex items-center justify-center gap-2 shadow-sm hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0
-                 border border-[#2563EB] overflow-hidden group"
-          (click)="addToCart()"
-          [disabled]="isOutOfStock() || isAdding()"
-          [class.btn-adding]="isAdding()"
-          [class.btn-added]="added()"
-        >
-          <!-- Shine effect -->
-          <div class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-
-          @if (added()) {
-            <svg class="relative z-10 w-5 h-5 animate-bounce-in flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-            </svg>
-          }
-          <span class="relative z-10 transition-all duration-150" [class.scale-95]="isAdding()">
-            {{
-              isOutOfStock()
-                ? 'AGOTADO'
-                : added()
-                  ? '¡AÑADIDO!'
-                  : 'AÑADIR AL CARRITO'
-            }}
-          </span>
-          <span *ngIf="isAdding()" class="cart-pulse"></span>
-        </button>
-
-        <!-- Beneficios con animación -->
-        <div class="space-y-2">
-          <div class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:border-emerald-200 hover:bg-emerald-50/50 transition-all duration-300 animate-fade-in" style="animation-delay: 200ms">
-            <svg class="w-5 h-5 text-emerald-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
-            </svg>
-            <div>
-              <p class="text-xs font-semibold text-slate-900">Envío a todo el pais.</p>
+        <!-- Beneficios -->
+        <div class="rounded-2xl border border-slate-100 bg-white overflow-hidden">
+          <div class="divide-y divide-slate-100">
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors">
+              <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="text-sm text-slate-700">Envíos a todo Bolivia</span>
             </div>
-          </div>
-
-          <div class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:border-sky-200 hover:bg-sky-50/50 transition-all duration-300 animate-fade-in" style="animation-delay: 300ms">
-            <svg class="w-5 h-5 text-sky-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-            </svg>
-            <div>
-              <p class="text-xs font-semibold text-slate-900">Garantía oficial</p>
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors">
+              <svg class="w-4 h-4 text-sky-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+              <span class="text-sm text-slate-700">Garantía oficial</span>
             </div>
-          </div>
-
-          <div class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition-all duration-300 animate-fade-in" style="animation-delay: 400ms">
-            <svg class="w-5 h-5 text-indigo-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
-            </svg>
-            <div>
-              <p class="text-xs font-semibold text-slate-900">Soporte técnico</p>
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors">
+              <svg class="w-4 h-4 text-indigo-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
+              </svg>
+              <span class="text-sm text-slate-700">Soporte técnico</span>
             </div>
           </div>
         </div>
 
         <!-- Tags -->
-        <div *ngIf="(selectedVariant()?.tags?.length || 0) > 0" class="flex flex-wrap gap-2 mt-2 animate-fade-in" style="animation-delay: 500ms">
-          <span
-            *ngFor="let t of selectedVariant()?.tags; let i = index"
-            class="px-3 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 transition-colors animate-pop-in"
-            [style.animation-delay]="(500 + i * 50) + 'ms'">
+        <div *ngIf="(selectedVariant()?.tags?.length || 0) > 0" class="flex flex-wrap gap-1.5">
+          <span *ngFor="let t of selectedVariant()?.tags"
+                class="px-2.5 py-1 text-[11px] font-medium rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">
             {{ t }}
           </span>
         </div>
@@ -289,16 +320,12 @@
 </div>
 
 <!-- Productos similares -->
-@if(similar().length){
-  <section class="relative bg-white py-12 border-t border-slate-200">
-    <div class="max-w-[1600px] mx-auto px-6">
-      <div class="flex items-center justify-between mb-6 animate-fade-in-up">
-        <h2 class="text-2xl font-black text-slate-900 uppercase tracking-wider">
-          Productos relacionados
-        </h2>
-      </div>
-
-      <div class="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8">
+@if (similar().length) {
+  <section class="bg-white py-8 lg:py-12 border-t border-slate-100">
+    <div class="max-w-[1400px] mx-auto px-4 lg:px-6">
+      <p class="text-[11px] text-slate-400 uppercase tracking-widest mb-1 animate-fade-in-up">También te puede interesar</p>
+      <h2 class="text-xl font-bold text-slate-900 mb-6 animate-fade-in-up delay-100">Productos relacionados</h2>
+      <div class="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
         <app-product
           *ngFor="let p of similar(); let i = index; trackBy: trackById"
           [product]="p"

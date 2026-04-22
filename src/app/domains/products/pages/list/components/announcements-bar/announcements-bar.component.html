@@ -1,0 +1,50 @@
+<!-- template reutilizable: contenido del chip -->
+<ng-template #chipContent let-a="a">
+  <span class="h-1.5 w-1.5 rounded-full bg-current opacity-80"></span>
+  <span class="line-clamp-1">{{ label(a) }}</span>
+</ng-template>
+
+@if (active().length) {
+  <section class="w-full border-y border-slate-200
+                  bg-gradient-to-r from-slate-50 via-white to-slate-50">
+    <div class="mx-auto max-w-7xl px-4 py-2.5 sm:py-3">
+      <div class="flex items-center gap-3">
+        <div class="flex-1 flex gap-2 overflow-x-auto no-scrollbar">
+
+          @for (a of active(); track a.id) {
+            @if (routerLink(a); as rl) {
+              <a [routerLink]="rl"
+                 class="shrink-0 inline-flex items-center gap-2 rounded-md border
+                        px-3.5 py-1.5 text-xs sm:text-sm font-semibold uppercase
+                        tracking-wide transition-all duration-150"
+                 [ngStyle]="chipStyle(a)"
+                 [title]="a.description || label(a)">
+                <ng-container [ngTemplateOutlet]="chipContent"
+                              [ngTemplateOutletContext]="{ a: a }"></ng-container>
+              </a>
+            } @else if (href(a); as h) {
+              <a [href]="h" target="_blank" rel="noopener"
+                 class="shrink-0 inline-flex items-center gap-2 rounded-md border
+                        px-3.5 py-1.5 text-xs sm:text-sm font-semibold uppercase
+                        tracking-wide transition-all duration-150"
+                 [ngStyle]="chipStyle(a)"
+                 [title]="a.description || label(a)">
+                <ng-container [ngTemplateOutlet]="chipContent"
+                              [ngTemplateOutletContext]="{ a: a }"></ng-container>
+              </a>
+            } @else {
+              <span class="shrink-0 inline-flex items-center gap-2 rounded-md border
+                           px-3.5 py-1.5 text-xs sm:text-sm font-semibold uppercase tracking-wide"
+                    [ngStyle]="chipStyle(a)"
+                    [title]="a.description || label(a)">
+                <ng-container [ngTemplateOutlet]="chipContent"
+                              [ngTemplateOutletContext]="{ a: a }"></ng-container>
+              </span>
+            }
+          }
+
+        </div>
+      </div>
+    </div>
+  </section>
+}

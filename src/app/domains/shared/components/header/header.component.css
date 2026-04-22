@@ -11,10 +11,10 @@
 .animate-fadeIn { animation: fadeIn .2s ease-out both; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-.animate-slideUp { animation: slideUp .28s cubic-bezier(.2,.8,.2,1) both; }
+.animate-slideUp { animation: slideUp .42s cubic-bezier(.32,.72,0,1) both; }
 @keyframes slideUp {
-  from { transform: translateY(24px); opacity: .98; }
-  to { transform: translateY(0); opacity: 1; }
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
 }
 
 .cart-badge { transition: transform .25s ease, box-shadow .25s ease; }

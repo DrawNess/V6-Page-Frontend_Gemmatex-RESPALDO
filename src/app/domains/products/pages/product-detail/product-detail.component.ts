@@ -12,16 +12,18 @@ import {
   signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { ProductService } from '@shared/services/product.service';
 import { Product } from '@shared/models/product.model';
 import { Variant } from '@shared/models/variant.model';
 import { CartService, CartItem } from '@shared/services/cart.service';
+import { TokenService } from '@shared/services/token.service';
 import { ProductComponent } from '@products/components/product/product.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-product-detail',
-  imports: [CommonModule, ProductComponent],
+  imports: [CommonModule, RouterLink, ProductComponent],
   templateUrl: './product-detail.component.html',
   styleUrls: ['./product-detail.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -30,8 +32,11 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
   @Input() id?: string;
 
   private productService = inject(ProductService);
-  private cartService = inject(CartService);
-  private destroyRef = inject(DestroyRef);
+  private cartService    = inject(CartService);
+  private tokenService   = inject(TokenService);
+  private destroyRef     = inject(DestroyRef);
+
+  readonly isAuth = signal(this.tokenService.isAuthenticated());
   private lastLoadedId: string | null = null;
 
   product = signal<Product | null>(null);
@@ -44,6 +49,7 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
 
   isAdding = signal(false);
   added = signal(false);
+  quantity = signal(1);
   private addAnimTimeout: ReturnType<typeof setTimeout> | null = null;
   private rafId: number | null = null;
 
@@ -157,6 +163,9 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
   }
 
   // ——— CTA
+  increaseQty() { this.quantity.update(q => q + 1); }
+  decreaseQty() { this.quantity.update(q => Math.max(1, q - 1)); }
+
   addToCart() {
     const v = this.selectedVariant();
     const p = this.product();
@@ -174,7 +183,10 @@ export default class ProductDetailComponent implements OnInit, OnChanges, OnDest
       colorHex: v.color?.hex ?? null,
     };
 
-    this.cartService.addToCart(item);
+    const qty = this.quantity();
+    for (let i = 0; i < qty; i++) {
+      this.cartService.addToCart(item);
+    }
     this.triggerAddAnimation();
   }
 
