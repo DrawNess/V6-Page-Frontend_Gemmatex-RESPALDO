@@ -1,5 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { Observable } from 'rxjs';
+import { shareReplay } from 'rxjs/operators';
 import { HeroSlide } from '@shared/models/hero-slide.model';
 import { environment } from '@environments/environment';
 
@@ -8,19 +10,19 @@ import { environment } from '@environments/environment';
 })
 export class HeroSlideService {
 
-  constructor() { }
-
   private http = inject(HttpClient);
   private base = `${environment.API_URL}/hero-slides`;
+  private cache$: Observable<HeroSlide[]> | null = null;
 
-/*   getAll() {
-    return this.http.get<HeroSlide[]>(`${this.base}/hero-slides`);
-  } */
-    // GET /hero-slides
-  // (Opcional: puedes pasar { activeNow: true } si algún día lo usas)
+  // GET /hero-slides — resultado cacheado por sesión
   getAll(params?: { activeNow?: boolean }) {
-    const query = params?.activeNow ? '?activeNow=true' : '';
-    return this.http.get<HeroSlide[]>(`${this.base}${query}`);
+    if (!this.cache$) {
+      const query = params?.activeNow ? '?activeNow=true' : '';
+      this.cache$ = this.http.get<HeroSlide[]>(`${this.base}${query}`).pipe(
+        shareReplay(1)
+      );
+    }
+    return this.cache$;
   }
     // GET /hero-slides/:id
   getOne(id: number | string) {

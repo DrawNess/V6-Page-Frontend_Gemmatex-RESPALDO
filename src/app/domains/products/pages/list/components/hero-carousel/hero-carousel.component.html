@@ -1,18 +1,18 @@
 <!-- template reutilizable: imagen del slide -->
 <ng-template #slideImg let-s="s" let-i="i">
-  <picture class="block h-full w-full">
+  <picture class="block w-full">
     <source [attr.srcset]="s.mobileImageUrl" media="(max-width: 640px)" />
     <img [src]="s.imageUrl"
          [alt]="s.title || 'Slide'"
-         class="h-full w-full object-cover"
+         class="w-full h-auto block"
          [attr.loading]="i === 0 ? 'eager' : 'lazy'"
          [attr.fetchpriority]="i === 0 ? 'high' : null"
-         decoding="async" width="1920" height="1080" />
+         decoding="async" />
   </picture>
 </ng-template>
 
 @if (loading()) {
-  <div class="py-10 text-center text-slate-600">Cargando…</div>
+  <div class="w-full bg-slate-200 animate-pulse min-h-[200px] sm:min-h-[400px] md:min-h-[520px]"></div>
 }
 @if (error()) {
   <div class="py-4 mx-auto max-w-3xl text-center border border-red-200 bg-red-50 text-red-700">
@@ -23,56 +23,56 @@
 @if (!loading() && slides().length) {
   <section class="relative w-full overflow-hidden bg-slate-900"
            (mouseenter)="pause()" (mouseleave)="resume()">
-    <div class="relative h-[56vh] sm:h-[68vh] md:h-[78vh]">
 
-      <div class="absolute inset-0">
-        @for (s of slides(); track s.id; let i = $index) {
-          <div class="absolute inset-0 transition-opacity duration-700"
-               [class.opacity-100]="i === current()"
-               [class.opacity-0]="i !== current()">
+    <!-- Track: fila de slides, translateX mueve entre ellos -->
+    <div class="flex transition-transform duration-700 ease-in-out will-change-transform"
+         [style.transform]="'translateX(-' + current() * 100 + '%)'">
 
-            @if (slideRouterLink(s); as rl) {
-              <a [routerLink]="rl" class="block h-full w-full cursor-pointer"
-                 [attr.aria-label]="s.title || 'Ver promoción'">
-                <ng-container [ngTemplateOutlet]="slideImg"
-                              [ngTemplateOutletContext]="{ s: s, i: i }"></ng-container>
-              </a>
-            } @else if (slideHref(s); as h) {
-              <a [href]="h" target="_blank" rel="noopener"
-                 class="block h-full w-full cursor-pointer"
-                 [attr.aria-label]="s.title || 'Ver promoción'">
-                <ng-container [ngTemplateOutlet]="slideImg"
-                              [ngTemplateOutletContext]="{ s: s, i: i }"></ng-container>
-              </a>
-            } @else {
+      @for (s of slides(); track s.id; let i = $index) {
+        <div class="w-full shrink-0">
+          @if (slideRouterLink(s); as rl) {
+            <a [routerLink]="rl" class="block w-full"
+               [attr.aria-label]="s.title || 'Ver promoción'">
               <ng-container [ngTemplateOutlet]="slideImg"
                             [ngTemplateOutletContext]="{ s: s, i: i }"></ng-container>
-            }
-          </div>
-        }
-      </div>
+            </a>
+          } @else if (slideHref(s); as h) {
+            <a [href]="h" target="_blank" rel="noopener"
+               class="block w-full"
+               [attr.aria-label]="s.title || 'Ver promoción'">
+              <ng-container [ngTemplateOutlet]="slideImg"
+                            [ngTemplateOutletContext]="{ s: s, i: i }"></ng-container>
+            </a>
+          } @else {
+            <ng-container [ngTemplateOutlet]="slideImg"
+                          [ngTemplateOutletContext]="{ s: s, i: i }"></ng-container>
+          }
+        </div>
+      }
 
-      <!-- Flechas -->
-      <button type="button"
-              class="hidden md:grid place-items-center absolute left-4 top-1/2 -translate-y-1/2
-                     h-10 w-10 rounded-md shadow-sm border border-slate-200 promo-arrow"
-              (click)="prev()" aria-label="Anterior">‹</button>
-      <button type="button"
-              class="hidden md:grid place-items-center absolute right-4 top-1/2 -translate-y-1/2
-                     h-10 w-10 rounded-md bg-white/90 hover:bg-white shadow-sm border border-slate-200 promo-arrow"
-              (click)="next()" aria-label="Siguiente">›</button>
-
-      <!-- Dots -->
-      <div class="absolute bottom-4 inset-x-0 flex justify-center gap-2">
-        @for (s of slides(); track s.id; let i = $index) {
-          <button type="button"
-                  class="h-2 rounded-full transition"
-                  [ngClass]="i === current() ? 'bg-white w-6' : 'bg-white/40 w-2'"
-                  (click)="go(i)"
-                  [attr.aria-label]="'Ir al slide ' + (i + 1)">
-          </button>
-        }
-      </div>
     </div>
+
+    <!-- Flechas -->
+    <button type="button"
+            class="hidden md:grid place-items-center absolute left-4 top-1/2 -translate-y-1/2
+                   h-10 w-10 rounded-md bg-white/90 hover:bg-white shadow-sm border border-slate-200"
+            (click)="prev()" aria-label="Anterior">‹</button>
+    <button type="button"
+            class="hidden md:grid place-items-center absolute right-4 top-1/2 -translate-y-1/2
+                   h-10 w-10 rounded-md bg-white/90 hover:bg-white shadow-sm border border-slate-200"
+            (click)="next()" aria-label="Siguiente">›</button>
+
+    <!-- Dots -->
+    <div class="absolute bottom-4 inset-x-0 flex justify-center gap-2">
+      @for (s of slides(); track s.id; let i = $index) {
+        <button type="button"
+                class="h-2 rounded-full transition-all duration-300"
+                [ngClass]="i === current() ? 'bg-white w-6' : 'bg-white/40 w-2'"
+                (click)="go(i)"
+                [attr.aria-label]="'Ir al slide ' + (i + 1)">
+        </button>
+      }
+    </div>
+
   </section>
 }
