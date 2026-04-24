@@ -1,0 +1,38 @@
+<section class="w-full bg-white py-7 border-y border-slate-200/70 mt-6" aria-label="Marcas con las que trabajamos">
+
+  <!-- Contenedor con fade lateral -->
+  <div class="relative overflow-hidden">
+    <!-- Fade izquierda -->
+    <div class="pointer-events-none absolute left-0 top-0 z-10 h-full w-20 sm:w-32
+                bg-gradient-to-r from-white to-transparent"></div>
+    <!-- Fade derecha -->
+    <div class="pointer-events-none absolute right-0 top-0 z-10 h-full w-20 sm:w-32
+                bg-gradient-to-l from-white to-transparent"></div>
+
+    <!-- Track: 2 copias en sets con padding-right = gap → sin salto al resetear -->
+    <div class="brands-track"
+         (mouseenter)="paused = true" (mouseleave)="paused = false"
+         [class.paused]="paused">
+
+      <!-- Copia 1 -->
+      <div class="brands-set">
+        @for (b of brands; track b.name) {
+          <img [src]="b.src" [alt]="b.name"
+               [class]="imgCls(b)"
+               loading="eager" decoding="async" draggable="false" />
+        }
+      </div>
+
+      <!-- Copia 2 (aria-hidden, solo visual) -->
+      <div class="brands-set" aria-hidden="true">
+        @for (b of brands; track b.name + '_2') {
+          <img [src]="b.src" [alt]="''"
+               [class]="(b.h ?? 'h-9 sm:h-10') + ' w-auto object-contain opacity-40 grayscale transition-all duration-300 hover:opacity-100 hover:grayscale-0 shrink-0 select-none'"
+               loading="lazy" draggable="false" />
+        }
+      </div>
+
+    </div>
+  </div>
+
+</section>

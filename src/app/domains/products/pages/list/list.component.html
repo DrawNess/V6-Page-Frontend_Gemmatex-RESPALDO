@@ -2,71 +2,102 @@
   <h1 class="sr-only">Gemmatex — Distribuidor de Insumos para Impresión Digital en Bolivia</h1>
 
   <app-hero-carousel></app-hero-carousel>
+  <app-brands-marquee></app-brands-marquee>
+
   <app-announcements-bar></app-announcements-bar>
   <app-product-carousel></app-product-carousel>
   <app-promo-carousel></app-promo-carousel>
   <app-store-location></app-store-location>
   <app-why-choose-us></app-why-choose-us>
 
-  <!-- Ventajas -->
-  <section aria-label="Ventajas de Gemmatex"
-           class="w-full bg-blue-50 border-y border-blue-100 text-blue-900">
-    <div class="mx-auto max-w-7xl px-4 py-3">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-        <div class="flex items-center justify-center gap-2 text-xs sm:text-sm">
-          <svg class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/>
-          </svg>
-          <span class="font-medium">Distribuidor autorizado</span>
-        </div>
-        <div class="flex items-center justify-center gap-2 text-xs sm:text-sm">
-          <svg class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"/>
-          </svg>
-          <span class="font-medium">Asesoría técnica</span>
-        </div>
-        <div class="flex items-center justify-center gap-2 text-xs sm:text-sm">
-          <svg class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18"/>
-          </svg>
-          <span class="font-medium">Envíos a todo Bolivia</span>
-        </div>
-        <div class="flex items-center justify-center gap-2 text-xs sm:text-sm">
-          <svg class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M18 8a6 6 0 01-12 0"/>
-          </svg>
-          <span class="font-medium">Soporte postventa</span>
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- Ventajas + CTA: un solo bloque con gradiente continuo -->
+  <div class="w-full bg-gradient-to-b from-white via-[#f0f4ff] to-[#dde6ff]">
 
-  <!-- CTA cotización -->
-  @defer (on viewport) {
-    <section aria-label="Cotización"
-             class="relative w-full bg-gradient-to-b from-blue-50 via-white to-blue-100 text-blue-950 overflow-hidden">
-      <div class="absolute inset-0 pointer-events-none">
-        <div class="absolute top-[-80px] left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-blue-400/20 blur-[120px] rounded-full"></div>
-      </div>
-      <div class="relative z-10 mx-auto max-w-4xl px-4 py-16 sm:py-24 text-center">
-        <h2 class="animate-fade-in-up text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight uppercase">
-          Cotiza sin compromiso
-        </h2>
-        <p class="animate-fade-in-up mt-4 text-base sm:text-lg text-slate-500 max-w-2xl mx-auto" style="animation-delay: 0.1s">
-          Escríbenos por WhatsApp o explora nuestro catálogo completo. Estamos listos para ayudarte a elegir los mejores insumos para tu negocio.
-        </p>
-        <div class="animate-fade-in-up mt-8 flex flex-col sm:flex-row items-center justify-center gap-4" style="animation-delay: 0.2s">
-          <a routerLink="/productos"
-             class="inline-flex items-center gap-2 rounded-lg bg-[#0511F2] text-white px-6 py-3 text-sm sm:text-base font-bold uppercase tracking-wide btn-ink-solid">
-            Ver catálogo completo
-            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+    <!-- Título ventajas -->
+    <div class="px-4 pt-14 pb-10 text-center">
+      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">
+        Todo lo que necesitas en un solo lugar
+      </h2>
+      <p class="mt-3 text-slate-400 text-sm sm:text-base max-w-xl mx-auto">
+        Serigrafía, sublimación e insumos publicitarios — respaldados por marcas líderes del sector.
+      </p>
+    </div>
+
+    <!-- Círculos: línea divisoria al centro (-mt-10 = mitad de h-20) -->
+    <section aria-label="Ventajas de Gemmatex" class="px-4 pb-0">
+      <div class="mx-auto max-w-5xl grid grid-cols-2 md:grid-cols-4 gap-8 -mt-10 text-center">
+
+        <div class="flex flex-col items-center">
+          <div class="mb-5 flex h-20 w-20 items-center justify-center rounded-full
+                      bg-slate-100 text-slate-800">
+            <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
             </svg>
-          </a>
+          </div>
+          <h3 class="font-bold text-slate-900 text-sm sm:text-base">Distribuidor autorizado</h3>
         </div>
+
+        <div class="flex flex-col items-center">
+          <div class="mb-5 flex h-20 w-20 items-center justify-center rounded-full
+                      bg-slate-100 text-slate-800">
+            <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+            </svg>
+          </div>
+          <h3 class="font-bold text-slate-900 text-sm sm:text-base">Asesoría técnica</h3>
+        </div>
+
+        <div class="flex flex-col items-center">
+          <div class="mb-5 flex h-20 w-20 items-center justify-center rounded-full
+                      bg-slate-100 text-slate-800">
+            <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M3 7h15l3 4v6a2 2 0 01-2 2h-1a2 2 0 01-2-2H8a2 2 0 01-2 2H5a2 2 0 01-2-2V7zm13 0V5a2 2 0 00-2-2H6a2 2 0 00-2 2v2h12z"/>
+            </svg>
+          </div>
+          <h3 class="font-bold text-slate-900 text-sm sm:text-base">Envíos a todo Bolivia</h3>
+        </div>
+
+        <div class="flex flex-col items-center">
+          <div class="mb-5 flex h-20 w-20 items-center justify-center rounded-full
+                      bg-slate-100 text-slate-800">
+            <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+          </div>
+          <h3 class="font-bold text-slate-900 text-sm sm:text-base">Soporte postventa</h3>
+        </div>
+
       </div>
     </section>
-  } @placeholder {
-    <div class="h-[200px] bg-white"></div>
-  }
+
+    <!-- CTA cotización — continúa el mismo gradiente -->
+    @defer (on viewport) {
+      <section aria-label="Cotización" class="relative overflow-hidden">
+        <div class="relative z-10 mx-auto max-w-4xl px-4 py-16 sm:py-24 text-center">
+          <h2 class="animate-fade-in-up text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight uppercase text-slate-900">
+            Cotiza sin compromiso
+          </h2>
+          <p class="animate-fade-in-up mt-4 text-base sm:text-lg text-slate-500 max-w-2xl mx-auto" style="animation-delay: 0.1s">
+            Escríbenos por WhatsApp o explora nuestro catálogo completo. Estamos listos para ayudarte a elegir los mejores insumos para tu negocio.
+          </p>
+          <div class="animate-fade-in-up mt-8 flex flex-col sm:flex-row items-center justify-center gap-4" style="animation-delay: 0.2s">
+            <a routerLink="/productos"
+               class="inline-flex items-center gap-2 rounded-lg bg-[#0511F2] text-white px-6 py-3 text-sm sm:text-base font-bold uppercase tracking-wide btn-ink-solid">
+              Ver catálogo completo
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </section>
+    } @placeholder {
+      <div class="h-[200px]"></div>
+    }
+
+  </div>
 </main>

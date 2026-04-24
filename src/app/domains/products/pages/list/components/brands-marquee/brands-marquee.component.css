@@ -1,0 +1,33 @@
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* Cada set: logos en fila + padding-right = gap, para que el espacio
+   entre el último logo de un set y el primero del siguiente sea idéntico
+   al espacio entre logos dentro del set → loop sin salto visual */
+.brands-set {
+  display: flex;
+  align-items: center;
+  gap: 3.5rem;
+  padding-right: 3.5rem; /* debe ser igual al gap */
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .brands-set {
+    gap: 5rem;
+    padding-right: 5rem;
+  }
+}
+
+.brands-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+  will-change: transform;
+}
+
+.brands-track.paused {
+  animation-play-state: paused;
+}

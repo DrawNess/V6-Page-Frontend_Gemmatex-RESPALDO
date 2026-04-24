@@ -1,14 +1,1 @@
-.why-card {
-  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
-}
-.why-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 16px 40px -12px rgba(5,17,242,.18);
-  border-color: #0511F2;
-}
-.why-card:hover .why-icon {
-  transform: scale(1.15) rotate(-4deg);
-}
-.why-icon {
-  transition: transform .3s ease;
-}
+/* vacío — todo maneja Tailwind group-hover */

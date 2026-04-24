@@ -8,6 +8,7 @@ import { ProductCarouselComponent } from './components/product-carousel/product-
 import { PromoCarouselComponent } from './components/promo-carousel/promo-carousel.component';
 import { StoreLocationComponent } from './components/store-location/store-location.component';
 import { WhyChooseUsComponent } from './components/why-choose-us/why-choose-us.component';
+import { BrandsMarqueeComponent } from './components/brands-marquee/brands-marquee.component';
 
 @Component({
   selector: 'app-list',
@@ -19,6 +20,7 @@ import { WhyChooseUsComponent } from './components/why-choose-us/why-choose-us.c
     PromoCarouselComponent,
     StoreLocationComponent,
     WhyChooseUsComponent,
+    BrandsMarqueeComponent,
   ],
   templateUrl: './list.component.html',
   styleUrl: './list.component.css',
