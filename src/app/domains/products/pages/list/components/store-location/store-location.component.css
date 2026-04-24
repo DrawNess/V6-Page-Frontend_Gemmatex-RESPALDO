@@ -1,8 +1,64 @@
-.service-card {
-  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+/* ── Tabs ─────────────────────────────────────── */
+.tab-pill {
+  color: #64748b;
+  border-color: #e2e8f0;
+  background: #fff;
 }
-.service-card:hover {
-  transform: translateX(4px);
+.tab-pill:hover {
   border-color: #0511F2;
-  box-shadow: 2px 0 0 0 #0511F2;
+  color: #0511F2;
+}
+.tab-active {
+  background: #0511F2 !important;
+  color: #fff !important;
+  border-color: #0511F2 !important;
+}
+
+/* Barra de progreso en tab activo */
+.progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 0%;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 0 0 999px 999px;
+  animation: tab-progress 5s linear forwards;
+}
+@keyframes tab-progress {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
+/* ── Slide panel ────────────────────────────��─── */
+.slide-panel {
+  width: 100%;
+}
+
+.slide-in-right {
+  animation: slideInRight 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+.slide-in-left {
+  animation: slideInLeft 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(60px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-60px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
