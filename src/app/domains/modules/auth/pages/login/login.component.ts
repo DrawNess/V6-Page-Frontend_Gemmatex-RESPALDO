@@ -1,9 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs/operators';
-import { Title, Meta } from '@angular/platform-browser';
 import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
 
 import { AuthService } from '@shared/services/auth.service';
@@ -17,7 +16,9 @@ type RequestStatus = 'init' | 'loading' | 'success' | 'failed';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
+
+  @Output() switchToRegister = new EventEmitter<void>();
 
   status: RequestStatus = 'init';
   errorMsg = '';
@@ -31,7 +32,6 @@ export class LoginComponent {
   form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]],
-    remember: [true],
   });
 
   constructor(
@@ -39,17 +39,14 @@ export class LoginComponent {
     private router: Router,
     private route: ActivatedRoute,
     private authService: AuthService,
-    private tokenService: TokenService,
-    private title: Title,
-    private meta: Meta
-  ) {
-    // SEO básico
-    this.title.setTitle('Iniciar sesión | Gemmatex');
-    this.meta.updateTag({
-      name: 'description',
-      content: 'Inicia sesión en Gemmatex para gestionar pedidos, historial y soporte postventa.',
-    });
-    this.meta.updateTag({ name: 'robots', content: 'index,follow' });
+    private tokenService: TokenService
+  ) {}
+
+  ngOnInit(): void {
+    const email = this.route.snapshot.queryParamMap.get('email')?.trim().toLowerCase();
+    if (email) {
+      this.form.controls.email.setValue(email);
+    }
   }
 
   get loading() {

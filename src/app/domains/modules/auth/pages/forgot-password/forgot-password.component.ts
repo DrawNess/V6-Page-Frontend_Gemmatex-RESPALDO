@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -11,7 +11,9 @@ import { AuthService } from '@shared/services/auth.service';
   templateUrl: './forgot-password.component.html',
   styleUrl: './forgot-password.component.css',
 })
-export class ForgotPasswordComponent {
+export class ForgotPasswordComponent implements OnInit, OnDestroy {
+  private redirectTimeoutId?: number;
+
   loading = false;
   submitted = false;
 
@@ -53,6 +55,12 @@ export class ForgotPasswordComponent {
 
     if (!this.token) {
       this.errorMsg = 'El enlace no es válido (falta el token). Solicita uno nuevo.';
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.redirectTimeoutId !== undefined) {
+      window.clearTimeout(this.redirectTimeoutId);
     }
   }
 
@@ -114,7 +122,7 @@ export class ForgotPasswordComponent {
         this.loading = false;
 
         // Redirigir al login
-        setTimeout(() => this.router.navigate(['/auth/login']), 1200);
+        this.redirectTimeoutId = window.setTimeout(() => this.router.navigate(['/auth/login']), 1200);
       },
       error: (err) => {
         this.errorMsg = this.parseError(err);

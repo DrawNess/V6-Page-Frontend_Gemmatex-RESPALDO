@@ -1,5 +1,5 @@
 // register.component.ts
-import { Component } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, inject, OnDestroy, Output } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -8,9 +8,8 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize, switchMap } from 'rxjs/operators';
-import { timer } from 'rxjs';
 
 import { AuthService } from '@shared/services/auth.service';
 import { SessionService } from '@shared/services/session.service';
@@ -27,12 +26,17 @@ function matchPasswords(a: string, b: string): ValidatorFn {
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css',
 })
 
-export class RegisterComponent {
+export class RegisterComponent implements OnDestroy {
+  private readonly destroyRef = inject(DestroyRef);
+  private redirectTimeoutId?: number;
+
+  @Output() switchToLogin = new EventEmitter<void>();
+
   status: RequestStatus = 'init';
   errorMsg = '';
 
@@ -65,19 +69,28 @@ export class RegisterComponent {
 
   constructor(
     private fb: FormBuilder,
-    private router: Router,
     private authService: AuthService,
     private sessionService: SessionService
   ) {
     // Limpia error backend al editar
-    this.form.valueChanges.subscribe(() => (this.errorMsg = ''));
+    this.form.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => (this.errorMsg = ''));
 
     // Fuerza en vivo (opcional)
-    this.form.controls.password.valueChanges.subscribe((pwd) => {
-      const s = this.calcPasswordScore(pwd || '');
-      this.pwdScore = s;
-      this.pwdLabel = s <= 1 ? 'Débil' : s === 2 ? 'Media' : s === 3 ? 'Buena' : 'Fuerte';
-    });
+    this.form.controls.password.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((pwd) => {
+        const s = this.calcPasswordScore(pwd || '');
+        this.pwdScore = s;
+        this.pwdLabel = s <= 1 ? 'Débil' : s === 2 ? 'Media' : s === 3 ? 'Buena' : 'Fuerte';
+      });
+  }
+
+  ngOnDestroy(): void {
+    if (this.redirectTimeoutId !== undefined) {
+      window.clearTimeout(this.redirectTimeoutId);
+    }
   }
 
   get loading() {
@@ -181,9 +194,9 @@ export class RegisterComponent {
         next: () => {
           this.status = 'success';
           this.openSuccessModal(payload.user.email);
-          timer(4000).subscribe(() => {
+          this.redirectTimeoutId = window.setTimeout(() => {
             this.goToLogin();
-          });
+          }, 4000);
           /* timer(2000).subscribe(() => {
             this.router.navigate(['/email-verified']); // o '/verify-success'
           }); */
@@ -208,7 +221,12 @@ export class RegisterComponent {
   }
 
   goToLogin() {
-    this.router.navigate(['/auth/login']);
+    if (this.redirectTimeoutId !== undefined) {
+      window.clearTimeout(this.redirectTimeoutId);
+      this.redirectTimeoutId = undefined;
+    }
+    this.closeSuccessModal();
+    this.switchToLogin.emit();
   }
 
   resendVerification() {

@@ -1,7 +1,8 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, DestroyRef, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs/operators';
 
 import { AuthService } from '@shared/services/auth.service';
@@ -15,12 +16,15 @@ type Status = 'init' | 'loading' | 'success' | 'error';
   styleUrl: './verify-request.component.css',
 })
 export class VerifyRequestComponent implements OnDestroy {
+  private readonly destroyRef = inject(DestroyRef);
+
   status: Status = 'init';
   errorMsg = '';
   showModal = false;
 
   cooldownSeconds = 0;
-  private cooldownTimer: any;
+  private cooldownTimer?: number;
+  private modalTimeoutId?: number;
 
   form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -33,7 +37,9 @@ export class VerifyRequestComponent implements OnDestroy {
     private route: ActivatedRoute
   ) {
     // limpiar error al escribir
-    this.form.valueChanges.subscribe(() => (this.errorMsg = ''));
+    this.form.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => (this.errorMsg = ''));
 
     // Prefill desde /auth/verify-request?email=...
     const qpEmail = (this.route.snapshot.queryParamMap.get('email') || '')
@@ -47,7 +53,12 @@ export class VerifyRequestComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    clearInterval(this.cooldownTimer);
+    if (this.cooldownTimer !== undefined) {
+      window.clearInterval(this.cooldownTimer);
+    }
+    if (this.modalTimeoutId !== undefined) {
+      window.clearTimeout(this.modalTimeoutId);
+    }
   }
 
   get loading() {
@@ -65,11 +76,15 @@ export class VerifyRequestComponent implements OnDestroy {
 
   private startCooldown(seconds: number) {
     this.cooldownSeconds = seconds;
-    clearInterval(this.cooldownTimer);
+    if (this.cooldownTimer !== undefined) {
+      window.clearInterval(this.cooldownTimer);
+    }
 
-    this.cooldownTimer = setInterval(() => {
+    this.cooldownTimer = window.setInterval(() => {
       this.cooldownSeconds = Math.max(0, this.cooldownSeconds - 1);
-      if (this.cooldownSeconds === 0) clearInterval(this.cooldownTimer);
+      if (this.cooldownSeconds === 0 && this.cooldownTimer !== undefined) {
+        window.clearInterval(this.cooldownTimer);
+      }
     }, 1000);
   }
 
@@ -123,7 +138,7 @@ export class VerifyRequestComponent implements OnDestroy {
           this.setCooldown(email, 40);
 
           // ✅ premium: abrir modal luego de 2s
-          setTimeout(() => {
+          this.modalTimeoutId = window.setTimeout(() => {
             this.showModal = true;
           }, 2000);
         },

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -11,7 +11,9 @@ import { AuthService } from '@shared/services/auth.service';
   templateUrl: './recovery.component.html',
   styleUrl: './recovery.component.css',
 })
-export class RecoveryComponent implements OnInit {
+export class RecoveryComponent implements OnInit, OnDestroy {
+  private redirectTimeoutId?: number;
+
   loading = false;
   submitted = false;
 
@@ -35,6 +37,12 @@ export class RecoveryComponent implements OnInit {
     const queryEmail = this.route.snapshot.queryParamMap.get('email') ?? navEmail;
     if (queryEmail) {
       this.form.patchValue({ email: queryEmail });
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.redirectTimeoutId !== undefined) {
+      window.clearTimeout(this.redirectTimeoutId);
     }
   }
 
@@ -86,7 +94,7 @@ export class RecoveryComponent implements OnInit {
         this.loading = false;
 
         // Después de 1.5s lo mandas al login
-        setTimeout(() => this.router.navigate(['/auth/login']), 1500);
+        this.redirectTimeoutId = window.setTimeout(() => this.router.navigate(['/auth/login']), 1500);
       },
       error: (err) => {
         this.errorMsg = this.parseError(err);

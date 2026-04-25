@@ -6,13 +6,15 @@ export const authRoutes: Routes = [
   {
     path: ROUTE_CONSTANTS.AUTH.LOGIN,
     loadComponent: () =>
-      import('./domains/modules/auth/pages/login/login.component').then((m) => m.LoginComponent),
+      import('./domains/modules/auth/pages/auth-panel/auth-panel.component').then((m) => m.AuthPanelComponent),
+    data: { mode: 'login' },
     canActivate: [RedirectGuard]
   },
   {
     path: ROUTE_CONSTANTS.AUTH.REGISTER,
     loadComponent: () =>
-      import('./domains/modules/auth/pages/register/register.component').then((m) => m.RegisterComponent),
+      import('./domains/modules/auth/pages/auth-panel/auth-panel.component').then((m) => m.AuthPanelComponent),
+    data: { mode: 'register' },
     canActivate: [RedirectGuard]
   },
   {

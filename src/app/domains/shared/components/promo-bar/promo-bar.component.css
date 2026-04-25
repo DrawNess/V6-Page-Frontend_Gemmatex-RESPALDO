@@ -58,3 +58,12 @@ section {
     box-shadow: 0 -5px 20px -10px rgba(0, 0, 0, 0.5);
   }
 }
+
+.char-spacing {
+  margin-right: 0.1em;
+}
+@media (min-width: 640px) {
+  .char-spacing {
+    margin-right: 0.3em;
+  }
+}

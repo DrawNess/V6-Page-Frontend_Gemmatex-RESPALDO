@@ -19,6 +19,7 @@
         @for (b of brands; track b.name) {
           <img [src]="b.src" [alt]="b.name"
                [class]="imgCls(b)"
+               width="160" height="60"
                loading="eager" decoding="async" draggable="false" />
         }
       </div>
@@ -28,6 +29,7 @@
         @for (b of brands; track b.name + '_2') {
           <img [src]="b.src" [alt]="''"
                [class]="(b.h ?? 'h-9 sm:h-10') + ' w-auto object-contain opacity-40 grayscale transition-all duration-300 hover:opacity-100 hover:grayscale-0 shrink-0 select-none'"
+               width="160" height="60"
                loading="lazy" draggable="false" />
         }
       </div>

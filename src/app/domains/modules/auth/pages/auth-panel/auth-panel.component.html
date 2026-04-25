@@ -1,0 +1,79 @@
+<main class="min-h-screen w-full bg-gradient-to-b from-slate-50 to-slate-100
+             flex items-center justify-center px-4 py-6">
+
+  <!-- fondo sutil -->
+  <div class="pointer-events-none fixed inset-0 opacity-60"
+       style="background-image: radial-gradient(rgba(255, 25, 25, 0.05) 1px, transparent 1px);
+              background-size: 18px 18px;"></div>
+
+  <!-- Contenedor principal animado -->
+  <div class="auth-container" [class.register-active]="isRegister()">
+
+    <!-- Tabs (solo mobile) -->
+    <div class="mobile-tabs">
+      <button class="mobile-tab" [class.mobile-tab-active]="!isRegister()" (click)="showLogin()">
+        Iniciar sesión
+      </button>
+      <button class="mobile-tab" [class.mobile-tab-active]="isRegister()" (click)="showRegister()">
+        Crear cuenta
+      </button>
+    </div>
+
+    <!-- Form: Login -->
+    <div class="form-panel login-panel">
+      <app-login (switchToRegister)="showRegister()"></app-login>
+    </div>
+
+    <!-- Form: Register -->
+    <div class="form-panel register-panel">
+      <app-register (switchToLogin)="showLogin()"></app-register>
+    </div>
+
+    <!-- Panel azul deslizante (solo desktop) -->
+    <div class="toggle-box">
+
+      <!-- Panel izquierdo: visible en modo login -->
+      <div class="toggle-panel toggle-left items-start text-left">
+        <span class="mb-5 inline-block h-px w-14 bg-white/35"></span>
+        <!-- <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/45">Gemmatex</p> -->
+        <h2 class="mt-4 text-4xl font-black leading-none tracking-[0.12em] text-white">
+          BIENVENIDO
+        </h2>
+        <p class="mt-4 text-base text-white/80 max-w-[280px] leading-relaxed">
+          Inicia sesion para acceder a tu panel de cliente.
+        </p>
+        <div class="mt-6 flex items-center gap-3 text-sm font-medium text-white/80">
+          <span>Pedidos</span>
+          <span class="text-white/35">•</span>
+          <span>Historial</span>
+          <span class="text-white/35">•</span>
+          <span>Soporte</span>
+        </div>
+        <p class="mt-7 text-sm text-white/72 max-w-[280px] leading-relaxed">
+          Aun no tienes cuenta? Regístrate y gestiona tus pedidos.
+        </p>
+        <button (click)="showRegister()"
+                class="toggle-btn mt-8">
+          Crear cuenta
+        </button>
+      </div>
+
+      <!-- Panel derecho: visible en modo register -->
+      <div class="toggle-panel toggle-right">
+        <p class="text-xs font-bold uppercase tracking-[0.3em] text-white/40 mb-6">Gemmatex</p>
+        <h2 class="text-3xl font-extrabold leading-tight tracking-tight">
+          ¡Bienvenido<br>de vuelta!
+        </h2>
+        <p class="mt-3 text-sm text-white/70 max-w-[200px] leading-relaxed">
+          ¿Ya tienes cuenta? Inicia sesión para continuar.
+        </p>
+        <button (click)="showLogin()"
+                class="toggle-btn mt-8">
+          Iniciar sesión
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</main>

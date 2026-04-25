@@ -18,6 +18,21 @@ export class PromoBarComponent implements OnInit, OnDestroy {
 
   mensaje = 'NO SOLO TE VENDEMOS EL PRODUCTO, TE ENSEÑAMOS A UTILIZARLO.';
   chars: string[] = Array.from(this.mensaje);
+
+  // Palabras agrupadas para no cortar mid-word en mobile
+  readonly wordGroups: { chars: string[]; delays: number[]; isLast: boolean }[] = (() => {
+    let idx = 0;
+    return this.mensaje.split(' ').map((word, i, arr) => {
+      const group = {
+        chars: Array.from(word),
+        delays: Array.from(word).map((_, ci) => idx + ci),
+        isLast: i === arr.length - 1
+      };
+      idx += word.length + 1;
+      return group;
+    });
+  })();
+
   animate = false;
   private loopTimer: any;
 

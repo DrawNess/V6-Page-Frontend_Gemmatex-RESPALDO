@@ -1,62 +1,85 @@
-<section class="min-h-screen w-full bg-gradient-to-b from-slate-50 to-slate-100">
-  <div class="pointer-events-none fixed inset-0 opacity-60"
-       style="background-image: radial-gradient(rgba(0,0,0,0.06) 1px, transparent 1px);
-              background-size: 18px 18px;">
-  </div>
+<section class="min-h-screen w-full bg-slate-50 flex items-center justify-center px-4 py-10">
 
-  <div class="relative mx-auto flex min-h-screen max-w-xl items-center justify-center px-4 py-10">
-    <div class="w-full rounded-3xl border border-white/70 bg-white/80 backdrop-blur-xl shadow-2xl">
-      <div class="p-7 sm:p-9">
+  <div class="w-full max-w-sm">
 
-        <p class="text-xs uppercase tracking-[0.22em] text-slate-500">Gemmatex</p>
-        <h1 class="mt-2 text-2xl font-bold text-slate-900">Verificación de correo</h1>
-        <p class="mt-1 text-sm text-slate-600">Estamos confirmando tu cuenta.</p>
+    <!-- Logo -->
+    <div class="mb-8 text-center">
+      <img src="https://peru-crane-813567.hostingersite.com/Logos/Logo%20gemmatex%20azul.png"
+           alt="Gemmatex" class="h-7 w-auto mx-auto" width="120" height="28" />
+    </div>
 
-        <div class="mt-6 rounded-2xl border border-slate-200 bg-white px-4 py-4">
-          @if (status === 'loading') {
-            <div class="flex items-center gap-2 text-slate-700">
-              <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity=".25"/>
+    <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div class="h-1 w-full bg-[#0511F2]"></div>
+
+      <div class="p-7">
+
+        <!-- Estado: cargando -->
+        @if (status === 'loading') {
+          <div class="flex flex-col items-center text-center gap-4">
+            <div class="flex h-14 w-14 items-center justify-center rounded-full bg-slate-100">
+              <svg class="h-6 w-6 animate-spin text-[#0511F2]" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity=".2"/>
                 <path d="M4 12a8 8 0 018-8" stroke="currentColor" stroke-width="4" fill="none"/>
               </svg>
-              <span class="text-sm">{{ msg }}</span>
             </div>
-          }
-
-          @if (status === 'success') {
-            <div class="text-sm text-emerald-700">
-              <p class="font-semibold">Listo</p>
-              <p class="mt-1">{{ msg }}</p>
-              <!-- <p class="mt-2 text-xs text-slate-500">Redirigiendo a inicio de sesión…</p> -->
+            <div>
+              <p class="font-semibold text-slate-900">Verificando cuenta</p>
+              <p class="mt-1 text-sm text-slate-500">{{ msg }}</p>
             </div>
-          }
+          </div>
+        }
 
-          @if (status === 'error') {
-            <div class="text-sm text-red-700">
-              <p class="font-semibold">⚠️ No se pudo verificar</p>
-              <p class="mt-1">{{ msg }}</p>
-
-              <div class="mt-4 flex flex-col sm:flex-row gap-2">
-                <button
-                  type="button"
-                  class="inline-flex w-full items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-white font-semibold
-                         hover:bg-slate-800 focus:outline-none focus-visible:ring-4 focus-visible:ring-slate-200"
-                  (click)="goLogin()">
-                  Ir a iniciar sesión
-                </button>
-
-                <!-- <a
-                  routerLink="/auth/verify-request"
-                  class="inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-900 font-semibold
-                         hover:bg-slate-50 focus:outline-none focus-visible:ring-4 focus-visible:ring-slate-200">
-                  Reenviar correo
-                </a> -->
-              </div>
+        <!-- Estado: éxito -->
+        @if (status === 'success') {
+          <div class="flex flex-col items-center text-center gap-4">
+            <div class="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50">
+              <svg class="h-6 w-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+              </svg>
             </div>
-          }
-        </div>
+            <div>
+              <p class="font-bold text-slate-900">¡Cuenta verificada!</p>
+              <p class="mt-1 text-sm text-slate-500">{{ msg }}</p>
+            </div>
+            <a routerLink="/auth/login"
+               class="w-full rounded-xl bg-[#0511F2] px-4 py-2.5 text-sm font-bold text-white text-center
+                      hover:bg-[#0511F2]/90 transition-colors">
+              Iniciar sesión
+            </a>
+          </div>
+        }
+
+        <!-- Estado: error -->
+        @if (status === 'error') {
+          <div class="flex flex-col items-center text-center gap-4">
+            <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-50">
+              <svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </div>
+            <div>
+              <p class="font-bold text-slate-900">No se pudo verificar</p>
+              <p class="mt-1 text-sm text-slate-500">{{ msg }}</p>
+            </div>
+            <div class="flex flex-col w-full gap-2">
+              <button type="button"
+                      class="w-full rounded-xl bg-[#0511F2] px-4 py-2.5 text-sm font-bold text-white
+                             hover:bg-[#0511F2]/90 transition-colors"
+                      (click)="goLogin()">
+                Ir a iniciar sesión
+              </button>
+              <a routerLink="/auth/verify-request"
+                 class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 text-center
+                        hover:bg-slate-50 transition-colors">
+                Reenviar enlace
+              </a>
+            </div>
+          </div>
+        }
 
       </div>
     </div>
+
   </div>
+
 </section>

@@ -1,56 +1,54 @@
 <main class="min-h-screen w-full bg-gradient-to-b from-slate-50 to-slate-100">
   <!-- fondo sutil -->
-  <div
-    class="pointer-events-none fixed inset-0 opacity-60"
-    style="background-image: radial-gradient(rgba(0,0,0,0.06) 1px, transparent 1px);
-           background-size: 18px 18px;">
-  </div>
+  <div class="pointer-events-none fixed inset-0 opacity-60"
+       style="background-image: radial-gradient(rgba(0,0,0,0.05) 1px, transparent 1px);
+              background-size: 18px 18px;"></div>
 
   <div class="relative mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4 py-10">
     <div class="grid w-full grid-cols-1 lg:grid-cols-2 gap-10 items-center">
 
-      <!-- Izquierda: solo texto -->
+      <!-- Izquierda -->
       <section class="hidden lg:block">
-        <p class="text-xs uppercase tracking-[0.22em] text-slate-500">Gemmatex</p>
-        <h1 class="mt-2 text-4xl font-extrabold text-slate-900 leading-tight">
-          Recupera tu contraseña
+        <p class="text-xs uppercase tracking-[0.25em] font-semibold text-slate-400">Gemmatex</p>
+        <h1 class="mt-3 text-4xl font-extrabold tracking-tight text-slate-900 leading-tight">
+          Recupera tu<br>contraseña.
         </h1>
-        <p class="mt-3 text-slate-700 max-w-md">
+        <p class="mt-3 text-slate-500 max-w-sm leading-relaxed">
           Te enviaremos un enlace seguro a tu correo para restablecerla.
         </p>
 
-        <div class="mt-8 flex items-center gap-3 text-sm text-slate-600">
-          <span class="inline-block h-1.5 w-1.5 rounded-full bg-blue-600"></span>
+        <div class="mt-8 flex items-center gap-3 text-sm text-slate-500">
+          <span class="inline-block h-1.5 w-1.5 rounded-full bg-[#0511F2]"></span>
           <span>Enlace expira en 15 min</span>
-          <span class="text-slate-300">•</span>
-          <!-- <span>Protección con token</span> -->
         </div>
       </section>
 
-      <!-- Derecha: card -->
+      <!-- Card -->
       <section class="mx-auto w-full max-w-md">
         <div class="relative overflow-hidden rounded-3xl border border-white/70 bg-white/80 backdrop-blur-xl shadow-2xl">
-          <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-sky-500 to-blue-700"></div>
+          <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#0511F2] via-sky-400 to-[#0511F2]"></div>
 
           <div class="p-7 sm:p-9 pt-8">
             <header class="mb-6">
-              <p class="text-sm text-slate-500 lg:hidden">Gemmatex</p>
+              <p class="text-sm text-slate-400 lg:hidden">Gemmatex</p>
               <h2 class="text-2xl font-bold text-slate-900">Recuperación</h2>
-              <p class="text-sm text-slate-600 mt-1">
-                Ingresa tu correo registrado.
-              </p>
+              <p class="text-sm text-slate-500 mt-1">Ingresa tu correo registrado.</p>
             </header>
 
-            <!-- Mensaje de error: SOLO después de enviar -->
             @if (submitted && errorMsg) {
-              <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              <div class="mb-5 flex items-start gap-2.5 rounded-xl border border-red-100 bg-red-50 px-3.5 py-3 text-sm text-red-700">
+                <svg class="mt-0.5 h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
                 {{ errorMsg }}
               </div>
             }
 
-            <!-- Mensaje OK -->
             @if (submitted && successMsg) {
-              <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+              <div class="mb-5 flex items-start gap-2.5 rounded-xl border border-emerald-100 bg-emerald-50 px-3.5 py-3 text-sm text-emerald-700">
+                <svg class="mt-0.5 h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
                 {{ successMsg }}
               </div>
             }
@@ -58,15 +56,12 @@
             <form [formGroup]="form" (ngSubmit)="sendRecovery()" novalidate class="space-y-4">
               <div>
                 <label class="block text-sm font-medium text-slate-700">Correo</label>
-                <input
-                  type="email"
-                  formControlName="email"
-                  autocomplete="email"
-                  placeholder="correo@empresa.com"
-                  class="mt-1 w-full rounded-xl border bg-white px-3 py-2.5 text-sm outline-none
-                         border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 shadow-sm"
-                />
-
+                <input type="email" formControlName="email" autocomplete="email"
+                       placeholder="correo@empresa.com"
+                       class="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5
+                              text-sm text-slate-900 placeholder:text-slate-400 outline-none shadow-sm
+                              focus:border-[#0511F2] focus:ring-2 focus:ring-[#0511F2]/10
+                              transition-all duration-150" />
                 @if (submitted && f.email.invalid) {
                   <p class="mt-1 text-xs text-red-600">
                     @if (f.email.errors?.['required']) { <span>El correo es requerido.</span> }
@@ -75,15 +70,15 @@
                 }
               </div>
 
-              <button
-                type="submit"
-                class="mt-2 inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-white font-semibold
-                       hover:bg-blue-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-200 disabled:opacity-60
-                       shadow-lg shadow-blue-200/40"
-                [disabled]="loading"
-              >
+              <button type="submit" [disabled]="loading"
+                      class="inline-flex w-full items-center justify-center rounded-xl bg-[#0511F2] px-4 py-2.5
+                             text-sm font-bold text-white shadow-lg shadow-[#0511F2]/20
+                             hover:bg-[#0511F2]/90 active:scale-[.98]
+                             focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0511F2]/50
+                             disabled:opacity-50 disabled:cursor-not-allowed
+                             transition-all duration-150">
                 @if (!loading) {
-                  <span>Enviar enlace</span>
+                  Enviar enlace
                 } @else {
                   <span class="inline-flex items-center gap-2">
                     <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24">
@@ -96,9 +91,9 @@
               </button>
             </form>
 
-            <div class="mt-6 border-t border-slate-200 pt-5 text-center text-sm text-slate-600">
+            <div class="mt-6 border-t border-slate-100 pt-5 text-center text-sm text-slate-500">
               ¿Te acordaste?
-              <a routerLink="/auth/login" class="font-semibold text-blue-700 hover:underline">
+              <a routerLink="/auth/login" class="font-semibold text-[#0511F2] hover:underline underline-offset-2 ml-0.5">
                 Volver a iniciar sesión
               </a>
             </div>

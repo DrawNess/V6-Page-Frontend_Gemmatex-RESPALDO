@@ -28,7 +28,7 @@
       </div>
 
       <!-- Grid animado: @for recrea todo = mapa e info van a la par -->
-      @for (key of [panelKey()]; track key) {
+      @for (key of [panelKey()]; track $index) {
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-stretch" [class]="infoClass()">
 
           <!-- Mapa -->

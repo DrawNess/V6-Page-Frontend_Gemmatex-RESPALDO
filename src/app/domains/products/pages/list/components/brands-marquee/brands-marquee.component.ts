@@ -18,7 +18,7 @@ export class BrandsMarqueeComponent {
     { name: 'Quitexa',    src: 'assets/img/brands/quitexa.png' },
     { name: 'Sublinova',  src: 'assets/img/brands/sublinova.png', h: 'h-14 sm:h-16' },
     { name: 'Genesis',    src: 'assets/img/brands/genesis.svg' },
-    { name: 'Hagabe',     src: 'assets/img/brands/hagabe.jpg', h: 'h-auto sm:h-20' },
+    { name: 'Hagabe',     src: 'assets/img/brands/hagabe.jpg', h: 'h-12 sm:h-20' },
     { name: 'Coldenhove', src: 'assets/img/brands/coldenhove.png' },
   ];
 }
