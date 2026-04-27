@@ -19,14 +19,17 @@
       </button>
     </div>
 
-    <!-- Form: Login -->
-    <div class="form-panel login-panel">
-      <app-login (switchToRegister)="showRegister()"></app-login>
-    </div>
+    <!-- Wrapper deslizante (solo desktop) — maneja el translateX -->
+    <div class="form-wrapper">
+      <!-- Form: Login -->
+      <div class="form-panel login-panel">
+        <app-login (switchToRegister)="showRegister()"></app-login>
+      </div>
 
-    <!-- Form: Register -->
-    <div class="form-panel register-panel">
-      <app-register (switchToLogin)="showLogin()"></app-register>
+      <!-- Form: Register -->
+      <div class="form-panel register-panel">
+        <app-register (switchToLogin)="showLogin()"></app-register>
+      </div>
     </div>
 
     <!-- Panel azul deslizante (solo desktop) -->

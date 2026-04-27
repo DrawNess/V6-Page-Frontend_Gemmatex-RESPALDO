@@ -12,64 +12,78 @@
 }
 
 .form-panel {
-  direction: rtl;
-  scrollbar-color: rgba(0,0,0,.12) transparent;
+  scrollbar-width: none;
 }
-.form-panel > * { direction: ltr; }
+.form-panel::-webkit-scrollbar { display: none; }
 
 /* ─── Desktop (≥769px) ─────────────────────────────────────────────────── */
 @media (min-width: 769px) {
   .mobile-tabs { display: none; }
 
   .auth-container {
-    max-width: 1000px;
-    height: 640px;
+    max-width: 1100px;
+    height: 720px;
   }
 
-  /* Form panels */
-  .form-panel {
+  /* ── form-wrapper: desliza en X (GPU) ──
+     Separa el slide del translateX del panel
+     y la animación de contenido (Y+scale).
+  ── */
+  .form-wrapper {
     position: absolute;
     right: 0;
+    width: 50%;
+    height: 100%;
+    z-index: 1;
+    transform: translateX(0);
+    transition: transform .82s var(--ease-out) .78s;
+  }
+
+  .auth-container.register-active .form-wrapper {
+    transform: translateX(-100%);
+  }
+
+  /* ── form-panel: layout dentro del wrapper ── */
+  .form-panel {
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    width: 50%;
-    height: 100%;
     padding: 2.5rem 2.75rem;
     overflow-y: auto;
     background: rgba(255,255,255,.96);
-    transition: right .82s var(--ease-out) .78s;
   }
 
-  .auth-container.register-active .form-panel { right: 50%; }
-
+  /* ── Contenido login: fade + scale — SIN conflicto ── */
   .login-panel {
     align-items: center;
     visibility: visible;
     opacity: 1;
-    transform: none;
-    transition: opacity .6s var(--ease-out) 1s, transform .6s var(--ease-out) 1s, visibility 0s .78s;
+    transform: translateY(0) scale(1);
+    transition: opacity .38s ease .15s, transform .38s ease .15s, visibility 0s 1.6s;
   }
 
   .auth-container.register-active .login-panel {
     visibility: hidden;
     opacity: 0;
-    transform: translateY(20px) scale(.97);
-    transition: opacity .38s .15s, transform .38s .15s, visibility 0s 1.55s;
+    transform: translateY(16px) scale(.97);
+    transition: opacity .3s ease .15s, transform .3s ease .15s, visibility 0s .5s;
   }
 
+  /* ── Contenido register: fade + scale — SIN conflicto ── */
   .register-panel {
     visibility: hidden;
     opacity: 0;
-    transform: translateY(20px) scale(.97);
-    transition: opacity .38s .15s, transform .38s .15s, visibility 0s 1.55s;
+    transform: translateY(16px) scale(.97);
+    transition: opacity .38s ease .15s, transform .38s ease .15s, visibility 0s 1.6s;
   }
 
   .auth-container.register-active .register-panel {
     visibility: visible;
     opacity: 1;
-    transform: none;
-    transition: opacity .6s var(--ease-out) 1s, transform .6s var(--ease-out) 1s, visibility 0s .78s;
+    transform: translateY(0) scale(1);
+    transition: opacity .55s var(--ease-out) 1.05s, transform .55s var(--ease-out) 1.05s, visibility 0s .78s;
   }
 
   /* Blob horizontal — GPU compositing via transform */
@@ -122,22 +136,24 @@
   .auth-container.register-active .toggle-left {
     opacity: 0;
     transform: translateX(-60px);
+    pointer-events: none;   /* invisible → no intercepta clicks del form */
     transition: opacity .32s .38s, transform .78s .38s;
   }
 
   .toggle-right {
-    right: -50%;
+    right: 0;
     align-items: center;
     justify-content: center;
     opacity: 0;
-    transform: translateX(60px);
-    transition: opacity .32s .38s, transform .78s .38s;
+    pointer-events: none;   /* oculto por defecto → no bloquea login form */
+    transform: translateX(100%);
+    transition: opacity .32s .38s, transform .78s var(--ease-out) .38s;
   }
 
   .auth-container.register-active .toggle-right {
-    right: 0;
     opacity: 1;
-    transform: none;
+    pointer-events: all;
+    transform: translateX(0);
     transition: opacity .32s var(--ease-out) 1s, transform .78s var(--ease-out) 1s;
   }
 
@@ -169,6 +185,14 @@
   .auth-container {
     height: calc(100svh - 2rem);
     border-radius: 1.25rem;
+  }
+
+  /* Wrapper desktop ignorado en mobile — los paneles se posicionan directamente */
+  .form-wrapper {
+    position: absolute;
+    inset: 0;
+    transform: none !important;
+    transition: none !important;
   }
 
   /* ── Form panels ───────────────────────────────────────────────────────
