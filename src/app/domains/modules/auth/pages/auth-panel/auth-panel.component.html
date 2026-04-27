@@ -37,35 +37,47 @@
 
       <!-- Panel izquierdo: visible en modo login -->
       <div class="toggle-panel toggle-left">
-        <span class="mb-5 inline-block h-px w-14 bg-white/35"></span>
-        <!-- <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/45">Gemmatex</p> -->
-        <h2 class="mt-4 text-4xl font-black leading-none tracking-[0.12em] text-white">
+        <!-- Brand mark -->
+
+        <h2 class="text-4xl font-black leading-none tracking-[0.12em] text-white">
           BIENVENIDO
         </h2>
-        <p class="mt-4 text-base text-white/80 max-w-[280px] leading-relaxed">
-          Inicia sesion para acceder a tu panel de cliente.
+        <p class="hidden md:block mt-4 text-base text-white/80 max-w-[280px] leading-relaxed">
+          Inicia sesión para acceder a tu panel de cliente.
         </p>
-        <div class="mt-6 flex items-center gap-3 text-sm font-medium text-white/80">
-          <span>Pedidos</span>
-          <span class="text-white/35">•</span>
-          <span>Historial</span>
-          <span class="text-white/35">•</span>
-          <span>Soporte</span>
+        <div class="hidden md:flex flex-col gap-2 mt-5">
+          <div class="flex items-center gap-2 text-sm font-medium text-white/85">
+            <svg class="h-3.5 w-3.5 shrink-0 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+            <span>Gestiona tus pedidos</span>
+          </div>
+          <div class="flex items-center gap-2 text-sm font-medium text-white/85">
+            <svg class="h-3.5 w-3.5 shrink-0 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+            <span>Historial de compras</span>
+          </div>
+          <div class="flex items-center gap-2 text-sm font-medium text-white/85">
+            <svg class="h-3.5 w-3.5 shrink-0 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+            <span>Soporte postventa</span>
+          </div>
         </div>
-        <p class="mt-7 text-sm text-white/72 max-w-[280px] leading-relaxed">
-          Aun no tienes cuenta? Regístrate y gestiona tus pedidos.
+        <p class="mt-6 text-sm text-white/60 max-w-[260px] leading-relaxed">
+          ¿Aún no tienes cuenta? Regístrate gratis.
         </p>
         <button (click)="showRegister()"
-                class="toggle-btn mt-8">
+                class="toggle-btn mt-6">
           Crear cuenta
         </button>
       </div>
 
       <!-- Panel derecho: visible en modo register -->
       <div class="toggle-panel toggle-right">
-        <p class="text-xs font-bold uppercase tracking-[0.3em] text-white/40 mb-6">Gemmatex</p>
-        <h2 class="text-3xl font-extrabold leading-tight tracking-tight">
-          ¡Bienvenido<br>de vuelta!
+        <h2 class="text-4xl font-black leading-none tracking-[0.12em] text-white">
+          BIENVENIDO<br>DE VUELTA
         </h2>
         <p class="mt-3 text-sm text-white/70 max-w-[200px] leading-relaxed">
           ¿Ya tienes cuenta? Inicia sesión para continuar.

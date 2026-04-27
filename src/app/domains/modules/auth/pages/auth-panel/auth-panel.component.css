@@ -5,8 +5,8 @@
   overflow: hidden;
   border: 1px solid rgba(255,255,255,.73);
   border-radius: 1.75rem;
-  background: rgba(255,255,255,.87);
-  box-shadow: 0 25px 50px -12px rgba(0,0,0,.12);
+  background: rgba(255,255,255,.95);
+  box-shadow: 0 32px 64px -8px rgba(0,74,177,.18), 0 0 0 1px rgba(0,74,177,.07);
   --ease-out:    cubic-bezier(.2,.8,.2,1);
   --ease-in-out: cubic-bezier(.76,0,.24,1);
 }
@@ -101,7 +101,10 @@
     width: 300%;
     height: 100%;
     border-radius: 150px;
-    background: linear-gradient(135deg, #0511f2, #2f6bff);
+    background:
+      radial-gradient(rgba(255,255,255,.07) 1px, transparent 1px),
+      #004ab1;
+    background-size: 22px 22px, auto;
     transform: translateX(0);
     transition: transform 1.78s var(--ease-in-out);
   }
@@ -128,6 +131,7 @@
     align-items: flex-start;
     justify-content: center;
     text-align: left;
+    padding-left: 3.25rem;
     opacity: 1;
     transform: none;
     transition: opacity .32s var(--ease-out) 1s, transform .78s var(--ease-out) 1s;
@@ -206,7 +210,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 70%;
+    height: 75%;
     display: flex;
     align-items: flex-start;
     justify-content: center;
@@ -218,8 +222,8 @@
   }
 
   .auth-container.register-active .form-panel {
-    /* sube 30% del contenedor sin tocar 'bottom' */
-    transform: translateY(calc((100svh - 2rem) * -0.3));
+    /* sube 25% del contenedor sin tocar 'bottom' */
+    transform: translateY(calc((100svh - 2rem) * -0.25));
     transition: transform 1.4s var(--ease-in-out) .4s, visibility 0s 0s;
   }
 
@@ -250,12 +254,12 @@
   }
 
   /* ── Toggle box — blob vertical con transform ──────────────────────────
-     Ancla fija: top: 70%.  height: 300% del contenedor.
-     Login  → translateY(-113.33%)  blob cubre top 30%.
-     Active → translateY(0)         blob cubre bottom 30%.
+     Ancla fija: top: 75%.  height: 300% del contenedor.
+     Login  → translateY(-116.67%)  blob cubre top 25%.
+     Active → translateY(0)         blob cubre bottom 25%.
 
-     Math: blob_height = 3 × container. Mover de top:70% → top:-270%
-     requiere -340% de container = -340/300 del blob = -113.33%.
+     Math: queremos blob BOTTOM en 25% del contenedor.
+     blob_bottom = 0.75H + t*3H + 3H = 0.25H → t = -3.5H/3H = -116.67%
   ─────────────────────────────────────────────────────────────────────── */
   .toggle-box {
     position: absolute;
@@ -267,18 +271,21 @@
     content: '';
     position: absolute;
     left: 0;
-    top: 70%;           /* ancla fija — nunca cambia */
+    top: 75%;           /* ancla fija — nunca cambia */
     z-index: 2;
     width: 100%;
     height: 300%;
     border-radius: 20vw;
-    background: linear-gradient(180deg, #0511f2 0%, #2f6bff 100%);
-    transform: translateY(-113.33%);   /* login: blob cubre top 30% */
+    background:
+      radial-gradient(rgba(255,255,255,.07) 1px, transparent 1px),
+      #004ab1;
+    background-size: 22px 22px, auto;
+    transform: translateY(-116.67%);   /* login: blob cubre top 25% */
     transition: transform 1.8s var(--ease-in-out);
   }
 
   .auth-container.register-active .toggle-box::before {
-    transform: translateY(0);          /* register: blob cubre bottom 30% */
+    transform: translateY(0);          /* register: blob cubre bottom 25% */
   }
 
   /* ── Toggle panels ─────────────────────────────────────────────────── */
@@ -290,12 +297,12 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: 30%;
+    height: 25%;
     color: #fff;
     pointer-events: all;
     text-align: center;
-    padding: .75rem 1.5rem;
-    gap: .35rem;
+    padding: .5rem 1.5rem;
+    gap: .3rem;
   }
 
   /* Toggle left — top, visible en login
@@ -335,14 +342,10 @@
     transition: transform 1.4s var(--ease-in-out) .4s, opacity .3s 1.2s;
   }
 
-  /* ── Tipografía toggle-left compacta ─── */
-  .toggle-left > span:first-child { display: none; } /* línea decorativa */
-  .toggle-left h2 { font-size: 1.375rem; margin-top: 0; letter-spacing: .06em; line-height: 1.1; }
-  .toggle-left > p { font-size: .7rem; margin-top: .2rem; max-width: 260px; line-height: 1.4; opacity: .85; }
-  .toggle-left > p:last-of-type { font-size: .65rem; opacity: .7; }
-  .toggle-left > div { margin-top: .2rem; gap: .4rem; }
-  .toggle-left > div span { font-size: .7rem; }
-  .toggle-left .toggle-btn { margin-top: .5rem; }
+  /* ── Tipografía toggle-left compacta (mobile) ─── */
+  .toggle-left h2 { font-size: 1.5rem; margin-top: 0; letter-spacing: .06em; line-height: 1.1; }
+  .toggle-left > p { font-size: .72rem; margin-top: .4rem; opacity: .85; max-width: 240px; line-height: 1.4; }
+  .toggle-left .toggle-btn { margin-top: .6rem; }
 
   /* ── Botón mobile ─── */
   .toggle-btn {
