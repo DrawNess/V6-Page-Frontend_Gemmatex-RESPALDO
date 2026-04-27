@@ -23,8 +23,6 @@ export class LoginComponent implements OnInit {
   status: RequestStatus = 'init';
   errorMsg = '';
   errorCode: 'EMAIL_NOT_VERIFIED' | null = null;
-  infoMsg = '';
-  resendLoading = false;
 
   showPassword = false;
   capsLockOn = false;
@@ -66,7 +64,6 @@ export class LoginComponent implements OnInit {
 
   doLogin() {
     this.errorMsg = '';
-    this.infoMsg = '';
     this.errorCode = null;
 
 
@@ -114,30 +111,6 @@ export class LoginComponent implements OnInit {
           this.errorMsg = 'Credenciales inválidas o error de servidor.';
         },
       });
-  }
-
-  resendVerification() {
-    this.infoMsg = '';
-    this.resendLoading = true;
-
-    const email = (this.form.controls.email.value || '').trim().toLowerCase();
-    if (!email) {
-      this.resendLoading = false;
-      this.infoMsg = 'Ingresa tu correo arriba para reenviar.';
-      return;
-    }
-
-    this.authService.sendVerifyEmail(email).subscribe({
-      next: () => {
-        this.infoMsg = 'Listo. Si el correo existe, te llegará un enlace en unos segundos.';
-        this.resendLoading = false;
-      },
-      error: () => {
-        // aunque falle, por seguridad mostramos genérico
-        this.infoMsg = 'Listo. Si el correo existe, te llegará un enlace en unos segundos.';
-        this.resendLoading = false;
-      }
-    });
   }
 
   focusEmail() {

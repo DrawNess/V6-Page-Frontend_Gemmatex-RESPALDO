@@ -17,7 +17,7 @@
               <ng-container *ngFor="let ch of group.chars; let ci = index">
                 <span
                   class="char-spacing inline align-middle select-none opacity-0 translate-y-2
-                         transition-all ease-out will-change-trannsform will-change-opacity"
+                         transition-all ease-out will-change-transform will-change-opacity"
                   [style.transitionDuration.ms]="animate ? 550 : 0"
                   [style.transitionDelay.ms]="animate ? group.delays[ci] * 25 : 0"
                   [ngClass]="{ 'opacity-100 translate-y-0': animate }"

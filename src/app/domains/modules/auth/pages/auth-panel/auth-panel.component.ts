@@ -14,15 +14,14 @@ import { RegisterComponent } from '../register/register.component';
 })
 export class AuthPanelComponent {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly route = inject(ActivatedRoute);
+  private readonly location = inject(Location);
+  private readonly title = inject(Title);
+  private readonly meta = inject(Meta);
 
   readonly isRegister = signal(false);
 
-  constructor(
-    private route: ActivatedRoute,
-    private location: Location,
-    private title: Title,
-    private meta: Meta
-  ) {
+  constructor() {
     this.route.data
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data) => this.setMode(data['mode'] === 'register'));
