@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { catchError, forkJoin, of } from 'rxjs';
@@ -9,31 +9,22 @@ import { CustomerService } from '@shared/services/customer.service';
 import { UserService } from '@shared/services/user.service';
 import { ApiCustomer, ApiUser } from '@shared/models/user-portal.model';
 import { AuthService } from '@shared/services/auth.service';
+import { UserSidebarComponent } from '../components/user-sidebar/user-sidebar.component';
 
 type NullableCustomer = ApiCustomer | null;
 type CustomerWithEmail = ApiCustomer & { email?: string };
 
 @Component({
   selector: 'app-info-account',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [NgClass, ReactiveFormsModule, RouterLink, UserSidebarComponent],
   templateUrl: './info-account.component.html',
   styleUrl: './info-account.component.css',
 })
 export class InfoAccountComponent implements OnInit {
   readonly accountPath = `/${ROUTE_CONSTANTS.USER.BASE}`;
-  readonly userInfoPath = `/${ROUTE_CONSTANTS.USER.BASE}/${ROUTE_CONSTANTS.USER.INFO}`;
-  readonly userOrdersPath = `/${ROUTE_CONSTANTS.USER.BASE}/${ROUTE_CONSTANTS.USER.ORDERS}`;
-  readonly userAddressPath = `/${ROUTE_CONSTANTS.USER.BASE}/${ROUTE_CONSTANTS.USER.ADDRESS}`;
-  readonly navItems = [
-    { label: 'Resumen', path: this.accountPath, description: 'Panel principal' },
-    { label: 'Información', path: this.userInfoPath, description: 'Datos y contacto' },
-    { label: 'Dirección', path: this.userAddressPath, description: 'Dirección de entrega' },
-    { label: 'Pedidos', path: this.userOrdersPath, description: 'Historial y seguimiento' },
-  ];
 
   loading = false;
   saving = false;
-  navOpen = false;
   user: ApiUser | null = null;
   customer: ApiCustomer | null = null;
   errorMsg = '';
@@ -89,30 +80,6 @@ export class InfoAccountComponent implements OnInit {
         this.errorMsg = 'No se pudo cargar tu información de cuenta.';
       },
     });
-  }
-
-  toggleNav(): void {
-    this.navOpen = !this.navOpen;
-  }
-
-  isActive(path: string): boolean {
-    return this.router.url === path || this.router.url.startsWith(path + '/');
-  }
-
-  getInitials(): string {
-    const name = `${this.customer?.name ?? ''} ${this.customer?.lastName ?? ''}`.trim();
-    if (!name) return 'CL';
-    return name
-      .split(' ')
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((n) => n[0]?.toUpperCase())
-      .join('');
-  }
-
-  getCustomerFullName(): string {
-    const fullName = `${this.customer?.name ?? ''} ${this.customer?.lastName ?? ''}`.trim();
-    return fullName || 'Cliente';
   }
 
   saveChanges(): void {

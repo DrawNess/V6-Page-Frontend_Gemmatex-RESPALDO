@@ -30,6 +30,7 @@ export interface ApiOrderProduct {
   orderId: number;
   variantId: number;
   amount: number;
+  unitPrice?: string | number;
 }
 
 export interface ApiOrderItem {

@@ -435,7 +435,7 @@ export class OrdersAdminComponent implements OnDestroy {
   }
 
   getItemPrice(item: ApiOrderItem): number {
-    return Number(item.price ?? 0);
+    return Number(item.OrderProduct?.unitPrice ?? item.price ?? 0);
   }
 
   getCustomerName(order: ApiOrder): string {

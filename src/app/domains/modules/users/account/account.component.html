@@ -1,172 +1,112 @@
-<main class="mx-auto w-full max-w-6xl px-4 py-8">
-  <!-- Header -->
-  <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
-    <div>
-      <p class="text-xs font-semibold uppercase tracking-widest text-blue-600">Panel de cliente</p>
-      <h1 class="text-2xl font-extrabold text-slate-900">Mi cuenta</h1>
-      <p class="mt-0.5 text-sm text-slate-500">Resumen rápido y accesos directos</p>
+<div class="min-h-screen bg-[#f2f2f7]">
+  <main class="mx-auto w-full max-w-6xl px-4 py-8">
+
+    <!-- Header -->
+    <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
+      <div>
+        <h1 class="text-2xl font-extrabold text-slate-900">Mi cuenta</h1>
+        <p class="mt-0.5 text-sm text-slate-500">Resumen rápido y accesos directos</p>
+      </div>
     </div>
-    <div class="flex items-center gap-2">
-      <button type="button"
-              class="lg:hidden rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
-              (click)="toggleNav()">
-        {{ navOpen ? 'Ocultar menú' : 'Mostrar menú' }}
-      </button>
-      <button
-        type="button"
-        class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 transition-colors"
-        (click)="logout()"
-      >
-        Cerrar sesión
-      </button>
+
+    <div class="grid gap-5 lg:grid-cols-[320px_1fr]">
+
+      <app-user-sidebar />
+
+      <!-- Content -->
+      <section class="space-y-4">
+
+        @if (loading) {
+          <div class="rounded-2xl bg-white px-5 py-4 shadow-sm text-sm text-slate-500 animate-pulse">
+            Cargando información…
+          </div>
+        }
+
+        @if (errorMsg) {
+          <div class="rounded-2xl border border-red-100 bg-red-50 px-5 py-4 text-sm text-red-700">
+            {{ errorMsg }}
+          </div>
+        }
+
+        <div class="grid gap-4 md:grid-cols-2">
+
+          <article class="rounded-2xl bg-white p-5 shadow-sm">
+            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Credenciales</p>
+            <h2 class="mt-1 text-base font-extrabold text-slate-900">Datos de acceso</h2>
+            <dl class="mt-4 space-y-3 text-sm">
+              <div class="flex justify-between gap-3">
+                <dt class="text-slate-400">Correo</dt>
+                <dd class="font-semibold text-slate-900 text-right truncate max-w-[220px]">{{ user?.email || 'No disponible' }}</dd>
+              </div>
+              <div class="flex justify-between gap-3">
+                <dt class="text-slate-400">Rol</dt>
+                <dd>
+                  <span class="inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-2.5 py-0.5 text-[11px] font-bold text-blue-600">
+                    {{ user?.role === 'admin' ? 'Admin' : 'Cliente' }}
+                  </span>
+                </dd>
+              </div>
+            </dl>
+          </article>
+
+          <article class="rounded-2xl bg-white p-5 shadow-sm">
+            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Contacto</p>
+            <h2 class="mt-1 text-base font-extrabold text-slate-900">Información del cliente</h2>
+            <dl class="mt-4 space-y-3 text-sm">
+              <div class="flex justify-between gap-3">
+                <dt class="text-slate-400">Nombre</dt>
+                <dd class="font-semibold text-slate-900 text-right">{{ customer?.name || 'No disponible' }}</dd>
+              </div>
+              <div class="flex justify-between gap-3">
+                <dt class="text-slate-400">Apellido</dt>
+                <dd class="font-semibold text-slate-900 text-right">{{ customer?.lastName || 'No disponible' }}</dd>
+              </div>
+              <div class="flex justify-between gap-3">
+                <dt class="text-slate-400">Teléfono</dt>
+                <dd class="font-semibold text-slate-900 text-right">{{ customer?.phone || 'No disponible' }}</dd>
+              </div>
+            </dl>
+          </article>
+
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2">
+
+          <a [routerLink]="userInfoPath"
+             class="group rounded-2xl bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-blue-500">Editar</p>
+                <h3 class="mt-1 text-base font-extrabold text-slate-900">Información de cuenta</h3>
+                <p class="mt-1 text-sm text-slate-400">Actualiza correo, nombre y teléfono.</p>
+              </div>
+              <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-blue-50 group-hover:bg-blue-100 transition-colors mt-0.5">
+                <svg class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </a>
+
+          <a [routerLink]="userOrdersPath"
+             class="group rounded-2xl bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-emerald-500">Seguimiento</p>
+                <h3 class="mt-1 text-base font-extrabold text-slate-900">Mis pedidos</h3>
+                <p class="mt-1 text-sm text-slate-400">Consulta el estado y detalle de tus compras.</p>
+              </div>
+              <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-emerald-50 group-hover:bg-emerald-100 transition-colors mt-0.5">
+                <svg class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </a>
+
+        </div>
+
+      </section>
     </div>
-  </div>
-
-  <div class="grid gap-6 lg:grid-cols-[260px_1fr]">
-    <!-- Sidebar -->
-    <aside class="lg:sticky lg:top-6">
-      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div class="flex items-center gap-3 border-b border-slate-100 px-4 py-4">
-          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-base font-extrabold text-white">
-            {{ getInitials() }}
-          </div>
-          <div>
-            <p class="text-sm font-semibold text-slate-900 leading-tight">{{ getCustomerFullName() }}</p>
-            <p class="text-xs text-slate-500 leading-tight">{{ user?.email || 'Sin correo' }}</p>
-            <span class="mt-1 inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-600">
-              {{ maskedRole() }}
-            </span>
-          </div>
-        </div>
-
-        <ng-template #navList>
-          <button
-            *ngFor="let item of navItems"
-            type="button"
-            [routerLink]="item.path"
-            class="group w-full text-left px-4 py-3 transition-all duration-200"
-            [ngClass]="{
-              'bg-blue-50 text-blue-700 font-semibold': isActive(item.path),
-              'text-slate-700 hover:bg-slate-50': !isActive(item.path)
-            }"
-          >
-            <div class="flex items-center justify-between">
-              <span>{{ item.label }}</span>
-              <svg class="h-4 w-4 transition-transform duration-200 text-slate-400 group-hover:translate-x-0.5"
-                   [class.text-blue-500]="isActive(item.path)"
-                   fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-            <p class="mt-0.5 text-[12px] text-slate-500" [class.text-blue-600]="isActive(item.path)">{{ item.description }}</p>
-          </button>
-        </ng-template>
-
-        <nav class="divide-y divide-slate-100 hidden lg:block">
-          <ng-container *ngTemplateOutlet="navList"></ng-container>
-        </nav>
-
-        <nav *ngIf="navOpen" class="divide-y divide-slate-100 border-t border-slate-100 lg:hidden">
-          <ng-container *ngTemplateOutlet="navList"></ng-container>
-        </nav>
-      </div>
-    </aside>
-
-    <!-- Content -->
-    <section class="space-y-5">
-      @if (loading) {
-        <div class="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm text-sm text-slate-600">
-          Cargando información…
-        </div>
-      }
-
-      @if (errorMsg) {
-        <div class="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 shadow-sm text-sm text-red-700">
-          {{ errorMsg }}
-        </div>
-      }
-
-      <div class="grid gap-4 md:grid-cols-2">
-        <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Credenciales</p>
-          <h2 class="mt-1 text-lg font-extrabold text-slate-900">Datos de acceso</h2>
-          <dl class="mt-3 space-y-2 text-sm text-slate-600">
-            <div class="flex justify-between gap-3">
-              <dt class="text-slate-500">Correo</dt>
-              <dd class="font-semibold text-slate-900 text-right truncate max-w-[220px]">{{ user?.email || 'No disponible' }}</dd>
-            </div>
-            <div class="flex justify-between gap-3">
-              <dt class="text-slate-500">Rol</dt>
-              <dd class="font-semibold text-slate-900">{{ maskedRole() }}</dd>
-            </div>
-          </dl>
-        </article>
-
-        <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Contacto</p>
-          <h2 class="mt-1 text-lg font-extrabold text-slate-900">Información del cliente</h2>
-          <dl class="mt-3 space-y-2 text-sm text-slate-600">
-            <div class="flex justify-between gap-3">
-              <dt class="text-slate-500">Nombre</dt>
-              <dd class="font-semibold text-slate-900 text-right">{{ customer?.name || 'No disponible' }}</dd>
-            </div>
-            <div class="flex justify-between gap-3">
-              <dt class="text-slate-500">Apellido</dt>
-              <dd class="font-semibold text-slate-900 text-right">{{ customer?.lastName || 'No disponible' }}</dd>
-            </div>
-            <div class="flex justify-between gap-3">
-              <dt class="text-slate-500">Teléfono</dt>
-              <dd class="font-semibold text-slate-900 text-right">{{ customer?.phone || 'No disponible' }}</dd>
-            </div>
-          </dl>
-        </article>
-      </div>
-
-      <div class="grid gap-4 md:grid-cols-2">
-        <a
-          [routerLink]="userInfoPath"
-          class="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
-        >
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-xs font-semibold uppercase tracking-wide text-blue-600">Editar</p>
-              <h3 class="text-lg font-extrabold text-slate-900">Información de cuenta</h3>
-              <p class="mt-1 text-sm text-slate-500">Actualiza correo, nombre y teléfono.</p>
-            </div>
-            <svg class="h-10 w-10 text-blue-600 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 20h9M12 4h9m-9 0L4 12l8 8" />
-            </svg>
-          </div>
-          <span class="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-blue-700">
-            Ir a editar
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </span>
-        </a>
-
-        <a
-          [routerLink]="userOrdersPath"
-          class="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
-        >
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-xs font-semibold uppercase tracking-wide text-emerald-600">Seguimiento</p>
-              <h3 class="text-lg font-extrabold text-slate-900">Mis pedidos</h3>
-              <p class="mt-1 text-sm text-slate-500">Consulta el estado y detalle de tus compras.</p>
-            </div>
-            <svg class="h-10 w-10 text-emerald-600 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M3 6h11m-11 8h11M5 10l1 9h6l1-9" />
-            </svg>
-          </div>
-          <span class="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-emerald-700">
-            Ver pedidos
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </span>
-        </a>
-      </div>
-    </section>
-  </div>
-</main>
+  </main>
+</div>

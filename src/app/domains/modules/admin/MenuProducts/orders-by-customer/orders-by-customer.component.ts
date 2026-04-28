@@ -176,8 +176,7 @@ export class OrdersByCustomerComponent {
     if (!order) return 0;
     if (typeof order.total === 'number') return order.total;
     return this.getOrderItems(order).reduce((sum, item) => {
-      const amount = Number(item.amount ?? (item as any)?.['OrderProduct']?.amount ?? 0);
-      return sum + amount * Number(item.price ?? 0);
+      return sum + this.getItemSubtotal(item);
     }, 0);
   }
 
@@ -190,7 +189,7 @@ export class OrdersByCustomerComponent {
   }
 
   getItemSubtotal(item: ApiOrderItem): number {
-    return this.getItemAmount(item) * Number(item.price ?? 0);
+    return this.getItemAmount(item) * Number(item.OrderProduct?.unitPrice ?? item.price ?? 0);
   }
 
   readonly STATUS_META: Record<string, { label: string; color: string }> = {

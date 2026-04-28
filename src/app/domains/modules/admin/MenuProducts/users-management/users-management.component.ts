@@ -517,7 +517,7 @@ export class UsersManagementComponent {
     }
     return this.getOrderItems(order).reduce((sum, item) => {
       const amount = Number(item?.amount ?? (item as any)?.['OrderProduct']?.amount ?? 0);
-      const price = Number(item?.price ?? 0);
+      const price = Number(item?.OrderProduct?.unitPrice ?? item?.price ?? 0);
       return sum + amount * price;
     }, 0);
   }

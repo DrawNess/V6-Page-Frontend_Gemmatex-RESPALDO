@@ -149,8 +149,7 @@ export class OrdersComponent implements OnInit {
     if (!order) return 0;
     if (typeof order.total === 'number') return order.total;
     return this.getOrderItems(order).reduce((sum, item) => {
-      const amt = Number(item.amount ?? (item as any)?.['OrderProduct']?.amount ?? 0);
-      return sum + amt * Number(item.price ?? 0);
+      return sum + this.getItemSubtotal(item);
     }, 0);
   }
 
@@ -172,7 +171,7 @@ export class OrdersComponent implements OnInit {
   }
 
   getItemPrice(item: ApiOrderItem): number {
-    return Number(item.price ?? 0);
+    return Number(item.OrderProduct?.unitPrice ?? item.price ?? 0);
   }
 
   getItemSku(item: ApiOrderItem): string {
