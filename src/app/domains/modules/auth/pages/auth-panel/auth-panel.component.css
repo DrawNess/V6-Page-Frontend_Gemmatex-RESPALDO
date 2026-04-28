@@ -1,4 +1,3 @@
-/* ─── Base ─────────────────────────────────────────────────────────────── */
 .auth-container {
   position: relative;
   width: 100%;
@@ -6,364 +5,138 @@
   border: 1px solid rgba(255,255,255,.73);
   border-radius: 1.75rem;
   background: rgba(255,255,255,.95);
-  box-shadow: 0 32px 64px -8px rgba(0,74,177,.18), 0 0 0 1px rgba(0,74,177,.07);
-  --ease-out:    cubic-bezier(.2,.8,.2,1);
-  --ease-in-out: cubic-bezier(.76,0,.24,1);
+  box-shadow: 0 32px 64px -8px rgba(0,74,177,.18),0 0 0 1px rgba(0,74,177,.07);
+  --eo: cubic-bezier(.2,.8,.2,1);
+  --eio: cubic-bezier(.76,0,.24,1);
+  --blob-bg: radial-gradient(rgba(255,255,255,.07) 1px,transparent 1px),#004ab1;
+}
+.mobile-tabs{display:none}
+.form-panel{scrollbar-width:none}
+.form-panel::-webkit-scrollbar{display:none}
+.toggle-box{position:absolute;inset:0;pointer-events:none}
+
+@media(min-width:769px){
+  .auth-container{max-width:1100px;height:720px}
+  .form-wrapper{
+    position:absolute;right:0;width:50%;height:100%;z-index:1;
+    transform:translateX(0);transition:transform .82s var(--eo) .78s
+  }
+  .auth-container.register-active .form-wrapper{transform:translateX(-100%)}
+  .form-panel{
+    position:absolute;inset:0;display:flex;align-items:flex-start;
+    justify-content:center;padding:2.5rem 2.75rem;overflow-y:auto;
+    background:rgba(255,255,255,.96)
+  }
+  .login-panel{
+    align-items:center;visibility:visible;opacity:1;
+    transform:translateY(0) scale(1);
+    transition:opacity .38s ease .15s,transform .38s ease .15s,visibility 0s 1.6s
+  }
+  .auth-container.register-active .login-panel{
+    visibility:hidden;opacity:0;transform:translateY(16px) scale(.97);
+    transition:opacity .3s ease .15s,transform .3s ease .15s,visibility 0s .5s
+  }
+  .register-panel{
+    visibility:hidden;opacity:0;transform:translateY(16px) scale(.97);
+    transition:opacity .38s ease .15s,transform .38s ease .15s,visibility 0s 1.6s
+  }
+  .auth-container.register-active .register-panel{
+    visibility:visible;opacity:1;transform:translateY(0) scale(1);
+    transition:opacity .55s var(--eo) 1.05s,transform .55s var(--eo) 1.05s,visibility 0s .78s
+  }
+  .toggle-box::before{
+    content:'';position:absolute;left:-250%;z-index:2;
+    width:300%;height:100%;border-radius:150px;
+    background:var(--blob-bg);background-size:22px 22px,auto;
+    transform:translateX(0);transition:transform 1.78s var(--eio)
+  }
+  .auth-container.register-active .toggle-box::before{transform:translateX(100%)}
+  .toggle-panel{
+    position:absolute;z-index:3;display:flex;flex-direction:column;
+    width:50%;height:100%;padding:2.5rem;color:#fff;pointer-events:all
+  }
+  .toggle-left{
+    left:0;align-items:flex-start;justify-content:center;
+    text-align:left;padding-left:3.25rem;opacity:1;transform:none;
+    transition:opacity .32s var(--eo) 1s,transform .78s var(--eo) 1s
+  }
+  .auth-container.register-active .toggle-left{
+    opacity:0;transform:translateX(-60px);pointer-events:none;
+    transition:opacity .32s .38s,transform .78s .38s
+  }
+  .toggle-right{
+    right:0;align-items:center;justify-content:center;opacity:0;
+    pointer-events:none;transform:translateX(100%);
+    transition:opacity .32s .38s,transform .78s var(--eo) .38s
+  }
+  .auth-container.register-active .toggle-right{
+    opacity:1;pointer-events:all;transform:translateX(0);
+    transition:opacity .32s var(--eo) 1s,transform .78s var(--eo) 1s
+  }
+  .toggle-btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    height:42px;margin-top:2rem;padding:0 1.75rem;
+    border:2px solid rgba(255,255,255,.73);border-radius:999px;
+    color:#fff;font-size:.875rem;font-weight:600;
+    transition:border-color .2s,background .2s
+  }
+  .toggle-btn:hover{border-color:#fff;background:rgba(255,255,255,.15)}
 }
 
-.form-panel {
-  scrollbar-width: none;
-}
-.form-panel::-webkit-scrollbar { display: none; }
-
-/* ─── Desktop (≥769px) ─────────────────────────────────────────────────── */
-@media (min-width: 769px) {
-  .mobile-tabs { display: none; }
-
-  .auth-container {
-    max-width: 1100px;
-    height: 720px;
+@media(max-width:768px){
+  .auth-container{height:calc(100svh - 2rem);border-radius:1.25rem}
+  .form-wrapper{position:absolute;inset:0;transform:none !important;transition:none !important}
+  .form-panel{
+    position:absolute;bottom:0;left:0;right:0;height:75%;
+    display:flex;align-items:flex-start;justify-content:center;
+    padding:1.75rem 1.25rem 2rem;overflow-y:auto;background:#fff;
+    transform:translateY(0);
+    transition:transform 1.4s var(--eio) .4s,visibility 0s 1.2s
   }
-
-  /* ── form-wrapper: desliza en X (GPU) ──
-     Separa el slide del translateX del panel
-     y la animación de contenido (Y+scale).
-  ── */
-  .form-wrapper {
-    position: absolute;
-    right: 0;
-    width: 50%;
-    height: 100%;
-    z-index: 1;
-    transform: translateX(0);
-    transition: transform .82s var(--ease-out) .78s;
+  .auth-container.register-active .form-panel{
+    transform:translateY(calc((100svh - 2rem) * -0.25));
+    transition:transform 1.4s var(--eio) .4s,visibility 0s 0s
   }
-
-  .auth-container.register-active .form-wrapper {
-    transform: translateX(-100%);
+  .login-panel{
+    visibility:visible;opacity:1;
+    transition:transform 1.4s var(--eio) .4s,opacity .3s 1.2s,visibility 0s .4s
   }
-
-  /* ── form-panel: layout dentro del wrapper ── */
-  .form-panel {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 2.5rem 2.75rem;
-    overflow-y: auto;
-    background: rgba(255,255,255,.96);
+  .auth-container.register-active .login-panel{
+    visibility:hidden;opacity:0;
+    transition:transform 1.4s var(--eio) .4s,opacity .25s .4s,visibility 0s 1.2s
   }
-
-  /* ── Contenido login: fade + scale — SIN conflicto ── */
-  .login-panel {
-    align-items: center;
-    visibility: visible;
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    transition: opacity .38s ease .15s, transform .38s ease .15s, visibility 0s 1.6s;
+  .register-panel{
+    visibility:hidden;opacity:0;
+    transition:transform 1.4s var(--eio) .4s,opacity .25s .4s,visibility 0s 1.2s
   }
-
-  .auth-container.register-active .login-panel {
-    visibility: hidden;
-    opacity: 0;
-    transform: translateY(16px) scale(.97);
-    transition: opacity .3s ease .15s, transform .3s ease .15s, visibility 0s .5s;
+  .auth-container.register-active .register-panel{
+    visibility:visible;opacity:1;
+    transition:transform 1.4s var(--eio) .4s,opacity .3s 1.2s,visibility 0s .4s
   }
-
-  /* ── Contenido register: fade + scale — SIN conflicto ── */
-  .register-panel {
-    visibility: hidden;
-    opacity: 0;
-    transform: translateY(16px) scale(.97);
-    transition: opacity .38s ease .15s, transform .38s ease .15s, visibility 0s 1.6s;
+  .toggle-box::before{
+    content:'';position:absolute;left:0;top:75%;z-index:2;
+    width:100%;height:300%;border-radius:20vw;
+    background:var(--blob-bg);background-size:22px 22px,auto;
+    transform:translateY(-116.67%);transition:transform 1.8s var(--eio)
   }
-
-  .auth-container.register-active .register-panel {
-    visibility: visible;
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    transition: opacity .55s var(--ease-out) 1.05s, transform .55s var(--ease-out) 1.05s, visibility 0s .78s;
+  .auth-container.register-active .toggle-box::before{transform:translateY(0)}
+  .toggle-panel{
+    position:absolute;z-index:3;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;width:100%;height:25%;
+    color:#fff;pointer-events:all;text-align:center;padding:.5rem 1.5rem;gap:.3rem
   }
-
-  /* Blob horizontal — GPU compositing via transform */
-  .toggle-box {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
+  .toggle-left{top:0;left:0;right:0;opacity:1;transform:translateY(0);transition:transform 1.4s var(--eio) .4s,opacity .25s 1.2s}
+  .auth-container.register-active .toggle-left{opacity:0;transform:translateY(-100%);transition:transform 1.4s var(--eio) .4s,opacity .2s .4s}
+  .toggle-right{bottom:0;right:0;left:0;top:auto;opacity:0;transform:translateY(100%);transition:transform 1.4s var(--eio) .4s,opacity .25s .4s}
+  .auth-container.register-active .toggle-right{opacity:1;transform:translateY(0);transition:transform 1.4s var(--eio) .4s,opacity .3s 1.2s}
+  .toggle-left h2{font-size:1.5rem;margin-top:0;letter-spacing:.06em;line-height:1.1}
+  .toggle-left>p{font-size:.72rem;margin-top:.4rem;opacity:.85;max-width:240px;line-height:1.4}
+  .toggle-left .toggle-btn{margin-top:.6rem}
+  .toggle-btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    height:38px;padding:0 1.5rem;border:2px solid rgba(255,255,255,.7);
+    border-radius:999px;color:#fff;font-size:.8125rem;font-weight:600;
+    transition:border-color .2s,background .2s
   }
-
-  .toggle-box::before {
-    content: '';
-    position: absolute;
-    left: -250%;
-    z-index: 2;
-    width: 300%;
-    height: 100%;
-    border-radius: 150px;
-    background:
-      radial-gradient(rgba(255,255,255,.07) 1px, transparent 1px),
-      #004ab1;
-    background-size: 22px 22px, auto;
-    transform: translateX(0);
-    transition: transform 1.78s var(--ease-in-out);
-  }
-
-  /* translateX(100%) = 3000px = blob moves from left panel → right panel */
-  .auth-container.register-active .toggle-box::before {
-    transform: translateX(100%);
-  }
-
-  .toggle-panel {
-    position: absolute;
-    z-index: 3;
-    display: flex;
-    flex-direction: column;
-    width: 50%;
-    height: 100%;
-    padding: 2.5rem;
-    color: #fff;
-    pointer-events: all;
-  }
-
-  .toggle-left {
-    left: 0;
-    align-items: flex-start;
-    justify-content: center;
-    text-align: left;
-    padding-left: 3.25rem;
-    opacity: 1;
-    transform: none;
-    transition: opacity .32s var(--ease-out) 1s, transform .78s var(--ease-out) 1s;
-  }
-
-  .auth-container.register-active .toggle-left {
-    opacity: 0;
-    transform: translateX(-60px);
-    pointer-events: none;   /* invisible → no intercepta clicks del form */
-    transition: opacity .32s .38s, transform .78s .38s;
-  }
-
-  .toggle-right {
-    right: 0;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    pointer-events: none;   /* oculto por defecto → no bloquea login form */
-    transform: translateX(100%);
-    transition: opacity .32s .38s, transform .78s var(--ease-out) .38s;
-  }
-
-  .auth-container.register-active .toggle-right {
-    opacity: 1;
-    pointer-events: all;
-    transform: translateX(0);
-    transition: opacity .32s var(--ease-out) 1s, transform .78s var(--ease-out) 1s;
-  }
-
-  .toggle-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 42px;
-    margin-top: 2rem;
-    padding: 0 1.75rem;
-    border: 2px solid rgba(255,255,255,.73);
-    border-radius: 999px;
-    color: #fff;
-    font-size: .875rem;
-    font-weight: 600;
-    transition: border-color .2s, background .2s;
-  }
-
-  .toggle-btn:hover {
-    border-color: #fff;
-    background: rgba(255,255,255,.15);
-  }
-}
-
-/* ─── Mobile (≤768px) ──────────────────────────────────────────────────── */
-@media (max-width: 768px) {
-  .mobile-tabs { display: none; }
-
-  .auth-container {
-    height: calc(100svh - 2rem);
-    border-radius: 1.25rem;
-  }
-
-  /* Wrapper desktop ignorado en mobile — los paneles se posicionan directamente */
-  .form-wrapper {
-    position: absolute;
-    inset: 0;
-    transform: none !important;
-    transition: none !important;
-  }
-
-  /* ── Form panels ───────────────────────────────────────────────────────
-     Ancla fija: bottom: 0, height: 70%.
-     Login  → translateY(0)          visualmente en fondo.
-     Active → translateY(-30% del contenedor) sube al top.
-     Usamos calc con svh para evitar animar 'bottom' (reflow).
-  ─────────────────────────────────────────────────────────────────────── */
-  .form-panel {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 75%;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 1.75rem 1.25rem 2rem;
-    overflow-y: auto;
-    background: #fff;
-    transform: translateY(0);
-    transition: transform 1.4s var(--ease-in-out) .4s, visibility 0s 1.2s;
-  }
-
-  .auth-container.register-active .form-panel {
-    /* sube 25% del contenedor sin tocar 'bottom' */
-    transform: translateY(calc((100svh - 2rem) * -0.25));
-    transition: transform 1.4s var(--ease-in-out) .4s, visibility 0s 0s;
-  }
-
-  /* Login visible */
-  .login-panel {
-    visibility: visible;
-    opacity: 1;
-    transition: transform 1.4s var(--ease-in-out) .4s, opacity .3s 1.2s, visibility 0s .4s;
-  }
-
-  .auth-container.register-active .login-panel {
-    visibility: hidden;
-    opacity: 0;
-    transition: transform 1.4s var(--ease-in-out) .4s, opacity .25s .4s, visibility 0s 1.2s;
-  }
-
-  /* Register oculto */
-  .register-panel {
-    visibility: hidden;
-    opacity: 0;
-    transition: transform 1.4s var(--ease-in-out) .4s, opacity .25s .4s, visibility 0s 1.2s;
-  }
-
-  .auth-container.register-active .register-panel {
-    visibility: visible;
-    opacity: 1;
-    transition: transform 1.4s var(--ease-in-out) .4s, opacity .3s 1.2s, visibility 0s .4s;
-  }
-
-  /* ── Toggle box — blob vertical con transform ──────────────────────────
-     Ancla fija: top: 75%.  height: 300% del contenedor.
-     Login  → translateY(-116.67%)  blob cubre top 25%.
-     Active → translateY(0)         blob cubre bottom 25%.
-
-     Math: queremos blob BOTTOM en 25% del contenedor.
-     blob_bottom = 0.75H + t*3H + 3H = 0.25H → t = -3.5H/3H = -116.67%
-  ─────────────────────────────────────────────────────────────────────── */
-  .toggle-box {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
-
-  .toggle-box::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 75%;           /* ancla fija — nunca cambia */
-    z-index: 2;
-    width: 100%;
-    height: 300%;
-    border-radius: 20vw;
-    background:
-      radial-gradient(rgba(255,255,255,.07) 1px, transparent 1px),
-      #004ab1;
-    background-size: 22px 22px, auto;
-    transform: translateY(-116.67%);   /* login: blob cubre top 25% */
-    transition: transform 1.8s var(--ease-in-out);
-  }
-
-  .auth-container.register-active .toggle-box::before {
-    transform: translateY(0);          /* register: blob cubre bottom 25% */
-  }
-
-  /* ── Toggle panels ─────────────────────────────────────────────────── */
-  .toggle-panel {
-    position: absolute;
-    z-index: 3;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 25%;
-    color: #fff;
-    pointer-events: all;
-    text-align: center;
-    padding: .5rem 1.5rem;
-    gap: .3rem;
-  }
-
-  /* Toggle left — top, visible en login
-     Ancla: top: 0. Sale hacia arriba con translateY(-100%). */
-  .toggle-left {
-    top: 0;
-    left: 0;
-    right: 0;
-    align-items: center;
-    text-align: center;
-    opacity: 1;
-    transform: translateY(0);
-    transition: transform 1.4s var(--ease-in-out) .4s, opacity .25s 1.2s;
-  }
-
-  .auth-container.register-active .toggle-left {
-    opacity: 0;
-    transform: translateY(-100%);
-    transition: transform 1.4s var(--ease-in-out) .4s, opacity .2s .4s;
-  }
-
-  /* Toggle right — bottom, visible en register
-     Ancla: bottom: 0. Entra desde abajo con translateY(100%). */
-  .toggle-right {
-    bottom: 0;
-    right: 0;
-    left: 0;
-    top: auto;
-    opacity: 0;
-    transform: translateY(100%);
-    transition: transform 1.4s var(--ease-in-out) .4s, opacity .25s .4s;
-  }
-
-  .auth-container.register-active .toggle-right {
-    opacity: 1;
-    transform: translateY(0);
-    transition: transform 1.4s var(--ease-in-out) .4s, opacity .3s 1.2s;
-  }
-
-  /* ── Tipografía toggle-left compacta (mobile) ─── */
-  .toggle-left h2 { font-size: 1.5rem; margin-top: 0; letter-spacing: .06em; line-height: 1.1; }
-  .toggle-left > p { font-size: .72rem; margin-top: .4rem; opacity: .85; max-width: 240px; line-height: 1.4; }
-  .toggle-left .toggle-btn { margin-top: .6rem; }
-
-  /* ── Botón mobile ─── */
-  .toggle-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 38px;
-    padding: 0 1.5rem;
-    border: 2px solid rgba(255,255,255,.7);
-    border-radius: 999px;
-    color: #fff;
-    font-size: .8125rem;
-    font-weight: 600;
-    transition: border-color .2s, background .2s;
-  }
-
-  .toggle-btn:hover {
-    border-color: #fff;
-    background: rgba(255,255,255,.15);
-  }
+  .toggle-btn:hover{border-color:#fff;background:rgba(255,255,255,.15)}
 }
