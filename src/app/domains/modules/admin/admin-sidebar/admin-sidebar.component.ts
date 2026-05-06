@@ -36,6 +36,7 @@ export class AdminSidebarComponent {
 
   readonly adminRole = this.tokenService.getRoleFromToken() ?? 'admin';
   readonly adminEmail = this.getEmailFromToken();
+  readonly adminInitials = String(this.adminEmail).charAt(0).toUpperCase();
 
   readonly nav: NavSection[] = [
     {

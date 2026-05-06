@@ -1,0 +1,100 @@
+<div class="detail-panel">
+
+  @if (order() === null) {
+    <div class="detail-empty">
+      <p class="detail-empty-title">Selecciona un pedido</p>
+      <p class="detail-empty-sub">El detalle aparecerá aquí</p>
+    </div>
+  } @else {
+
+    <div class="detail-body">
+
+      <!-- Header -->
+      <div class="detail-header">
+        <div>
+          <span class="detail-order-id">Pedido #{{ order()!.id }}</span>
+          <p class="detail-date">
+            {{ order()!.createdAt ? (order()!.createdAt | date:'dd MMM yyyy — HH:mm') : '—' }}
+          </p>
+        </div>
+        <span class="detail-status-badge" [ngClass]="statusMeta(order()!.status).color">
+          {{ statusMeta(order()!.status).label }}
+        </span>
+      </div>
+
+      <!-- Cliente -->
+      <section class="detail-section">
+        <h3 class="section-label">Cliente</h3>
+        <p class="detail-customer-name">{{ getCustomerName(order()!) }}</p>
+        @if (order()!.customer?.email) {
+          <p class="detail-meta">{{ order()!.customer?.email }}</p>
+        }
+        @if (getCustomerPhone(order()!); as phone) {
+          <a [href]="'tel:' + phone" class="detail-meta detail-link">{{ phone }}</a>
+        }
+        @if (getCustomerLocation(order()!); as loc) {
+          <p class="detail-meta">{{ loc }}</p>
+        }
+        @if (order()!.customer?.company) {
+          <p class="detail-meta">{{ order()!.customer?.company }}</p>
+        }
+      </section>
+
+      <!-- Estado -->
+      <section class="detail-section">
+        <h3 class="section-label">Estado</h3>
+        <div class="status-row">
+          <span class="detail-status-badge" [ngClass]="statusMeta(order()!.status).color">
+            {{ statusMeta(order()!.status).label }}
+          </span>
+          <button class="change-btn" (click)="openStatusModal.emit(order()!)">
+            Cambiar estado
+          </button>
+        </div>
+        <p class="detail-meta" style="margin-top: 0.375rem">
+          Actualizado {{ timeAgo(order()!.updatedAt ?? order()!.createdAt) }}
+        </p>
+      </section>
+
+      <!-- Nota cliente -->
+      @if (order()!.detail) {
+        <section class="detail-section">
+          <h3 class="section-label">Nota del cliente</h3>
+          <p class="detail-note">{{ order()!.detail }}</p>
+        </section>
+      }
+
+      <!-- Productos -->
+      <section class="detail-section">
+        <h3 class="section-label">Productos</h3>
+        @if (getItems(order()!).length > 0) {
+          <div class="items-list">
+            @for (item of getItems(order()!); track item.id) {
+              <div class="item-row">
+                <div class="item-info">
+                  <span class="item-name">{{ getItemName(item) }}</span>
+                  @if (getItemDescription(item); as desc) {
+                    <span class="item-desc">{{ desc }}</span>
+                  }
+                </div>
+                <span class="item-qty">×{{ getItemAmount(item) }}</span>
+                <span class="item-price">
+                  Bs {{ (getItemAmount(item) * getItemPrice(item)) | number:'1.2-2' }}
+                </span>
+              </div>
+            }
+          </div>
+          <div class="items-total">
+            <span>Total</span>
+            <span>Bs {{ getTotal(order()!) | number:'1.2-2' }}</span>
+          </div>
+        } @else {
+          <p class="detail-meta">Sin productos registrados.</p>
+        }
+      </section>
+
+    </div>
+
+  }
+
+</div>

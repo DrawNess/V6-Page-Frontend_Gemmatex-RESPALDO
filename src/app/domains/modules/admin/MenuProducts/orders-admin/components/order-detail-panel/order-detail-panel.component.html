@@ -1,0 +1,111 @@
+<div class="px-6 py-5 bg-slate-50 border-t border-slate-200">
+
+  @if (order().detail) {
+    <div class="mb-4 flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+      <svg class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+      </svg>
+      <div>
+        <p class="text-[10px] font-bold uppercase tracking-wide text-amber-700">Nota del cliente</p>
+        <p class="text-sm text-amber-900 mt-0.5">{{ order().detail }}</p>
+      </div>
+    </div>
+  }
+
+  <div class="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6">
+
+    <!-- Items -->
+    <div>
+      <h4 class="text-xs font-bold uppercase tracking-wide text-slate-500 mb-3">
+        Productos del pedido #{{ order().id }}
+      </h4>
+      @if (getItems(order()).length > 0) {
+        <table class="w-full text-xs">
+          <thead>
+            <tr class="text-slate-500 border-b border-slate-200">
+              <th class="py-2 text-left font-semibold">Producto</th>
+              <th class="py-2 text-center font-semibold w-16">Cant.</th>
+              <th class="py-2 text-right font-semibold w-24">Precio u.</th>
+              <th class="py-2 text-right font-semibold w-24">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of getItems(order()); track item.id) {
+              <tr class="border-b border-slate-100">
+                <td class="py-2">
+                  <div class="flex items-center gap-2">
+                    @if (item.imageUrl) {
+                      <img [src]="item.imageUrl" class="w-8 h-8 rounded-lg object-cover bg-slate-200" alt="">
+                    }
+                    <div>
+                      <p class="text-slate-800 font-medium">{{ getItemName(item) }}</p>
+                      @if (getItemDescription(item); as desc) {
+                        <p class="text-slate-400 text-[10px] line-clamp-1">{{ desc }}</p>
+                      }
+                      @if (item.sku && item.name) {
+                        <p class="text-slate-400 text-[10px]">SKU: {{ item.sku }}</p>
+                      }
+                    </div>
+                  </div>
+                </td>
+                <td class="py-2 text-center text-slate-700">{{ getItemAmount(item) }}</td>
+                <td class="py-2 text-right text-slate-700">Bs {{ (item.price || 0) | number:'1.2-2' }}</td>
+                <td class="py-2 text-right font-semibold text-slate-900">
+                  Bs {{ (getItemAmount(item) * +(item.price || 0)) | number:'1.2-2' }}
+                </td>
+              </tr>
+            }
+            <tr class="border-t-2 border-slate-300">
+              <td colspan="3" class="py-2 text-right font-bold text-slate-700">Total:</td>
+              <td class="py-2 text-right font-extrabold text-blue-700">
+                Bs {{ getTotal(order()) | number:'1.2-2' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      } @else {
+        <p class="text-slate-400 italic text-xs">Sin productos registrados en este pedido.</p>
+      }
+    </div>
+
+    <!-- Customer info -->
+    <div class="lg:w-64">
+      <h4 class="text-xs font-bold uppercase tracking-wide text-slate-500 mb-3">Datos del cliente</h4>
+      <div class="bg-white rounded-xl border border-slate-200 p-4 space-y-2.5 text-xs">
+        <div>
+          <p class="text-slate-400 text-[10px] uppercase tracking-wide">Nombre</p>
+          <p class="font-semibold text-slate-800">{{ getCustomerName(order()) }}</p>
+        </div>
+        @if (order().customer?.email) {
+          <div>
+            <p class="text-slate-400 text-[10px] uppercase tracking-wide">Email</p>
+            <p class="text-slate-700">{{ order().customer?.email }}</p>
+          </div>
+        }
+        @if (getCustomerPhone(order()); as phone) {
+          <div>
+            <p class="text-slate-400 text-[10px] uppercase tracking-wide">Teléfono</p>
+            <a [href]="'tel:' + phone" class="text-blue-600 hover:underline font-medium">{{ phone }}</a>
+          </div>
+        }
+        @if (getCustomerLocation(order()); as location) {
+          <div>
+            <p class="text-slate-400 text-[10px] uppercase tracking-wide">Ubicación</p>
+            <p class="text-slate-700">{{ location }}</p>
+          </div>
+        }
+        @if (order().customer?.company) {
+          <div>
+            <p class="text-slate-400 text-[10px] uppercase tracking-wide">Empresa</p>
+            <p class="text-slate-700">{{ order().customer?.company }}</p>
+          </div>
+        }
+        <div class="pt-1 border-t border-slate-100">
+          <p class="text-slate-400 text-[10px] uppercase tracking-wide">Creado</p>
+          <p class="text-slate-600">{{ order().createdAt ? (order().createdAt | date:'dd/MM/yyyy HH:mm') : '—' }}</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

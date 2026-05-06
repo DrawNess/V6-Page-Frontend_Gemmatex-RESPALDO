@@ -1,0 +1,80 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+
+  <!-- Backdrop -->
+  <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" (click)="cancelled.emit()"></div>
+
+  <!-- Card -->
+  <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md animate-modal-in">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+      <div>
+        <h3 class="font-bold text-slate-900 text-base">Cambiar estado</h3>
+        <p class="text-xs text-slate-500 mt-0.5">
+          Pedido #{{ order().id }} — {{ getCustomerName(order()) }}
+        </p>
+      </div>
+      <button type="button" (click)="cancelled.emit()"
+              class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="px-6 py-5 space-y-5">
+
+      <!-- Estado actual -->
+      <div>
+        <p class="text-[10px] font-bold uppercase tracking-wide text-slate-400 mb-2">Estado actual</p>
+        <span class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-semibold"
+              [ngClass]="statusMeta(order().status).color">
+          <span class="w-2 h-2 rounded-full" [ngClass]="statusMeta(order().status).dot"></span>
+          {{ statusMeta(order().status).label }}
+        </span>
+      </div>
+
+      <!-- Selector de nuevo estado -->
+      <div>
+        <p class="text-[10px] font-bold uppercase tracking-wide text-slate-400 mb-2">Nuevo estado</p>
+        <div class="grid grid-cols-2 gap-2">
+          @for (s of statuses; track s.value) {
+            <button type="button"
+                    class="flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 text-sm font-medium transition-all text-left"
+                    [class]="selectedStatus() === s.value
+                      ? s.color + ' border-current shadow-sm'
+                      : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'"
+                    (click)="selectedStatus.set(s.value)">
+              <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" [ngClass]="s.dot"></span>
+              {{ s.label }}
+            </button>
+          }
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100">
+      <button type="button" (click)="cancelled.emit()"
+              class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors">
+        Cancelar
+      </button>
+      <button type="button" (click)="confirm()"
+              [disabled]="!hasChanged || saving()"
+              class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-2">
+        @if (saving()) {
+          <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+          </svg>
+          Guardando...
+        } @else {
+          Confirmar cambio
+        }
+      </button>
+    </div>
+
+  </div>
+</div>

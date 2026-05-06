@@ -1,0 +1,42 @@
+<div class="master-panel">
+
+  <div class="master-search">
+    <input type="search"
+           [ngModel]="searchText()" (ngModelChange)="searchText.set($event)"
+           placeholder="Buscar pedido o cliente..." />
+    @if (filtered().length > 0 && !loading()) {
+      <span class="master-count">{{ filtered().length }}</span>
+    }
+  </div>
+
+  <div class="master-list">
+    @if (loading()) {
+      <div class="master-empty">Cargando...</div>
+    } @else if (filtered().length === 0) {
+      <div class="master-empty">Sin resultados</div>
+    } @else {
+      @for (order of filtered(); track order.id) {
+        <button class="order-row"
+                [class.selected]="selectedOrderId() === order.id"
+                [class.row-danger]="rowUrgency(order) === 'danger'"
+                [class.row-warn]="rowUrgency(order) === 'warn'"
+                (click)="orderSelected.emit(order)">
+
+          <div class="row-top">
+            <span class="row-id">#{{ order.id }}</span>
+            <span class="row-time">{{ timeAgo(order.updatedAt ?? order.createdAt) }}</span>
+          </div>
+          <div class="row-name">{{ getCustomerName(order) }}</div>
+          <div class="row-bottom">
+            <span class="row-amount">Bs {{ getTotal(order) | number:'1.2-2' }}</span>
+            <span class="row-status" [ngClass]="statusMeta(order.status).color">
+              {{ statusMeta(order.status).label }}
+            </span>
+          </div>
+
+        </button>
+      }
+    }
+  </div>
+
+</div>

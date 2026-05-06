@@ -1,0 +1,53 @@
+<div class="space-y-3">
+
+  <div class="grid grid-cols-2 gap-3 lg:grid-cols-6">
+    <article class="rounded-2xl border border-yellow-200 bg-yellow-50 p-4 shadow-sm relative overflow-hidden">
+      <p class="text-[10px] font-bold uppercase tracking-wide text-yellow-600">Pendientes</p>
+      <p class="mt-1 text-2xl font-extrabold text-yellow-800">{{ pendingCount() }}</p>
+      @if (pendingCount() > 0) {
+        <span class="absolute top-3 right-3 w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse"></span>
+      }
+    </article>
+
+    <article class="rounded-2xl border border-blue-200 bg-blue-50 p-4 shadow-sm">
+      <p class="text-[10px] font-bold uppercase tracking-wide text-blue-600">Confirmados</p>
+      <p class="mt-1 text-2xl font-extrabold text-blue-800">{{ confirmedCount() }}</p>
+    </article>
+
+    <article class="rounded-2xl border border-indigo-200 bg-indigo-50 p-4 shadow-sm">
+      <p class="text-[10px] font-bold uppercase tracking-wide text-indigo-600">En curso</p>
+      <p class="mt-1 text-2xl font-extrabold text-indigo-800">{{ enCursoCount() }}</p>
+    </article>
+
+    <article class="rounded-2xl border border-purple-200 bg-purple-50 p-4 shadow-sm">
+      <p class="text-[10px] font-bold uppercase tracking-wide text-purple-600">Enviados</p>
+      <p class="mt-1 text-2xl font-extrabold text-purple-800">{{ shippedCount() }}</p>
+    </article>
+
+    <article class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm">
+      <p class="text-[10px] font-bold uppercase tracking-wide text-emerald-600">Entregados</p>
+      <p class="mt-1 text-2xl font-extrabold text-emerald-800">{{ deliveredCount() }}</p>
+    </article>
+
+    <article class="rounded-2xl border border-red-200 bg-red-50 p-4 shadow-sm">
+      <p class="text-[10px] font-bold uppercase tracking-wide text-red-600">Cancelados</p>
+      <p class="mt-1 text-2xl font-extrabold text-red-800">{{ cancelledCount() }}</p>
+    </article>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm px-5 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+        <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-xs text-slate-500 font-medium">Monto bruto cargado</p>
+        <p class="text-xl font-extrabold text-slate-900">Bs {{ grossTotal() | number:'1.2-2' }}</p>
+      </div>
+    </div>
+    <span class="text-xs text-slate-400">{{ totalOrders() }} pedidos</span>
+  </div>
+
+</div>

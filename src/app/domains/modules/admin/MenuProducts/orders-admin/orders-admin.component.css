@@ -1,8 +1,45 @@
 @keyframes modal-in {
   from { opacity: 0; transform: scale(0.95) translateY(8px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 .animate-modal-in { animation: modal-in 0.2s ease-out; }
 
-.scrollbar-hide::-webkit-scrollbar { display: none; }
-.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+/* ── Shell ─────────────────────────────────────────────
+   Ocupa todo el alto disponible dentro de admin-content
+   (que ya tiene flex:1 y overflow:auto en el layout).
+   Usamos calc para restar el topbar (~46px) y padding.  */
+.orders-shell {
+  padding: 1.5rem 1.75rem;
+  max-width: 1280px;
+  height: calc(100vh - 46px);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── Split panel ───────────────────────────────────────
+   Toma el espacio restante después del command bar.
+   min-height:0 es crítico para que flex children puedan
+   achicar y que overflow funcione dentro.               */
+.orders-split {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+}
+
+@media (max-width: 1023px) {
+  .orders-shell {
+    height: auto;
+    min-height: calc(100vh - 46px);
+  }
+  .orders-split {
+    grid-template-columns: 1fr;
+    flex: none;
+  }
+}

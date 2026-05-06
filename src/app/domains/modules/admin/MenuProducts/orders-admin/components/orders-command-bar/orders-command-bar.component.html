@@ -1,0 +1,29 @@
+<div class="cb-wrapper">
+
+  <div class="cb-top">
+    <div>
+      <h1 class="cb-title">Control de Pedidos</h1>
+      <p class="cb-subtitle">{{ totalOrders() }} pedidos en total</p>
+    </div>
+    <button class="cb-refresh" (click)="refreshRequested.emit()" [disabled]="loading()">
+      {{ loading() ? 'Cargando...' : 'Actualizar' }}
+    </button>
+  </div>
+
+  <div class="cb-filters">
+    <button class="cb-filter-btn" [class.active]="activeStatus() === 'todos'"
+            (click)="filterChange.emit('todos')">
+      Todos
+    </button>
+    @for (s of statuses; track s.value) {
+      <button class="cb-filter-btn" [class.active]="activeStatus() === s.value"
+              (click)="filterChange.emit(s.value)">
+        {{ s.label }}
+        @if (countFor(s.value) > 0) {
+          <span class="cb-count">{{ countFor(s.value) }}</span>
+        }
+      </button>
+    }
+  </div>
+
+</div>
