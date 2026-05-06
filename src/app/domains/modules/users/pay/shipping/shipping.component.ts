@@ -3,17 +3,16 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { environment } from '@environments/environment';
 import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
 import { CartService, CartItem } from '@shared/services/cart.service';
 import { CheckoutFlowService } from '@shared/services/checkout-flow.service';
 import { OrderService } from '@shared/services/order.service';
 import { ProfileService } from '@shared/services/profile.service';
+import { ApiBranch } from '@shared/models/user-portal.model';
 import { catchError, concatMap, finalize, from, map, of, toArray } from 'rxjs';
 
-type Branch = { id: string; name: string; phone: string; address: string };
 type CheckoutOrderItem = { variantId: number; amount: number };
-type DeliveryMode = 'pickup_store' | 'shipping_coordination';
+type DeliveryMode = 'recojo_tienda' | 'envio_domicilio';
 
 @Component({
   selector: 'app-shipping',
@@ -35,6 +34,7 @@ export class ShippingComponent {
 
   loading        = signal(false);
   profileLoading = signal(false);
+  branchesLoading = signal(false);
   errorMsg       = signal('');
   successMsg     = signal('');
   createdOrderId = signal<number | null>(null);
@@ -42,18 +42,13 @@ export class ShippingComponent {
 
   customerName   = signal('');
   customerPhone  = signal('');
-  deliveryPhone  = signal('');  // WhatsApp alternativo para coordinación de entrega (opcional)
-  deliveryMode   = signal<DeliveryMode>('shipping_coordination');
-  orderNotes     = signal('');   // loaded from draft (set in checkout step)
+  deliveryPhone  = signal('');
+  deliveryMode   = signal<DeliveryMode>('envio_domicilio');
+  orderNotes     = signal('');
 
-  branches: Branch[] = [
-    { id: 'lp', name: 'La Paz',      phone: this.toBotPhone(environment.WSP_LPZ), address: 'Av. Illampu esq. Graneros Nº 682' },
-    { id: 'sc', name: 'Santa Cruz',  phone: this.toBotPhone(environment.WSP_SCZ), address: 'Calle Isabela Católica Nº 275' },
-    { id: 'cb', name: 'Cochabamba',  phone: this.toBotPhone(environment.WSP_CBBA), address: 'Av. Aroma c/ 16 de Julio y Av. Oquendo' },
-  ];
-
-  selectedBranchId = signal(this.branches[0].id);
-  selectedBranch   = computed(() => this.branches.find(b => b.id === this.selectedBranchId()));
+  branches       = signal<ApiBranch[]>([]);
+  selectedBranchId = signal<number | null>(null);
+  selectedBranch   = computed(() => this.branches().find(b => b.id === this.selectedBranchId()) ?? null);
 
   groupedCart = computed(() => {
     const map = new Map<string, { product: CartItem; count: number; unitPrice: number }>();
@@ -68,22 +63,37 @@ export class ShippingComponent {
   });
 
   formValid = computed(() => {
-    const nameOk  = this.customerName().trim().length >= 2;
-    const phoneOk = /^(\+?591)?\d{8,11}$/.test(this.customerPhone().trim().replace(/\s+/g, ''));
-    return nameOk && phoneOk && this.groupedCart().length > 0;
+    const nameOk   = this.customerName().trim().length >= 2;
+    const phoneOk  = /^(\+?591)?\d{8,11}$/.test(this.customerPhone().trim().replace(/\s+/g, ''));
+    const branchOk = this.deliveryMode() !== 'recojo_tienda' || this.selectedBranchId() !== null;
+    return nameOk && phoneOk && branchOk && this.groupedCart().length > 0;
   });
 
   constructor() {
-    // Restore draft (persisted from checkout step 1)
-    const draft = this.checkoutFlow.getDraft();
-    if (draft) {
-      this.customerName.set(draft.customerName ?? '');
-      this.customerPhone.set(draft.customerPhone ?? '');
-      this.orderNotes.set(draft.notes ?? '');
-      if (this.branches.some(b => b.id === draft.branchId)) {
-        this.selectedBranchId.set(draft.branchId);
+    // Load branches from API
+    this.branchesLoading.set(true);
+    this.orderService.getBranches().pipe(
+      catchError(() => of([] as ApiBranch[])),
+      finalize(() => this.branchesLoading.set(false))
+    ).subscribe(branches => {
+      this.branches.set(branches);
+      // Restore draft (persisted from checkout step 1)
+      const draft = this.checkoutFlow.getDraft();
+      if (draft) {
+        if (draft.customerName)  this.customerName.set(draft.customerName);
+        if (draft.customerPhone) this.customerPhone.set(draft.customerPhone);
+        if (draft.deliveryPhone) this.deliveryPhone.set(draft.deliveryPhone);
+        if (draft.notes)         this.orderNotes.set(draft.notes);
+        if (draft.deliveryMode)  this.deliveryMode.set(draft.deliveryMode);
+        if (draft.branchId && branches.some(b => b.id === draft.branchId)) {
+          this.selectedBranchId.set(draft.branchId);
+        }
       }
-    }
+      // Default to first active branch
+      if (!this.selectedBranchId() && branches.length > 0) {
+        this.selectedBranchId.set(branches[0].id);
+      }
+    });
 
     // Pre-fill from customer profile (overwrites blank draft fields only)
     this.profileLoading.set(true);
@@ -103,8 +113,10 @@ export class ShippingComponent {
     return (item.unitPrice ?? 0) * (item.count ?? 0);
   }
 
-  private toBotPhone(rawNumber: number | string): string {
-    return `591${String(rawNumber).replace(/\D+/g, '')}`;
+  branchWhatsappPhone(branch: ApiBranch): string {
+    if (!branch.phone) return '';
+    const digits = String(branch.phone).replace(/\D+/g, '');
+    return digits.startsWith('591') ? digits : `591${digits}`;
   }
 
   private fmtBOB(n: number): string {
@@ -157,7 +169,7 @@ export class ShippingComponent {
     if (this.deliveryPhone().trim()) {
       lines.push(`*WSP entrega:* ${this.deliveryPhone().trim()}`);
     }
-    lines.push(`*Modalidad:* ${this.deliveryMode() === 'pickup_store' ? 'Recojo en tienda' : 'Envio a coordinar'}`);
+    lines.push(`*Modalidad:* ${this.deliveryMode() === 'recojo_tienda' ? 'Recojo en tienda' : 'Envío a coordinar'}`);
     lines.push(`*Sucursal:* ${this.selectedBranch()?.name ?? ''}`);
 
     // Productos
@@ -214,8 +226,9 @@ export class ShippingComponent {
       return;
     }
 
+    const isPickup = this.deliveryMode() === 'recojo_tienda';
     const branch = this.selectedBranch();
-    if (!branch) {
+    if (isPickup && !branch) {
       this.errorMsg.set('Selecciona una sucursal.');
       return;
     }
@@ -228,11 +241,21 @@ export class ShippingComponent {
       branchId: this.selectedBranchId(),
       customerName: this.customerName().trim(),
       customerPhone: this.customerPhone().trim(),
+      deliveryPhone: this.deliveryPhone().trim() || undefined,
+      deliveryMode: this.deliveryMode(),
       notes: this.orderNotes().trim(),
     });
+    const orderDto = {
+      contactName: this.customerName().trim(),
+      contactWhatsapp: this.customerPhone().trim(),
+      deliveryMode: this.deliveryMode(),
+      branchId: isPickup ? (this.selectedBranchId() ?? undefined) : undefined,
+      deliveryWhatsapp: this.deliveryPhone().trim() || undefined,
+      detail: this.orderNotes().trim() || undefined,
+    };
 
-    // Step 1: create order (with detail note), Step 2: add all items
-    this.orderService.createOrder(this.orderNotes().trim() || undefined).pipe(
+    // Step 1: create order, Step 2: add all items
+    this.orderService.createOrder(orderDto).pipe(
       map(response => this.extractOrderId(response)),
       concatMap(orderId => {
         if (!orderId) throw new Error('ORDER_ID_NOT_FOUND');
@@ -248,8 +271,11 @@ export class ShippingComponent {
       next: (orderId) => {
         this.successMsg.set(`Pedido #${orderId} registrado correctamente.`);
 
+        const branchPhone = branch ? this.branchWhatsappPhone(branch) : '';
         const text = encodeURIComponent(this.buildWhatsAppMessage(orderId));
-        const url  = `https://api.whatsapp.com/send?phone=${branch.phone}&text=${text}`;
+        const url  = branchPhone
+          ? `https://api.whatsapp.com/send?phone=${branchPhone}&text=${text}`
+          : `https://api.whatsapp.com/send?text=${text}`;
         this.whatsappUrl.set(url);
 
         this.checkoutFlow.clearDraft();

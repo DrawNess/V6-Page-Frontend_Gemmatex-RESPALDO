@@ -2,7 +2,16 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '@environments/environment';
 import { map, Observable } from 'rxjs';
-import { ApiOrder, ApiPaginatedResponse } from '@shared/models/user-portal.model';
+import { ApiBranch, ApiOrder, ApiPaginatedResponse } from '@shared/models/user-portal.model';
+
+export interface CreateOrderDTO {
+  contactName: string;
+  contactWhatsapp: string;
+  deliveryMode: 'recojo_tienda' | 'envio_domicilio';
+  branchId?: number | null;
+  deliveryWhatsapp?: string | null;
+  detail?: string;
+}
 
 interface AddOrderItemDTO {
   orderId: number;
@@ -20,9 +29,14 @@ export class OrderService {
 
   // ── Pedidos ────────────────────────────────────────────
 
-  createOrder(detail?: string): Observable<ApiOrder> {
-    const body = detail?.trim() ? { detail: detail.trim() } : {};
-    return this.http.post<ApiOrder>(`${this.apiUrl}/orders`, body);
+  createOrder(dto: CreateOrderDTO): Observable<ApiOrder> {
+    return this.http.post<ApiOrder>(`${this.apiUrl}/orders`, dto);
+  }
+
+  getBranches(): Observable<ApiBranch[]> {
+    return this.http.get<ApiBranch[] | { data: ApiBranch[] }>(`${this.apiUrl}/branches`).pipe(
+      map(r => Array.isArray(r) ? r : r.data)
+    );
   }
 
   getOrderById(orderId: number): Observable<ApiOrder> {

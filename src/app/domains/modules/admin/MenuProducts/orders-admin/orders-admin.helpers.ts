@@ -20,7 +20,7 @@ export function getItemVariantId(item: ApiOrderItem): number | null {
 }
 
 export function getItemName(item: ApiOrderItem): string {
-  return String(item.name ?? item.sku ?? `Variante #${getItemVariantId(item) ?? '-'}`);
+  return String(item.description ?? item.shortDescription ?? item.name ?? item.sku ?? `Variante #${getItemVariantId(item) ?? '-'}`);
 }
 
 export function getItemDescription(item: ApiOrderItem): string | null {
@@ -35,13 +35,19 @@ export function getCustomerName(order: ApiOrder): string {
   if (order.customer) {
     const { name = '', lastName = '' } = order.customer;
     const full = `${name} ${lastName}`.trim();
-    return full || `#${order.customer.id}`;
+    if (full) return full;
   }
+  if (order.contactName) return order.contactName;
   return `Cliente #${order.customerId ?? '?'}`;
 }
 
 export function getCustomerPhone(order: ApiOrder): string | null {
-  return order.customer?.phone ?? null;
+  return order.customer?.phone ?? order.contactWhatsapp ?? null;
+}
+
+export function getDeliveryModeLabel(order: ApiOrder): string | null {
+  if (!order.deliveryMode) return null;
+  return order.deliveryMode === 'recojo_tienda' ? 'Recojo en tienda' : 'Envío a domicilio';
 }
 
 export function getCustomerLocation(order: ApiOrder): string | null {

@@ -421,7 +421,11 @@ export class UsersManagementComponent {
     this.creatingOrder.set(true);
     this.clearMessages();
 
-    this.orderService.createOrder().subscribe({
+    this.orderService.createOrder({
+      contactName: 'Admin',
+      contactWhatsapp: '0',
+      deliveryMode: 'recojo_tienda',
+    }).subscribe({
       next: (order) => {
         this.creatingOrder.set(false);
         this.selectedOrder.set(order);

@@ -193,24 +193,24 @@
             <p class="mb-2 text-sm font-semibold text-slate-700">Modalidad de entrega</p>
             <div class="grid grid-cols-2 gap-2">
               <label class="flex cursor-pointer items-center gap-2.5 rounded-xl border p-3 transition-colors"
-                     [class.border-blue-500]="deliveryMode() === 'pickup_store'"
-                     [class.bg-blue-50]="deliveryMode() === 'pickup_store'"
-                     [class.border-slate-200]="deliveryMode() !== 'pickup_store'">
-                <input type="radio" name="delivery_mode" value="pickup_store"
-                       [checked]="deliveryMode() === 'pickup_store'"
-                       (change)="deliveryMode.set('pickup_store')" />
+                     [class.border-blue-500]="deliveryMode() === 'recojo_tienda'"
+                     [class.bg-blue-50]="deliveryMode() === 'recojo_tienda'"
+                     [class.border-slate-200]="deliveryMode() !== 'recojo_tienda'">
+                <input type="radio" name="delivery_mode" value="recojo_tienda"
+                       [checked]="deliveryMode() === 'recojo_tienda'"
+                       (change)="deliveryMode.set('recojo_tienda')" />
                 <div>
                   <p class="text-xs font-semibold text-slate-900">Recojo en tienda</p>
                   <p class="text-[11px] text-slate-500">Voy a buscar mi pedido</p>
                 </div>
               </label>
               <label class="flex cursor-pointer items-center gap-2.5 rounded-xl border p-3 transition-colors"
-                     [class.border-blue-500]="deliveryMode() === 'shipping_coordination'"
-                     [class.bg-blue-50]="deliveryMode() === 'shipping_coordination'"
-                     [class.border-slate-200]="deliveryMode() !== 'shipping_coordination'">
-                <input type="radio" name="delivery_mode" value="shipping_coordination"
-                       [checked]="deliveryMode() === 'shipping_coordination'"
-                       (change)="deliveryMode.set('shipping_coordination')" />
+                     [class.border-blue-500]="deliveryMode() === 'envio_domicilio'"
+                     [class.bg-blue-50]="deliveryMode() === 'envio_domicilio'"
+                     [class.border-slate-200]="deliveryMode() !== 'envio_domicilio'">
+                <input type="radio" name="delivery_mode" value="envio_domicilio"
+                       [checked]="deliveryMode() === 'envio_domicilio'"
+                       (change)="deliveryMode.set('envio_domicilio')" />
                 <div>
                   <p class="text-xs font-semibold text-slate-900">Envío a domicilio</p>
                   <p class="text-[11px] text-slate-500">Coordinar con vendedor</p>
@@ -219,11 +219,21 @@
             </div>
           </div>
 
-          <!-- Sucursales -->
+          <!-- Sucursales (solo recojo en tienda) -->
+          @if (deliveryMode() === 'recojo_tienda') {
           <div>
             <p class="mb-2 text-sm font-semibold text-slate-700">Sucursal de referencia</p>
+            @if (branchesLoading()) {
+              <div class="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                <svg class="w-4 h-4 animate-spin text-slate-400" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                <span class="text-xs text-slate-500">Cargando sucursales…</span>
+              </div>
+            }
             <div class="space-y-2">
-              <label *ngFor="let b of branches"
+              <label *ngFor="let b of branches()"
                      class="flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 transition-colors"
                      [class.border-blue-500]="selectedBranchId() === b.id"
                      [class.bg-blue-50]="selectedBranchId() === b.id"
@@ -239,6 +249,7 @@
               </label>
             </div>
           </div>
+          } <!-- end @if recojo_tienda -->
 
           <!-- Notas adicionales para coordinación -->
           <label class="block">

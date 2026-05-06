@@ -2,9 +2,11 @@ import { Injectable } from '@angular/core';
 
 export interface ShippingDraft {
   orderId: number;
-  branchId: string;
+  branchId: number | null;
   customerName: string;
   customerPhone: string;
+  deliveryPhone?: string;
+  deliveryMode?: 'recojo_tienda' | 'envio_domicilio';
   notes?: string;
 }
 

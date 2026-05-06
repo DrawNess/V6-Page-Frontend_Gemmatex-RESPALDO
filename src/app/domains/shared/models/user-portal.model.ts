@@ -53,16 +53,42 @@ export interface ApiOrderItem {
   [key: string]: unknown;
 }
 
+export interface ApiStatusLog {
+  id: number;
+  orderId?: number;
+  fromStatus: string | null;
+  toStatus: string;
+  note?: string | null;
+  createdAt?: string;
+  admin?: { id: number; email: string };
+}
+
+export interface ApiBranch {
+  id: number;
+  name: string;
+  city: string;
+  address: string;
+  phone?: string;
+  is_active?: boolean;
+}
+
 export interface ApiOrder {
   id: number;
   customerId?: number;
   status?: string;
   detail?: string;
   total?: number;
+  contactName?: string;
+  contactWhatsapp?: string;
+  deliveryWhatsapp?: string | null;
+  deliveryMode?: 'recojo_tienda' | 'envio_domicilio';
+  branchId?: number | null;
+  branch?: ApiBranch | null;
   customer?: ApiCustomer;
   createdAt?: string;
   updatedAt?: string;
   items?: ApiOrderItem[];
+  statusLogs?: ApiStatusLog[];
   [key: string]: unknown;
 }
 

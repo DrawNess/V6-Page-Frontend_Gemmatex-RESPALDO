@@ -68,7 +68,7 @@ export class CheckoutComponent {
 
     this.checkoutFlowService.saveDraft({
       orderId: 0,
-      branchId: 'lp',
+      branchId: null,
       customerName: '',
       customerPhone: '',
       notes: this.orderNotes().trim(),

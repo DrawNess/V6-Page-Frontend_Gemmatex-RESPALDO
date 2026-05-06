@@ -1,4 +1,5 @@
 import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
+import { concatMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ApiOrder } from '@shared/models/user-portal.model';
 import { OrderService } from '@shared/services/order.service';
@@ -213,7 +214,9 @@ export class OrdersAdminComponent implements OnDestroy {
       [...list.map(o => o.id === orderId ? { ...o, status: newStatus } : o)].sort(sortByPriorityThenDate)
     );
 
-    this.orderService.updateOrderStatus(orderId, newStatus).subscribe({
+    this.orderService.updateOrderStatus(orderId, newStatus).pipe(
+      concatMap(() => this.orderService.getOrderById(orderId))
+    ).subscribe({
       next: (updated) => {
         this.orders.update(list =>
           [...list.map(o => o.id === updated.id ? updated : o)].sort(sortByPriorityThenDate)

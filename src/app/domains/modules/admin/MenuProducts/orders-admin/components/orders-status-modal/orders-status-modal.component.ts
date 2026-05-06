@@ -1,7 +1,7 @@
-import { Component, effect, input, output, signal } from '@angular/core';
+import { Component, computed, effect, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiOrder } from '@shared/models/user-portal.model';
-import { ORDER_STATUSES } from '../../orders-admin.constants';
+import { ORDER_STATUSES, STATUS_TRANSITIONS } from '../../orders-admin.constants';
 import { getCustomerName, getTotal, statusMeta } from '../../orders-admin.helpers';
 
 @Component({
@@ -18,15 +18,25 @@ export class OrdersStatusModalComponent {
   confirmed = output<{ orderId: number; newStatus: string }>();
   cancelled = output<void>();
 
-  readonly statuses        = ORDER_STATUSES;
   readonly selectedStatus  = signal<string>('');
   readonly statusMeta      = statusMeta;
   readonly getCustomerName = getCustomerName;
   readonly getTotal        = getTotal;
 
+  readonly allowedStatuses = computed(() => {
+    const current = this.order().status ?? 'pendiente';
+    const allowed = STATUS_TRANSITIONS[current] ?? [];
+    return ORDER_STATUSES.filter(s => allowed.includes(s.value));
+  });
+
+  readonly isFinal = computed(() => {
+    const current = this.order().status ?? '';
+    return (STATUS_TRANSITIONS[current] ?? []).length === 0;
+  });
+
   constructor() {
     effect(() => {
-      this.selectedStatus.set(this.order().status ?? 'pendiente');
+      this.selectedStatus.set('');
     });
   }
 

@@ -27,5 +27,8 @@
 /* ── Page content area ─────────────────────────── */
 .admin-content {
   flex: 1;
-  overflow: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }

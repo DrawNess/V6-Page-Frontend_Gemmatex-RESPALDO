@@ -38,19 +38,23 @@
       <!-- Selector de nuevo estado -->
       <div>
         <p class="text-[10px] font-bold uppercase tracking-wide text-slate-400 mb-2">Nuevo estado</p>
-        <div class="grid grid-cols-2 gap-2">
-          @for (s of statuses; track s.value) {
-            <button type="button"
-                    class="flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 text-sm font-medium transition-all text-left"
-                    [class]="selectedStatus() === s.value
-                      ? s.color + ' border-current shadow-sm'
-                      : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'"
-                    (click)="selectedStatus.set(s.value)">
-              <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" [ngClass]="s.dot"></span>
-              {{ s.label }}
-            </button>
-          }
-        </div>
+        @if (isFinal()) {
+          <p class="text-sm text-slate-500 italic">Estado final — no admite más cambios.</p>
+        } @else {
+          <div class="grid grid-cols-2 gap-2">
+            @for (s of allowedStatuses(); track s.value) {
+              <button type="button"
+                      class="flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 text-sm font-medium transition-all text-left"
+                      [class]="selectedStatus() === s.value
+                        ? s.color + ' border-current shadow-sm'
+                        : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'"
+                      (click)="selectedStatus.set(s.value)">
+                <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" [ngClass]="s.dot"></span>
+                {{ s.label }}
+              </button>
+            }
+          </div>
+        }
       </div>
 
     </div>

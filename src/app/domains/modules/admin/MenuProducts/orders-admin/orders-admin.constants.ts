@@ -1,7 +1,7 @@
 import { ApiOrder } from '@shared/models/user-portal.model';
 
 export const ORDER_STATUSES = [
-  { value: 'pendiente',  label: 'Pendiente',  color: 'bg-yellow-100 text-yellow-800 border-yellow-300', dot: 'bg-yellow-500' },
+  { value: 'pendiente',  label: 'Pendiente',  color: 'bg-orange-50 text-orange-700 border-orange-300',   dot: 'bg-orange-500' },
   { value: 'confirmado', label: 'Confirmado', color: 'bg-blue-100 text-blue-800 border-blue-300',       dot: 'bg-blue-500' },
   { value: 'en_curso',   label: 'En curso',   color: 'bg-indigo-100 text-indigo-800 border-indigo-300', dot: 'bg-indigo-500' },
   { value: 'enviado',    label: 'Enviado',    color: 'bg-purple-100 text-purple-800 border-purple-300', dot: 'bg-purple-500' },
@@ -13,6 +13,15 @@ export type OrderStatus = typeof ORDER_STATUSES[number]['value'];
 
 export const STATUS_PRIORITY: Record<string, number> = {
   pendiente: 0, confirmado: 1, en_curso: 2, enviado: 3, entregado: 4, cancelado: 5,
+};
+
+export const STATUS_TRANSITIONS: Record<string, string[]> = {
+  pendiente:  ['confirmado', 'cancelado'],
+  confirmado: ['en_curso',   'cancelado'],
+  en_curso:   ['enviado',    'cancelado'],
+  enviado:    ['entregado',  'cancelado'],
+  entregado:  [],
+  cancelado:  [],
 };
 
 export const THRESHOLDS: Record<string, { warn: number; danger: number }> = {

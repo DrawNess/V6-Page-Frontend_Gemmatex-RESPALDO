@@ -25,8 +25,10 @@ export class OrdersMasterComponent {
     const q = this.searchText().trim().toLowerCase();
     return this.orders().filter(o => {
       if (!q) return true;
-      const name = getCustomerName(o).toLowerCase();
-      return String(o.id).includes(q) || name.includes(q);
+      const name    = getCustomerName(o).toLowerCase();
+      const contact = (o.contactName ?? '').toLowerCase();
+      const phone   = (o.contactWhatsapp ?? '').toLowerCase();
+      return String(o.id).includes(q) || name.includes(q) || contact.includes(q) || phone.includes(q);
     });
   });
 

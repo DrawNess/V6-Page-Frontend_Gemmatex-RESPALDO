@@ -29,9 +29,16 @@
           <div class="row-name">{{ getCustomerName(order) }}</div>
           <div class="row-bottom">
             <span class="row-amount">Bs {{ getTotal(order) | number:'1.2-2' }}</span>
-            <span class="row-status" [ngClass]="statusMeta(order.status).color">
-              {{ statusMeta(order.status).label }}
-            </span>
+            <div class="row-badges">
+              @if (order.deliveryMode) {
+                <span class="row-delivery" [class.row-delivery-pickup]="order.deliveryMode === 'recojo_tienda'">
+                  {{ order.deliveryMode === 'recojo_tienda' ? 'Recojo' : 'Envío' }}
+                </span>
+              }
+              <span class="row-status" [ngClass]="statusMeta(order.status).color">
+                {{ statusMeta(order.status).label }}
+              </span>
+            </div>
           </div>
 
         </button>
