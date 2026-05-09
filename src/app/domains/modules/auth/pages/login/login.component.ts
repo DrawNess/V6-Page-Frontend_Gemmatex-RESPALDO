@@ -82,20 +82,22 @@ export class LoginComponent implements OnInit {
       .subscribe({
         next: () => {
           this.status = 'success';
-          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-          const role = this.tokenService.getRoleFromToken()?.toLowerCase();
+          const PANEL_ROLES = ['admin', 'branch_admin', 'seller', 'staff'];
+          const roles = this.tokenService.getRolesFromToken().map(r => r.toLowerCase());
+          const isPanelUser = roles.some(r => PANEL_ROLES.includes(r));
 
-          if (returnUrl) {
+          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+          if (returnUrl && !isPanelUser) {
             this.router.navigateByUrl(returnUrl);
             return;
           }
 
-          if (role === 'admin') {
-            this.router.navigate([`${ROUTE_CONSTANTS.SECRET_BASE}/${ROUTE_CONSTANTS.ADMIN.MENU}`]);
+          if (isPanelUser) {
+            void this.router.navigateByUrl(`/${ROUTE_CONSTANTS.SECRET_BASE}/${ROUTE_CONSTANTS.ADMIN.MENU}`);
             return;
           }
 
-          this.router.navigate([`/${ROUTE_CONSTANTS.USER.BASE}`]);
+          void this.router.navigateByUrl(`/${ROUTE_CONSTANTS.USER.BASE}`);
         },
         error: (err) => {
           this.status = 'failed';

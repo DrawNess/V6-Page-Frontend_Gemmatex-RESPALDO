@@ -52,11 +52,12 @@ export class OrderService {
     );
   }
 
-  getOrders(params?: { status?: string; page?: number; pageSize?: number }): Observable<ApiOrder[]> {
+  getOrders(params?: { status?: string; customerId?: number; page?: number; pageSize?: number }): Observable<ApiOrder[]> {
     const query: Record<string, string> = {};
-    if (params?.status)   query['status']   = params.status;
-    if (params?.page)     query['page']     = String(params.page);
-    if (params?.pageSize) query['pageSize'] = String(params.pageSize);
+    if (params?.status)     query['status']     = params.status;
+    if (params?.customerId) query['customerId'] = String(params.customerId);
+    if (params?.page)       query['page']       = String(params.page);
+    if (params?.pageSize)   query['pageSize']   = String(params.pageSize);
 
     return this.http.get<ApiOrder[] | ApiPaginatedResponse<ApiOrder> | { data?: ApiOrder[]; orders?: ApiOrder[] }>(
       `${this.apiUrl}/orders`, { params: query }

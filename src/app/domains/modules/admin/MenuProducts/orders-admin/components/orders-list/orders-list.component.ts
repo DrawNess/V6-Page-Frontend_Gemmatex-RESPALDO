@@ -1,4 +1,4 @@
-import { Component, computed, effect, input, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiOrder } from '@shared/models/user-portal.model';
@@ -8,6 +8,8 @@ import {
   rowUrgency, statusMeta, timeAgo,
 } from '../../orders-admin.helpers';
 import { OrderDetailPanelComponent } from '../order-detail-panel/order-detail-panel.component';
+import { BranchCacheService } from '@shared/services/branch-cache.service';
+import { TokenService } from '@shared/services/token.service';
 
 @Component({
   selector: 'app-orders-list',
@@ -29,9 +31,17 @@ export class OrdersListComponent {
   refreshRequested = output<void>();
   openStatusModal  = output<ApiOrder>();
 
-  readonly statuses    = ORDER_STATUSES;
-  readonly searchText  = signal('');
-  readonly expandedId  = signal<number | null>(null);
+  private readonly branchCache = inject(BranchCacheService);
+  private readonly tokenService = inject(TokenService);
+
+  readonly statuses      = ORDER_STATUSES;
+  readonly searchText    = signal('');
+  readonly expandedId    = signal<number | null>(null);
+  readonly showCityCol   = this.tokenService.hasRole('admin');
+
+  getBranchCity(order: ApiOrder): string {
+    return order.branch?.city ?? this.branchCache.getCityById(order.branchId as number) ?? '—';
+  }
 
   readonly filtered = computed(() => {
     const q = this.searchText().trim().toLowerCase();

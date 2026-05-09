@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
 import { adminGuard } from '@core/guards/admin.guard';
+import { panelGuard } from '@core/guards/panel.guard';
 import { AdminLayoutComponent } from './domains/modules/admin/admin-layout/admin-layout.component';
 
 const SECRET_BASE = ROUTE_CONSTANTS.SECRET_BASE;
@@ -8,8 +9,8 @@ const SECRET_BASE = ROUTE_CONSTANTS.SECRET_BASE;
 export const adminRoutes: Routes = [
   {
     path: SECRET_BASE,
-    canActivate: [adminGuard],
-    canActivateChild: [adminGuard],
+    canActivate: [panelGuard],
+    canActivateChild: [panelGuard],
     component: AdminLayoutComponent,
     children: [
       // Redirect a productos por defecto
@@ -38,10 +39,49 @@ export const adminRoutes: Routes = [
       },
       {
         path: ROUTE_CONSTANTS.ADMIN.USERS,
+        canActivate: [adminGuard],
         loadComponent: () =>
           import('./domains/modules/admin/MenuProducts/users-management/users-management.component').then(
             m => m.UsersManagementComponent
-          )
+          ),
+        children: [
+          { path: '', redirectTo: 'admins', pathMatch: 'full' },
+          {
+            path: 'admins',
+            loadComponent: () =>
+              import('./domains/modules/admin/MenuProducts/users-management/components/admins-list/admins-list.component').then(
+                m => m.AdminsListComponent
+              )
+          },
+          {
+            path: 'admins/:userId',
+            loadComponent: () =>
+              import('./domains/modules/admin/MenuProducts/users-management/components/admin-profile/admin-profile.component').then(
+                m => m.AdminProfileComponent
+              )
+          },
+          {
+            path: 'customers',
+            loadComponent: () =>
+              import('./domains/modules/admin/MenuProducts/users-management/components/customers-list/customers-list.component').then(
+                m => m.CustomersListComponent
+              )
+          },
+          {
+            path: 'customers/:customerId',
+            loadComponent: () =>
+              import('./domains/modules/admin/MenuProducts/users-management/components/customer-profile/customer-profile.component').then(
+                m => m.CustomerProfileComponent
+              )
+          },
+          {
+            path: 'customers/:customerId/orders',
+            loadComponent: () =>
+              import('./domains/modules/admin/MenuProducts/users-management/components/customer-orders/customer-orders.component').then(
+                m => m.CustomerOrdersComponent
+              )
+          }
+        ]
       },
       {
         path: ROUTE_CONSTANTS.ADMIN.ORDERS_BY_CUSTOMER,

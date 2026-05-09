@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '@environments/environment';
 import { Observable, of, switchMap, throwError } from 'rxjs';
-import { ApiUser } from '@shared/models/user-portal.model';
+import { ApiUser, ApiRole, ApiUserRole } from '@shared/models/user-portal.model';
 import { TokenService } from './token.service';
 import { SessionService } from './session.service';
 import { ProfileService } from './profile.service';
@@ -11,7 +11,11 @@ import { catchError, map } from 'rxjs/operators';
 interface CreateUserPayload {
   email: string;
   password: string;
-  role?: string;
+}
+
+interface AssignRolePayload {
+  roleId: number;
+  branchId: number | null;
 }
 
 @Injectable({
@@ -49,9 +53,25 @@ export class UserService {
 
   updateUser(
     userId: number,
-    payload: Partial<Pick<ApiUser, 'email' | 'role' | 'isEmailVerified'>>
+    payload: Partial<Pick<ApiUser, 'email' | 'isEmailVerified'>>
   ): Observable<ApiUser> {
     return this.http.patch<ApiUser>(`${this.apiUrl}/users/${userId}`, payload);
+  }
+
+  getRoles(): Observable<ApiRole[]> {
+    return this.http.get<ApiRole[]>(`${this.apiUrl}/roles`);
+  }
+
+  getUserRoles(userId: number): Observable<ApiUserRole[]> {
+    return this.http.get<ApiUserRole[]>(`${this.apiUrl}/users/${userId}/roles`);
+  }
+
+  assignRole(userId: number, payload: AssignRolePayload): Observable<ApiUserRole> {
+    return this.http.post<ApiUserRole>(`${this.apiUrl}/users/${userId}/roles`, payload);
+  }
+
+  revokeRole(userId: number, userRoleId: number): Observable<{ id: number; message: string }> {
+    return this.http.delete<{ id: number; message: string }>(`${this.apiUrl}/users/${userId}/roles/${userRoleId}`);
   }
 
   deleteUser(userId: number): Observable<void> {

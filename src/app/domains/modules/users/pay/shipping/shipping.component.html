@@ -219,10 +219,12 @@
             </div>
           </div>
 
-          <!-- Sucursales (solo recojo en tienda) -->
-          @if (deliveryMode() === 'recojo_tienda') {
+          <!-- Sucursal de coordinación (siempre requerida) -->
           <div>
-            <p class="mb-2 text-sm font-semibold text-slate-700">Sucursal de referencia</p>
+            <p class="mb-2 text-sm font-semibold text-slate-700">
+              @if (deliveryMode() === 'recojo_tienda') { Sucursal de recojo }
+              @else { ¿Con qué sucursal quieres coordinar tu pedido? }
+            </p>
             @if (branchesLoading()) {
               <div class="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
                 <svg class="w-4 h-4 animate-spin text-slate-400" fill="none" viewBox="0 0 24 24">
@@ -249,7 +251,6 @@
               </label>
             </div>
           </div>
-          } <!-- end @if recojo_tienda -->
 
           <!-- Notas adicionales para coordinación -->
           <label class="block">

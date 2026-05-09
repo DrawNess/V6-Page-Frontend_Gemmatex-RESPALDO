@@ -4,7 +4,7 @@ import { AuthUser } from '@shared/models/auth.model';
 interface SessionState {
   userId?: number;
   email?: string;
-  role?: string;
+  roles?: string[];
   customerId?: number;
 }
 
@@ -58,11 +58,16 @@ export class SessionService {
     const session = this.readSession();
     const customerId = userId ? this.getCustomerIdForUser(userId) : null;
 
+    const roles: string[] | undefined =
+      Array.isArray(user?.roles) ? user!.roles as string[] :
+      typeof user?.role === 'string' ? [user.role] :
+      undefined;
+
     this.writeSession({
       ...session,
       userId: userId ?? undefined,
       email: typeof user?.email === 'string' ? user.email : undefined,
-      role: typeof user?.role === 'string' ? user.role : undefined,
+      roles,
       customerId: customerId ?? undefined,
     });
   }

@@ -20,7 +20,7 @@ export function getItemVariantId(item: ApiOrderItem): number | null {
 }
 
 export function getItemName(item: ApiOrderItem): string {
-  return String(item.description ?? item.shortDescription ?? item.name ?? item.sku ?? `Variante #${getItemVariantId(item) ?? '-'}`);
+  return String(item.shortDescription ?? item.name ?? item.sku ?? `Variante #${getItemVariantId(item) ?? '-'}`);
 }
 
 export function getItemDescription(item: ApiOrderItem): string | null {

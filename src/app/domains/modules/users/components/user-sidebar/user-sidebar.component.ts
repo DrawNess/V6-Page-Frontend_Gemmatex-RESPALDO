@@ -69,7 +69,8 @@ export class UserSidebarComponent implements OnInit {
   }
 
   maskedRole(): string {
-    return this.user?.role === 'admin' ? 'Admin' : 'Cliente';
+    const roles = this.user?.roles ?? (this.user?.role ? [this.user.role] : []);
+    return roles.includes('admin') ? 'Admin' : 'Cliente';
   }
 
   logout(): void {

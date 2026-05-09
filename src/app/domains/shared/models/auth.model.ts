@@ -1,7 +1,10 @@
 export interface AuthUser {
   id?: number | string;
   email?: string;
+  /** @deprecated — backend now returns roles[] */
   role?: string;
+  roles?: string[];
+  branches?: number[];
   [key: string]: unknown;
 }
 

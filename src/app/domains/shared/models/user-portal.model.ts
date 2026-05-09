@@ -1,7 +1,25 @@
+export interface ApiRole {
+  id: number;
+  slug: string;
+  name: string;
+}
+
+export interface ApiUserRole {
+  id: number;
+  userId: number;
+  roleId: number;
+  branchId: number | null;
+  role: ApiRole;
+  branch?: ApiBranch | null;
+}
+
 export interface ApiUser {
   id: number;
   email: string;
-  role: string;
+  /** @deprecated — use userRoles[] after API-V6 */
+  role?: string;
+  roles?: string[];
+  userRoles?: ApiUserRole[];
   isEmailVerified?: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -44,6 +62,11 @@ export interface ApiOrderItem {
   name?: string;
   brand?: string;
   imageUrl?: string;
+  galleryUrls?: string[];
+  unitOfMeasure?: string;
+  dimensions?: string;
+  tags?: string[];
+  outlet?: boolean;
   variantId?: number;
   amount?: number;
   orderId?: number;

@@ -15,14 +15,14 @@
   <!-- User info -->
   <div class="sidebar-user">
     <div class="label-text min-w-0">
-      <!-- <p class="text-slate-600 text-xs truncate">{{ adminEmail }}</p> -->
       <p class="text-slate-400 text-[15px] uppercase mt-0.5">{{ adminRole }}</p>
+      <p class="text-slate-500 text-[11px] truncate mt-0.5">{{ branchScopeCities }}</p>
     </div>
   </div>
 
   <!-- Navigation -->
   <nav class="sidebar-nav">
-    <div *ngFor="let section of nav" class="nav-section">
+    <div *ngFor="let section of visibleNav" class="nav-section">
       <!-- Section header -->
       <div class="section-header">
         <span class="label-text text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ section.title }}</span>

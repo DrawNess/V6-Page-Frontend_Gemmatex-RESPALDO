@@ -38,8 +38,8 @@
       <section class="detail-section">
         <h3 class="section-label">Cliente</h3>
         <p class="detail-customer-name">{{ getCustomerName(order()!) }}</p>
-        @if (order()!.customer?.email) {
-          <p class="detail-meta">{{ order()!.customer?.email }}</p>
+        @if (order()!.customer?.user?.email ?? order()!.customer?.email; as email) {
+          <p class="detail-meta">{{ email }}</p>
         }
         @if (getCustomerPhone(order()!); as phone) {
           <a [href]="'tel:' + phone" class="detail-meta detail-link">{{ phone }}</a>
@@ -127,11 +127,15 @@
                        class="w-10 h-10 rounded-lg object-cover border border-slate-100 flex-shrink-0 bg-slate-50" />
                 }
                 <div class="item-info">
-                  <span class="item-name">{{ item.sku ?? getItemName(item) }}</span>
-                  @if (item.sku && item.description) {
-                    <span class="item-desc">{{ item.description }}</span>
-                  } @else if (item.sku && item.shortDescription) {
-                    <span class="item-desc">{{ item.shortDescription }}</span>
+                  <span class="item-name">{{ getItemName(item) }}</span>
+                  @if (item.brand) {
+                    <span class="item-desc" style="font-weight:500">{{ item.brand }}</span>
+                  }
+                  @if (item.sku) {
+                    <span class="item-desc">{{ item.sku }}
+                      @if (item.unitOfMeasure) { · {{ item.unitOfMeasure }} }
+                      @if (item.dimensions) { · {{ item.dimensions }} }
+                    </span>
                   }
                 </div>
                 <span class="item-qty">×{{ getItemAmount(item) }}</span>

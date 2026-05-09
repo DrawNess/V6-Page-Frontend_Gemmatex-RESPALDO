@@ -226,10 +226,9 @@ export class ShippingComponent {
       return;
     }
 
-    const isPickup = this.deliveryMode() === 'recojo_tienda';
     const branch = this.selectedBranch();
-    if (isPickup && !branch) {
-      this.errorMsg.set('Selecciona una sucursal.');
+    if (!branch) {
+      this.errorMsg.set('Selecciona una sucursal para coordinar tu pedido.');
       return;
     }
 
@@ -249,7 +248,7 @@ export class ShippingComponent {
       contactName: this.customerName().trim(),
       contactWhatsapp: this.customerPhone().trim(),
       deliveryMode: this.deliveryMode(),
-      branchId: isPickup ? (this.selectedBranchId() ?? undefined) : undefined,
+      branchId: this.selectedBranchId() ?? undefined,
       deliveryWhatsapp: this.deliveryPhone().trim() || undefined,
       detail: this.orderNotes().trim() || undefined,
     };

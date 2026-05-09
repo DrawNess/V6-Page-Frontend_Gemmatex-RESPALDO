@@ -6,7 +6,7 @@ import { userRoutes } from './app.routes.user';
 import { adminRoutes } from './app.routes.admin';
 import { LayoutComponent } from '@shared/components/layout/layout.component';
 import { AuthGuard } from './guards/auth.guard';
-import { adminGuard } from '@core/guards/admin.guard';
+import { panelGuard } from '@core/guards/panel.guard';
 
 export const routes: Routes = [
   {
@@ -21,7 +21,7 @@ export const routes: Routes = [
   },
   {
     path: '',
-    canActivateChild: [AuthGuard, adminGuard],
+    canActivateChild: [AuthGuard, panelGuard],
     children: [...adminRoutes]
   },
   {

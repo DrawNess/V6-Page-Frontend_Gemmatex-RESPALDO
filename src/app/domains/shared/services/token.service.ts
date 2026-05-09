@@ -3,7 +3,10 @@ import { getCookie, setCookie, removeCookie } from 'typescript-cookie'
 
 interface JwtPayload {
   sub?: number | string;
+  /** @deprecated — API-V6: use roles[] */
   role?: string;
+  roles?: string[];
+  branches?: number[];
   exp?: number;
   iat?: number;
   [key: string]: unknown;
@@ -48,9 +51,26 @@ export class TokenService {
     }
   }
 
-  getRoleFromToken(): string | null {
+  getRolesFromToken(): string[] {
     const payload = this.parsePayload();
-    return typeof payload?.role === 'string' ? payload.role : null;
+    if (Array.isArray(payload?.roles)) return payload!.roles as string[];
+    if (typeof payload?.role === 'string') return [payload.role];
+    return [];
+  }
+
+  hasRole(role: string): boolean {
+    return this.getRolesFromToken().map(r => r.toLowerCase()).includes(role.toLowerCase());
+  }
+
+  getBranchesFromToken(): number[] {
+    const payload = this.parsePayload();
+    return Array.isArray(payload?.branches) ? (payload!.branches as number[]) : [];
+  }
+
+  /** @deprecated — use getRolesFromToken() or hasRole() */
+  getRoleFromToken(): string | null {
+    const roles = this.getRolesFromToken();
+    return roles[0] ?? null;
   }
 
   getUserIdFromToken(): number | null {

@@ -68,6 +68,9 @@
               <th class="px-4 py-3 text-left font-semibold text-slate-600 w-16">#</th>
               <th class="px-4 py-3 text-left font-semibold text-slate-600">Cliente</th>
               <th class="px-4 py-3 text-left font-semibold text-slate-600">Estado</th>
+              @if (showCityCol) {
+                <th class="px-4 py-3 text-left font-semibold text-slate-600">Ciudad</th>
+              }
               <th class="px-4 py-3 text-right font-semibold text-slate-600">Total</th>
               <th class="px-4 py-3 text-left font-semibold text-slate-600">Tiempo</th>
               <th class="px-4 py-3 text-center font-semibold text-slate-600 w-16">Items</th>
@@ -116,6 +119,13 @@
                     {{ statusMeta(order.status).label }}
                   </span>
                 </td>
+
+                <!-- City (admin global only) -->
+                @if (showCityCol) {
+                  <td class="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">
+                    {{ getBranchCity(order) }}
+                  </td>
+                }
 
                 <!-- Total -->
                 <td class="px-4 py-3 text-right font-semibold text-slate-800 whitespace-nowrap">

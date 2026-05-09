@@ -8,6 +8,7 @@ import { ResponseLogin, RegisterCustomerDTO } from '@shared/models/auth.model';
 import { SessionService } from './session.service';
 import { ProfileService } from './profile.service';
 import { CartService } from './cart.service';
+import { BranchCacheService } from './branch-cache.service';
 
 
 
@@ -33,7 +34,8 @@ export class AuthService {
     private tokenService: TokenService,
     private sessionService: SessionService,
     private profileService: ProfileService,
-    private cartService: CartService
+    private cartService: CartService,
+    private branchCache: BranchCacheService
   ){}
 
   login( email: string, password: string ) {
@@ -49,9 +51,17 @@ export class AuthService {
         }
         this.sessionService.saveLogin(response.user);
         this.cartService.syncWithCurrentSession();
+        this.branchCache.load();
       }),
-      switchMap((response) =>
-        this.profileService.getMe().pipe(
+      switchMap((response) => {
+        // Panel users don't have a customer profile — skip getMe() to avoid 401 wiping the token
+        const PANEL_ROLES = ['admin', 'branch_admin', 'seller', 'staff'];
+        const roles = this.tokenService.getRolesFromToken().map(r => r.toLowerCase());
+        if (roles.some(r => PANEL_ROLES.includes(r))) {
+          return of(response);
+        }
+
+        return this.profileService.getMe().pipe(
           tap((me) => {
             if (Number(me?.userId) > 0 && Number(me?.customerId) > 0) {
               this.sessionService.saveIdentity(me.userId, me.customerId);
@@ -60,8 +70,8 @@ export class AuthService {
           }),
           map(() => response),
           catchError(() => of(response))
-        )
-      )
+        );
+      })
     )
   }
 
@@ -98,6 +108,7 @@ export class AuthService {
     this.cartService.syncWithCurrentSession();
     this.tokenService.removeToken();
     this.sessionService.clearSession();
+    this.branchCache.clear();
     this.cartService.syncWithCurrentSession();
   }
 }
