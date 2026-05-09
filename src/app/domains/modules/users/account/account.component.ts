@@ -6,11 +6,9 @@ import { CustomerService } from '@shared/services/customer.service';
 import { ApiCustomer, ApiUser } from '@shared/models/user-portal.model';
 import { catchError, forkJoin, of } from 'rxjs';
 import { finalize } from 'rxjs/operators';
-import { UserSidebarComponent } from '../components/user-sidebar/user-sidebar.component';
-
 @Component({
   selector: 'app-account',
-  imports: [RouterLink, UserSidebarComponent],
+  imports: [RouterLink],
   templateUrl: './account.component.html',
   styleUrl: './account.component.css',
 })

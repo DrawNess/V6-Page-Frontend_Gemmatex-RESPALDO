@@ -4,8 +4,8 @@ import { RouterLink } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
 import { ApiCustomer, ApiOrder, ApiOrderItem } from '@shared/models/user-portal.model';
-import { OrderService } from '@shared/services/order.service';
 import { CustomerService } from '@shared/services/customer.service';
+import { ProfileService } from '@shared/services/profile.service';
 
 interface OrderDetailCache {
   loading: boolean;
@@ -42,7 +42,7 @@ export class OrdersComponent implements OnInit {
   detailCache = new Map<number, OrderDetailCache>();
 
   constructor(
-    private readonly orderService: OrderService,
+    private readonly profileService: ProfileService,
     private readonly customerService: CustomerService
   ) {}
 
@@ -63,7 +63,7 @@ export class OrdersComponent implements OnInit {
     this.loading = true;
     this.errorMsg = '';
 
-    this.orderService.getMyOrders().subscribe({
+    this.profileService.getMyOrders().subscribe({
       next: (orders) => {
         this.orders = [...(orders ?? [])].sort((a, b) => {
           const aTime = new Date(a.createdAt ?? 0).getTime();
@@ -110,11 +110,15 @@ export class OrdersComponent implements OnInit {
 
     this.detailCache.set(order.id, { loading: true, items: [], fetched: false });
 
-    this.orderService.getOrderById(order.id).pipe(
+    this.profileService.getMyOrderById(order.id).pipe(
       catchError(() => of(null))
     ).subscribe(detail => {
       const items = detail ? this.extractItems(detail) : [];
       this.detailCache.set(order.id, { loading: false, items, fetched: true });
+      // Hidrata selectedOrder con full payload para mostrar más detalles
+      if (detail && this.selectedOrderId === order.id) {
+        this.selectedOrder = { ...order, ...detail };
+      }
     });
   }
 
@@ -132,8 +136,26 @@ export class OrdersComponent implements OnInit {
   }
 
   getCustomerFullName(): string {
+    const fromOrders = this.orders[0]?.customerName?.trim();
+    if (fromOrders) return fromOrders;
     const fullName = `${this.customer?.name ?? ''} ${this.customer?.lastName ?? ''}`.trim();
     return fullName || 'Cliente';
+  }
+
+  getOrderContactName(order: ApiOrder | null): string {
+    return order?.contact?.name ?? order?.contactName ?? '—';
+  }
+
+  getOrderContactWhatsapp(order: ApiOrder | null): string | null {
+    return order?.contact?.whatsapp ?? order?.contactWhatsapp ?? null;
+  }
+
+  getOrderBranch(order: ApiOrder | null) {
+    return order?.delivery?.branch ?? order?.branch ?? null;
+  }
+
+  getItemBrand(item: ApiOrderItem): string {
+    return String(item.product?.brand ?? item.brand ?? '');
   }
 
   getOrderItems(order: ApiOrder | null): ApiOrderItem[] {
@@ -154,15 +176,18 @@ export class OrdersComponent implements OnInit {
   }
 
   getItemName(item: ApiOrderItem): string {
-    const product = (item as any).product ?? (item as any).Product ?? null;
-    // 1. Nombre del producto (relación anidada)
-    const name = product?.name ?? (item as any).name ?? null;
+    // 1. Nombre del producto (relación anidada nueva shape)
+    const name = item.product?.name ?? (item as any).name ?? null;
     if (typeof name === 'string' && name.trim()) return name;
-    // 2. Descripción corta de la variante (máx 80 chars)
-    const desc = String((item as any).description ?? '').trim();
+    // 2. Descripción corta de la variante
+    const desc = String(item.shortDescription ?? item.description ?? '').trim();
     if (desc) return desc.length > 80 ? desc.slice(0, 77) + '…' : desc;
     // 3. SKU como último recurso
     return item.sku ?? `Variante #${item.variantId ?? '-'}`;
+  }
+
+  getItemVariantSubtitle(item: ApiOrderItem): string {
+    return String(item.shortDescription ?? '').trim();
   }
 
   getItemAmount(item: ApiOrderItem): number {
@@ -218,5 +243,30 @@ export class OrdersComponent implements OnInit {
     if (this.orders.length && !this.selectedOrderId) {
       this.toggleDetail(this.orders[0]);
     }
+  }
+
+  getOrderItemsCount(order: ApiOrder | null): number {
+    return this.getOrderItems(order).reduce((sum, item) => sum + this.getItemAmount(item), 0);
+  }
+
+  getDeliveryLabel(order: ApiOrder | null): string {
+    const mode = order?.delivery?.mode ?? order?.deliveryMode;
+    if (!mode) return '—';
+    return mode === 'recojo_tienda' ? 'Recojo en tienda' : 'Envío a domicilio';
+  }
+
+  getStatusLogs(order: ApiOrder | null): Array<{ id: number; toStatus: string; fromStatus: string | null; note?: string | null; createdAt?: string; admin?: { email: string } }> {
+    const raw = (order as any)?.statusLogs ?? [];
+    return Array.isArray(raw) ? raw : [];
+  }
+
+  getDeliveryWhatsapp(order: ApiOrder | null): string | null {
+    return order?.delivery?.whatsapp ?? order?.deliveryWhatsapp ?? null;
+  }
+
+  getOrderBranchLabel(order: ApiOrder | null): string {
+    const b = this.getOrderBranch(order);
+    if (!b) return 'Sin sucursal asignada';
+    return b.city ? `${b.name} · ${b.city}` : b.name;
   }
 }

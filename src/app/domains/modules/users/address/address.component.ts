@@ -1,15 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { CustomerService } from '@shared/services/customer.service';
 import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
 import { ApiCustomer } from '@shared/models/user-portal.model';
-import { UserSidebarComponent } from '../components/user-sidebar/user-sidebar.component';
 
 @Component({
   selector: 'app-address',
-  imports: [NgClass, ReactiveFormsModule, RouterLink, UserSidebarComponent],
+  imports: [NgClass, ReactiveFormsModule],
   templateUrl: './address.component.html',
   styleUrl: './address.component.css',
 })

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { catchError, forkJoin, of } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
@@ -9,14 +9,12 @@ import { CustomerService } from '@shared/services/customer.service';
 import { UserService } from '@shared/services/user.service';
 import { ApiCustomer, ApiUser } from '@shared/models/user-portal.model';
 import { AuthService } from '@shared/services/auth.service';
-import { UserSidebarComponent } from '../components/user-sidebar/user-sidebar.component';
-
 type NullableCustomer = ApiCustomer | null;
 type CustomerWithEmail = ApiCustomer & { email?: string };
 
 @Component({
   selector: 'app-info-account',
-  imports: [NgClass, ReactiveFormsModule, RouterLink, UserSidebarComponent],
+  imports: [NgClass, ReactiveFormsModule],
   templateUrl: './info-account.component.html',
   styleUrl: './info-account.component.css',
 })

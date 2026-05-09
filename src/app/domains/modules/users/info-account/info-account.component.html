@@ -1,181 +1,118 @@
-<div class="min-h-screen bg-[#f2f2f7]">
-  <main class="mx-auto w-full max-w-6xl px-4 py-8">
+<div>
+  <!-- Header -->
+  <div class="flex items-baseline justify-between px-6 py-5 border-b border-slate-200">
+    <div>
+      <h1 class="text-lg font-semibold text-slate-900 tracking-tight">Información de cuenta</h1>
+      <p class="text-[11px] uppercase tracking-widest text-slate-400 mt-0.5">Datos editables</p>
+    </div>
+  </div>
 
-    <!-- Header -->
-    <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
-      <div>
-        <h1 class="text-2xl font-extrabold text-slate-900">Información de cuenta</h1>
-        <p class="mt-0.5 text-sm text-slate-500">Actualiza correo, nombre y teléfono.</p>
+  @if (loading) {
+    <div class="px-6 py-12 text-center text-sm text-slate-400">Cargando información…</div>
+  }
+
+  @if (errorMsg) {
+    <div class="border-b border-red-200 bg-red-50 px-6 py-3">
+      <p class="text-xs font-medium text-red-700">{{ errorMsg }}</p>
+    </div>
+  }
+
+  @if (successMsg) {
+    <div class="border-b border-emerald-200 bg-emerald-50 px-6 py-3">
+      <p class="text-xs font-medium text-emerald-800">{{ successMsg }}</p>
+    </div>
+  }
+
+  @if (!loading) {
+    <form class="px-6 py-6 grid gap-4 md:grid-cols-2" [formGroup]="form" (ngSubmit)="saveChanges()">
+
+      <label class="block text-sm font-medium text-slate-600 md:col-span-2">
+        Correo
+        <input type="email" readonly [disabled]="true" formControlName="email"
+               class="mt-1.5 w-full rounded-md border border-slate-200 px-3.5 py-2.5 bg-slate-50 text-slate-500 cursor-not-allowed text-sm" />
+        <p class="mt-2 text-xs text-slate-400 leading-relaxed">
+          Para cambiar el correo escríbenos a
+          <a href="mailto:sistemas@gemmatex.com.bo" class="font-semibold text-blue-600 hover:underline">sistemas@gemmatex.com.bo</a>.
+        </p>
+      </label>
+
+      <label class="block text-sm font-medium text-slate-600">
+        Nombre
+        <input type="text" formControlName="name"
+               class="mt-1.5 w-full rounded-md border px-3.5 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+               [class.border-red-300]="form.controls.name.invalid && form.controls.name.touched"
+               [class.border-slate-200]="!(form.controls.name.invalid && form.controls.name.touched)" />
+        @if (form.controls.name.invalid && form.controls.name.touched) {
+          <p class="mt-1 text-xs text-red-600">Escribe tu nombre (mín. 2 caracteres).</p>
+        }
+      </label>
+
+      <label class="block text-sm font-medium text-slate-600">
+        Apellido
+        <input type="text" formControlName="lastName"
+               class="mt-1.5 w-full rounded-md border px-3.5 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+               [class.border-red-300]="form.controls.lastName.invalid && form.controls.lastName.touched"
+               [class.border-slate-200]="!(form.controls.lastName.invalid && form.controls.lastName.touched)" />
+        @if (form.controls.lastName.invalid && form.controls.lastName.touched) {
+          <p class="mt-1 text-xs text-red-600">Escribe tu apellido (mín. 2 caracteres).</p>
+        }
+      </label>
+
+      <label class="block text-sm font-medium text-slate-600 md:col-span-2">
+        Teléfono
+        <input type="tel" formControlName="phone"
+               class="mt-1.5 w-full rounded-md border px-3.5 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+               [class.border-red-300]="form.controls.phone.invalid && form.controls.phone.touched"
+               [class.border-slate-200]="!(form.controls.phone.invalid && form.controls.phone.touched)" />
+        @if (form.controls.phone.invalid && form.controls.phone.touched) {
+          <p class="mt-1 text-xs text-red-600">Incluye un teléfono válido (mín. 7 dígitos).</p>
+        }
+      </label>
+
+      <div class="md:col-span-2 flex flex-wrap gap-2 pt-2 border-t border-slate-100 mt-2">
+        <button type="submit" [disabled]="saving || loading"
+                class="inline-flex items-center gap-2 rounded-md bg-blue-600 px-5 py-2.5 text-[13px] font-semibold text-white hover:bg-blue-700 disabled:opacity-50">
+          {{ saving ? 'Guardando…' : 'Guardar cambios' }}
+        </button>
+
+        <button type="button" (click)="goToPasswordRecovery()" [disabled]="passwordLoading"
+                class="inline-flex items-center gap-2 rounded-md bg-slate-100 px-5 py-2.5 text-[13px] font-semibold text-slate-700 hover:bg-slate-200 disabled:opacity-50">
+          {{ passwordLoading ? 'Enviando…' : 'Cambiar contraseña' }}
+        </button>
       </div>
-      <a [routerLink]="accountPath"
-         class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 transition-colors shadow-sm">
-        Volver
-      </a>
-    </div>
+    </form>
+  }
 
-    <div class="grid gap-5 lg:grid-cols-[320px_1fr]">
-
-      <app-user-sidebar />
-
-      <!-- Content -->
-      <section class="space-y-4">
-
-        @if (loading) {
-          <div class="rounded-2xl bg-white px-5 py-4 shadow-sm text-sm text-slate-500 animate-pulse">
-            Cargando información…
-          </div>
-        }
-
-        @if (errorMsg) {
-          <div class="rounded-2xl border border-red-100 bg-red-50 px-5 py-4 text-sm text-red-700">
-            {{ errorMsg }}
-          </div>
-        }
-
-        @if (successMsg) {
-          <div class="rounded-2xl border border-emerald-100 bg-emerald-50 px-5 py-4 text-sm text-emerald-800">
-            {{ successMsg }}
-          </div>
-        }
-
-        <div class="rounded-2xl bg-white shadow-sm overflow-hidden">
-          <div class="px-5 py-5 border-b border-slate-100">
-            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Datos editables</p>
-            <h2 class="mt-1 text-base font-extrabold text-slate-900">Información personal</h2>
-            <p class="text-xs text-slate-400 mt-0.5">Los cambios se guardan para tu perfil y pedidos.</p>
-          </div>
-
-          <form class="grid gap-4 p-5 md:grid-cols-2" [formGroup]="form" (ngSubmit)="saveChanges()">
-
-            <label class="block text-sm font-medium text-slate-600 md:col-span-2">
-              Correo
-              <input
-                type="email"
-                class="mt-1.5 w-full rounded-xl border border-slate-200 px-3.5 py-3 bg-slate-50 text-slate-500 cursor-not-allowed text-sm"
-                readonly
-                [disabled]="true"
-                formControlName="email"
-              />
-              <p class="mt-2 text-xs text-slate-400 leading-relaxed">
-                Para cambiar el correo escríbenos a
-                <a href="mailto:sistemas@gemmatex.com.bo" class="font-semibold text-blue-600 hover:underline">
-                  sistemas@gemmatex.com.bo
-                </a>.
-                Indica tu nombre completo y cumple una de estas verificaciones:
-                <span class="block mt-1">— Escríbenos desde el correo actual.</span>
-                <span class="block">— O adjunta documento de identidad + número de tu último pedido.</span>
-                <span class="block">— O envía captura del ticket del último pedido por WhatsApp a una sucursal.</span>
-              </p>
-            </label>
-
-            <label class="block text-sm font-medium text-slate-600">
-              Nombre
-              <input
-                type="text"
-                class="mt-1.5 w-full rounded-xl border px-3.5 py-3 text-sm outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition"
-                [class.border-red-300]="form.controls.name.invalid && form.controls.name.touched"
-                [class.border-slate-200]="!(form.controls.name.invalid && form.controls.name.touched)"
-                formControlName="name"
-              />
-              @if (form.controls.name.invalid && form.controls.name.touched) {
-                <p class="mt-1 text-xs text-red-600">Escribe tu nombre (mín. 2 caracteres).</p>
-              }
-            </label>
-
-            <label class="block text-sm font-medium text-slate-600">
-              Apellido
-              <input
-                type="text"
-                class="mt-1.5 w-full rounded-xl border px-3.5 py-3 text-sm outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition"
-                [class.border-red-300]="form.controls.lastName.invalid && form.controls.lastName.touched"
-                [class.border-slate-200]="!(form.controls.lastName.invalid && form.controls.lastName.touched)"
-                formControlName="lastName"
-              />
-              @if (form.controls.lastName.invalid && form.controls.lastName.touched) {
-                <p class="mt-1 text-xs text-red-600">Escribe tu apellido (mín. 2 caracteres).</p>
-              }
-            </label>
-
-            <label class="block text-sm font-medium text-slate-600 md:col-span-2">
-              Teléfono
-              <input
-                type="tel"
-                class="mt-1.5 w-full rounded-xl border px-3.5 py-3 text-sm outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition"
-                [class.border-red-300]="form.controls.phone.invalid && form.controls.phone.touched"
-                [class.border-slate-200]="!(form.controls.phone.invalid && form.controls.phone.touched)"
-                formControlName="phone"
-              />
-              @if (form.controls.phone.invalid && form.controls.phone.touched) {
-                <p class="mt-1 text-xs text-red-600">Incluye un teléfono válido (mín. 7 dígitos).</p>
-              }
-            </label>
-
-            <div class="md:col-span-2 flex flex-wrap gap-3 pt-1">
-              <button
-                type="submit"
-                class="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 disabled:opacity-60 transition-colors"
-                [disabled]="saving || loading"
-              >
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                {{ saving ? 'Guardando...' : 'Guardar cambios' }}
-              </button>
-
-              <button
-                type="button"
-                class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60 transition-colors"
-                (click)="goToPasswordRecovery()"
-                [disabled]="passwordLoading"
-              >
-                {{ passwordLoading ? 'Enviando...' : 'Cambiar contraseña' }}
-              </button>
-            </div>
-
-          </form>
-        </div>
-
-      </section>
-    </div>
-
-    <!-- Modal -->
-    @if (modalOpen) {
-      <div class="fixed inset-0 z-50 flex items-center justify-center px-4">
-        <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" (click)="closeModal()"></div>
-        <div class="relative w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden">
-          <div class="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
-            <div class="flex h-10 w-10 items-center justify-center rounded-full"
-                 [ngClass]="modalType === 'success' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'">
-              @if (modalType === 'success') {
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              } @else {
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              }
-            </div>
-            <div>
-              <h3 class="text-base font-extrabold text-slate-900">{{ modalTitle }}</h3>
-              <p class="text-sm text-slate-500">{{ modalText }}</p>
-            </div>
-            <button type="button" class="ml-auto text-slate-400 hover:text-slate-600" (click)="closeModal()">
-              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+  <!-- Modal -->
+  @if (modalOpen) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center px-4">
+      <div class="absolute inset-0 bg-slate-900/50" (click)="closeModal()"></div>
+      <div class="relative w-full max-w-md bg-white shadow-2xl rounded-md overflow-hidden">
+        <div class="flex items-center gap-3 px-5 py-4 border-b border-slate-200">
+          <div class="flex h-9 w-9 items-center justify-center rounded-md"
+               [ngClass]="modalType === 'success' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'">
+            @if (modalType === 'success') {
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            } @else {
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
-            </button>
+            }
           </div>
-          <div class="px-5 py-4 flex justify-end">
-            <button type="button"
-                    class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                    (click)="closeModal()">
-              Cerrar
-            </button>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-sm font-semibold text-slate-900">{{ modalTitle }}</h3>
+            <p class="text-xs text-slate-500">{{ modalText }}</p>
           </div>
         </div>
+        <div class="px-5 py-3 flex justify-end">
+          <button type="button" (click)="closeModal()"
+                  class="rounded-md bg-slate-900 px-4 py-2 text-[12px] font-semibold text-white hover:bg-black">
+            Cerrar
+          </button>
+        </div>
       </div>
-    }
-
-  </main>
+    </div>
+  }
 </div>

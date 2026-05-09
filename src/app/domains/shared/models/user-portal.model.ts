@@ -51,6 +51,13 @@ export interface ApiOrderProduct {
   unitPrice?: string | number;
 }
 
+export interface ApiOrderItemProductRef {
+  id: number;
+  name: string;
+  slug?: string;
+  brand?: string;
+}
+
 export interface ApiOrderItem {
   id: number;
   sku?: string;
@@ -70,6 +77,8 @@ export interface ApiOrderItem {
   variantId?: number;
   amount?: number;
   orderId?: number;
+  product?: ApiOrderItemProductRef;
+  color?: { id: number; name: string; hex: string } | null;
   OrderProduct?: ApiOrderProduct;
   createdAt?: string;
   updatedAt?: string;
@@ -95,18 +104,38 @@ export interface ApiBranch {
   is_active?: boolean;
 }
 
+export interface ApiOrderContact {
+  name?: string;
+  whatsapp?: string | null;
+}
+
+export interface ApiOrderDelivery {
+  mode?: 'recojo_tienda' | 'envio_domicilio';
+  whatsapp?: string | null;
+  branch?: ApiBranch | null;
+}
+
 export interface ApiOrder {
   id: number;
   customerId?: number;
+  customerName?: string;
   status?: string;
-  detail?: string;
+  detail?: string | null;
   total?: number;
+  /** @deprecated — usar contact.name */
   contactName?: string;
+  /** @deprecated — usar contact.whatsapp */
   contactWhatsapp?: string;
+  /** @deprecated — usar delivery.whatsapp */
   deliveryWhatsapp?: string | null;
+  /** @deprecated — usar delivery.mode */
   deliveryMode?: 'recojo_tienda' | 'envio_domicilio';
+  /** @deprecated — usar delivery.branch?.id */
   branchId?: number | null;
+  /** @deprecated — usar delivery.branch */
   branch?: ApiBranch | null;
+  contact?: ApiOrderContact;
+  delivery?: ApiOrderDelivery;
   customer?: ApiCustomer;
   createdAt?: string;
   updatedAt?: string;

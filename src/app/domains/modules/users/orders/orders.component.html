@@ -1,245 +1,319 @@
-<main class="mx-auto w-full max-w-6xl px-4 py-8">
+<div class="min-h-screen bg-[#f2f2f7]">
+  <main class="mx-auto w-full max-w-6xl px-4 py-8">
 
-  <!-- Header -->
-  <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
-    <div>
-      <h1 class="text-2xl font-extrabold text-slate-900">Mis pedidos</h1>
-      <p class="mt-0.5 text-sm text-slate-500">{{ getCustomerFullName() }}</p>
-    </div>
-    <div class="flex gap-2">
-      <a [routerLink]="accountPath"
-         class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
-        Volver
-      </a>
-      <button type="button"
-              class="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
-              (click)="loadOrders()" [disabled]="loading">
-        {{ loading ? 'Cargando…' : 'Actualizar' }}
-      </button>
-    </div>
-  </div>
+    <div class="bg-white">
 
-  <!-- Error -->
-  @if (errorMsg) {
-    <div class="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-      {{ errorMsg }}
-    </div>
-  }
-
-  <!-- Loading -->
-  @if (loading) {
-    <div class="py-20 text-center">
-      <svg class="mx-auto w-8 h-8 animate-spin text-blue-500 mb-3" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-      </svg>
-      <p class="text-sm text-slate-500">Cargando pedidos…</p>
-    </div>
-  }
-
-  <!-- Empty -->
-  @if (!loading && !errorMsg && orders.length === 0) {
-    <div class="rounded-2xl border border-slate-200 bg-white py-16 text-center shadow-sm">
-      <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100">
-        <svg class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-        </svg>
-      </div>
-      <p class="font-semibold text-slate-700">Aún no tienes pedidos</p>
-      <p class="mt-1 text-sm text-slate-500">Cuando realices una compra aparecerá aquí.</p>
-    </div>
-  }
-
-  <!-- Master-Detail layout -->
-  @if (!loading && orders.length > 0) {
-    <div class="grid gap-5 lg:grid-cols-[340px_1fr]">
-
-      <!-- IZQUIERDA: lista de pedidos (oculta en móvil cuando hay detalle) -->
-      <div class="space-y-2 lg:max-h-[calc(100vh-200px)] lg:overflow-auto lg:pr-1 order-list-scroll"
-           [class.hidden]="!!selectedOrder"
-           [class.lg:block]="!!selectedOrder">
-        <ng-container *ngFor="let order of orders; trackBy: trackByOrder">
-          <button type="button"
-                  class="w-full text-left rounded-2xl border p-4 transition-all duration-200"
-                  [class.border-blue-500]="selectedOrderId === order.id"
-                  [class.bg-blue-50]="selectedOrderId === order.id"
-                  [class.shadow-md]="selectedOrderId === order.id"
-                  [class.border-slate-200]="selectedOrderId !== order.id"
-                  [class.bg-white]="selectedOrderId !== order.id"
-                  [class.hover:border-slate-300]="selectedOrderId !== order.id"
-                  [class.hover:shadow-sm]="selectedOrderId !== order.id"
-                  (click)="toggleDetail(order)">
-
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-lg font-extrabold text-slate-900">#{{ order.id }}</span>
-              <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-bold"
-                    [ngClass]="statusMeta(order.status).color">
-                {{ statusMeta(order.status).label }}
-              </span>
-            </div>
-
-            <div class="flex items-center justify-between">
-              <span class="text-xs text-slate-500">
-                {{ order.createdAt ? (order.createdAt | date:'dd MMM yyyy') : '—' }}
-              </span>
-              <span class="text-sm font-bold text-slate-800">
-                Bs {{ getOrderTotal(order) | number:'1.2-2' }}
-              </span>
-            </div>
-
-            <!-- Mini progress dots -->
-            <div class="flex items-center gap-1 mt-3">
-              @for (step of statusSteps; track step; let i = $index) {
-                <div class="h-1.5 flex-1 rounded-full transition-colors duration-300"
-                     [class.bg-blue-500]="isStepCompleted(order.status, i) && !isCancelled(order.status)"
-                     [class.bg-red-400]="isCancelled(order.status)"
-                     [class.bg-slate-200]="!isStepCompleted(order.status, i) && !isCancelled(order.status)">
-                </div>
-              }
-            </div>
-          </button>
-        </ng-container>
-      </div>
-
-      <!-- DERECHA: detalle del pedido seleccionado -->
-      <div class="lg:sticky lg:top-6 lg:self-start">
-        @if (selectedOrder) {
-          <!-- Botón volver (solo móvil) -->
-          <button type="button"
-                  class="lg:hidden mb-3 flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700"
-                  (click)="selectedOrder = null; selectedOrderId = null">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+      <!-- Header -->
+      <div class="flex items-baseline justify-between px-6 py-5 border-b border-slate-200 ">
+        <div>
+          <h1 class="text-lg font-semibold text-slate-900 tracking-tight">Mis pedidos</h1>
+          <p class="text-[11px] uppercase tracking-widest text-slate-400 mt-0.5">{{ getCustomerFullName() }}</p>
+        </div>
+        <div class="flex gap-2">
+          <a [routerLink]="accountPath"
+             class="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-4 py-2 text-[12px] font-semibold text-slate-700 hover:bg-slate-200">
+            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
             </svg>
-            Volver a pedidos
+            Mi cuenta
+          </a>
+          <button type="button" (click)="loadOrders()" [disabled]="loading"
+                  class="rounded-md bg-blue-600 px-4 py-2 text-[12px] font-semibold text-white hover:bg-blue-700 disabled:opacity-50">
+            {{ loading ? 'Cargando…' : 'Actualizar' }}
           </button>
-          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        </div>
+      </div>
 
-            <!-- Cabecera del detalle -->
-            <div class="bg-slate-900 px-6 py-5 text-white">
-              <div class="flex items-center justify-between mb-1">
-                <h2 class="text-xl font-extrabold">Pedido #{{ selectedOrder.id }}</h2>
-                <span class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-bold"
+      <!-- Error -->
+      @if (errorMsg) {
+        <div class="border-b border-red-200 bg-red-50 px-6 py-3">
+          <p class="text-xs font-medium text-red-700">{{ errorMsg }}</p>
+        </div>
+      }
+
+      <!-- Loading -->
+      @if (loading) {
+        <div class="px-6 py-20 text-center text-sm text-slate-400">Cargando pedidos…</div>
+      }
+
+      <!-- Empty -->
+      @if (!loading && !errorMsg && orders.length === 0) {
+        <div class="px-6 py-20 text-center">
+          <p class="text-sm font-semibold text-slate-700">Aún no tienes pedidos</p>
+          <p class="mt-1 text-xs text-slate-400">Cuando realices una compra aparecerá aquí.</p>
+        </div>
+      }
+
+      <!-- Master-detail -->
+      @if (!loading && orders.length > 0) {
+        <div class="grid lg:grid-cols-[340px_1fr]">
+
+          <!-- Lista -->
+          <div class="border-b lg:border-b-0 lg:border-r border-slate-200 lg:max-h-[calc(100vh-200px)] lg:overflow-auto"
+               [class.hidden]="!!selectedOrder"
+               [class.lg:block]="!!selectedOrder">
+            <ng-container *ngFor="let order of orders; trackBy: trackByOrder">
+              <button type="button"
+                      class="w-full text-left border-b border-slate-100 px-5 py-4 transition-colors border-l-2"
+                      [class.bg-blue-50]="selectedOrderId === order.id"
+                      [class.border-l-blue-500]="selectedOrderId === order.id"
+                      [class.border-l-transparent]="selectedOrderId !== order.id"
+                      [class.hover:bg-slate-50]="selectedOrderId !== order.id"
+                      (click)="toggleDetail(order)">
+
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-sm font-semibold text-slate-900">Pedido #{{ order.id }}</span>
+                  <span class="rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+                        [ngClass]="statusMeta(order.status).color">
+                    {{ statusMeta(order.status).label }}
+                  </span>
+                </div>
+
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] text-slate-400">
+                    {{ order.createdAt ? (order.createdAt | date:'dd MMM yyyy') : '—' }}
+                  </span>
+                  <span class="text-sm font-semibold text-emerald-700">
+                    Bs {{ getOrderTotal(order) | number:'1.2-2' }}
+                  </span>
+                </div>
+
+                <p class="text-[11px] mt-1.5 truncate"
+                   [class.text-blue-600]="getOrderBranch(order)"
+                   [class.text-slate-300]="!getOrderBranch(order)"
+                   [class.italic]="!getOrderBranch(order)">
+                  <span class="text-slate-400">Sucursal:</span> {{ getOrderBranchLabel(order) }}
+                </p>
+
+                <!-- Mini progress -->
+                <div class="flex items-center gap-1 mt-2.5">
+                  @for (step of statusSteps; track step; let i = $index) {
+                    <div class="h-1 flex-1 rounded-sm transition-colors"
+                         [class.bg-blue-600]="isStepCompleted(order.status, i) && !isCancelled(order.status)"
+                         [class.bg-red-400]="isCancelled(order.status)"
+                         [class.bg-slate-200]="!isStepCompleted(order.status, i) && !isCancelled(order.status)">
+                    </div>
+                  }
+                </div>
+              </button>
+            </ng-container>
+          </div>
+
+          <!-- Detalle -->
+          <div>
+            @if (selectedOrder) {
+              <!-- Volver móvil -->
+              <button type="button"
+                      class="lg:hidden flex items-center gap-2 px-6 py-3 text-[12px] font-semibold text-blue-600 border-b border-slate-200 hover:bg-blue-50"
+                      (click)="selectedOrder = null; selectedOrderId = null">
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+                Volver
+              </button>
+
+              <!-- Cabecera detalle -->
+              <div class="flex items-baseline justify-between px-6 py-4 border-b border-slate-200">
+                <div>
+                  <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Pedido</p>
+                  <h2 class="text-lg font-semibold text-slate-900">#{{ selectedOrder.id }}</h2>
+                </div>
+                <span class="rounded-md border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide"
                       [ngClass]="statusMeta(selectedOrder.status).color">
                   {{ statusMeta(selectedOrder.status).label }}
                 </span>
               </div>
-              <p class="text-sm text-slate-400">
-                {{ selectedOrder.createdAt ? (selectedOrder.createdAt | date:'dd MMMM yyyy, HH:mm') : '' }}
-              </p>
-            </div>
 
-            <!-- Barra de progreso -->
-            <div class="px-6 py-5 border-b border-slate-100">
-              @if (isCancelled(selectedOrder.status)) {
-                <div class="flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-3">
-                  <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                  </svg>
-                  <p class="text-sm font-semibold text-red-700">Este pedido fue cancelado</p>
-                </div>
-              } @else {
-                <div class="flex items-center justify-between">
-                  @for (step of statusSteps; track step; let i = $index) {
-                    <!-- Step circle + label -->
-                    <div class="flex flex-col items-center gap-1.5 flex-1">
-                      <div class="relative flex items-center justify-center w-8 h-8 rounded-full border-2 transition-all duration-300"
-                           [class.bg-blue-600]="isStepCompleted(selectedOrder.status, i)"
-                           [class.border-blue-600]="isStepCompleted(selectedOrder.status, i)"
-                           [class.bg-white]="!isStepCompleted(selectedOrder.status, i)"
-                           [class.border-slate-300]="!isStepCompleted(selectedOrder.status, i)">
-                        @if (isStepCompleted(selectedOrder.status, i)) {
-                          <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                          </svg>
-                        } @else {
-                          <span class="text-[11px] font-bold text-slate-400">{{ i + 1 }}</span>
-                        }
-                        @if (isStepActive(selectedOrder.status, i)) {
-                          <span class="absolute -inset-1 rounded-full border-2 border-blue-300 animate-pulse"></span>
-                        }
+              <!-- Fecha -->
+              <div class="px-6 py-3 border-b border-slate-200 bg-slate-50">
+                <p class="text-[11px] uppercase tracking-wider text-slate-500">
+                  {{ selectedOrder.createdAt ? (selectedOrder.createdAt | date:'dd MMMM yyyy, HH:mm') : '' }}
+                </p>
+              </div>
+
+              <!-- Progreso -->
+              <div class="px-6 py-5 border-b border-slate-200">
+                @if (isCancelled(selectedOrder.status)) {
+                  <div class="rounded-md bg-red-50 border border-red-200 px-4 py-3 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    <p class="text-xs font-semibold text-red-700">Este pedido fue cancelado</p>
+                  </div>
+                } @else {
+                  <div class="flex items-center justify-between">
+                    @for (step of statusSteps; track step; let i = $index) {
+                      <div class="flex flex-col items-center gap-1.5 flex-1">
+                        <div class="relative flex items-center justify-center w-7 h-7 rounded-md border transition-colors"
+                             [class.bg-blue-600]="isStepCompleted(selectedOrder.status, i)"
+                             [class.border-blue-600]="isStepCompleted(selectedOrder.status, i)"
+                             [class.bg-white]="!isStepCompleted(selectedOrder.status, i)"
+                             [class.border-slate-300]="!isStepCompleted(selectedOrder.status, i)">
+                          @if (isStepCompleted(selectedOrder.status, i)) {
+                            <svg class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                            </svg>
+                          } @else {
+                            <span class="text-[10px] font-bold text-slate-400">{{ i + 1 }}</span>
+                          }
+                        </div>
+                        <span class="text-[9px] font-semibold uppercase tracking-wide text-center leading-tight"
+                              [class.text-blue-700]="isStepCompleted(selectedOrder.status, i)"
+                              [class.text-slate-400]="!isStepCompleted(selectedOrder.status, i)">
+                          {{ stepLabel(step) }}
+                        </span>
                       </div>
-                      <span class="text-[10px] font-semibold text-center leading-tight"
-                            [class.text-blue-700]="isStepCompleted(selectedOrder.status, i)"
-                            [class.text-slate-400]="!isStepCompleted(selectedOrder.status, i)">
-                        {{ stepLabel(step) }}
-                      </span>
-                    </div>
-                    <!-- Connector line -->
-                    @if (i < statusSteps.length - 1) {
-                      <div class="h-0.5 flex-1 -mt-5 mx-1 rounded-full transition-colors duration-300"
-                           [class.bg-blue-500]="isStepCompleted(selectedOrder.status, i + 1)"
-                           [class.bg-slate-200]="!isStepCompleted(selectedOrder.status, i + 1)">
-                      </div>
+                      @if (i < statusSteps.length - 1) {
+                        <div class="h-0.5 flex-1 -mt-5 mx-1 transition-colors"
+                             [class.bg-blue-600]="isStepCompleted(selectedOrder.status, i + 1)"
+                             [class.bg-slate-200]="!isStepCompleted(selectedOrder.status, i + 1)">
+                        </div>
+                      }
                     }
+                  </div>
+                }
+              </div>
+
+              <!-- Contacto + Entrega -->
+              <div class="grid grid-cols-2 border-b border-slate-200 divide-x divide-slate-200">
+                <div class="px-6 py-4">
+                  <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1.5">Contacto</p>
+                  <p class="text-sm font-medium text-slate-900">{{ getOrderContactName(selectedOrder) }}</p>
+                  @if (getOrderContactWhatsapp(selectedOrder); as wsp) {
+                    <a [href]="'https://wa.me/591' + wsp"
+                       target="_blank" rel="noopener"
+                       class="inline-flex items-center gap-1 text-xs text-emerald-600 hover:underline mt-0.5">
+                      +591 {{ wsp }}
+                    </a>
                   }
                 </div>
-              }
-            </div>
-
-            <!-- Nota del pedido -->
-            @if (getOrderDetail(selectedOrder)) {
-              <div class="mx-6 mt-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
-                <p class="text-xs font-semibold text-blue-700 mb-0.5">Nota del pedido</p>
-                <p class="text-sm text-blue-800">{{ getOrderDetail(selectedOrder) }}</p>
-              </div>
-            }
-
-            <!-- Items -->
-            <div class="px-6 py-4">
-              <p class="text-xs font-bold uppercase tracking-wide text-slate-500 mb-3">Productos</p>
-
-              @if (isDetailLoading(selectedOrder.id)) {
-                <div class="flex items-center gap-2 py-6 justify-center text-sm text-slate-500">
-                  <svg class="w-4 h-4 animate-spin text-blue-500" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                  </svg>
-                  Cargando…
+                <div class="px-6 py-4">
+                  <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1.5">Entrega</p>
+                  <p class="text-sm font-medium text-slate-900">{{ getDeliveryLabel(selectedOrder) }}</p>
+                  @if (getOrderBranch(selectedOrder); as br) {
+                    <p class="text-xs font-medium text-slate-700 mt-0.5">{{ br.name }} · {{ br.city }}</p>
+                    @if (br.address) {
+                      <p class="text-[11px] text-slate-500">{{ br.address }}</p>
+                    }
+                    @if (br.phone) {
+                      <a [href]="'https://wa.me/591' + br.phone"
+                         target="_blank" rel="noopener"
+                         class="inline-flex items-center gap-1 text-[11px] text-emerald-600 hover:underline mt-0.5">
+                        +591 {{ br.phone }} · WhatsApp sucursal
+                      </a>
+                    }
+                  } @else {
+                    <p class="text-[11px] text-slate-300 italic mt-0.5">Sin sucursal asignada</p>
+                  }
+                  @if (getDeliveryWhatsapp(selectedOrder); as wsp) {
+                    <p class="text-xs text-slate-500 mt-0.5">WhatsApp envío: +591 {{ wsp }}</p>
+                  }
                 </div>
-              } @else if (getOrderItems(selectedOrder).length > 0) {
-                <div class="space-y-2">
-                  <div *ngFor="let item of getOrderItems(selectedOrder)"
-                       class="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 p-3 hover:bg-slate-100 transition-colors">
-                    <img [src]="getItemImage(item)"
-                         [alt]="getItemName(item)"
-                         class="h-14 w-14 flex-shrink-0 rounded-lg border border-slate-200 object-cover bg-white" />
-                    <div class="flex-1 min-w-0">
-                      <p class="text-sm font-semibold text-slate-900 truncate">{{ getItemName(item) }}</p>
-                      <p class="text-xs text-slate-500">SKU: {{ getItemSku(item) }}</p>
-                      <p class="text-xs text-slate-500">
-                        {{ getItemAmount(item) }} x Bs {{ getItemPrice(item) | number:'1.2-2' }}
+              </div>
+
+              <!-- Nota -->
+              @if (getOrderDetail(selectedOrder)) {
+                <div class="px-6 py-4 border-b border-slate-200">
+                  <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Nota</p>
+                  <p class="text-sm text-slate-700">{{ getOrderDetail(selectedOrder) }}</p>
+                </div>
+              }
+
+              <!-- Items -->
+              <div class="px-6 py-4 border-b border-slate-200">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-3">Productos</p>
+
+                @if (isDetailLoading(selectedOrder.id)) {
+                  <p class="text-xs text-slate-400 py-4 text-center">Cargando…</p>
+                } @else if (getOrderItems(selectedOrder).length > 0) {
+                  <div class="space-y-2">
+                    <div *ngFor="let item of getOrderItems(selectedOrder)"
+                         class="flex items-center gap-3 rounded-md bg-slate-50 p-3 hover:bg-slate-100 transition-colors">
+                      <img [src]="getItemImage(item)" [alt]="getItemName(item)"
+                           class="h-12 w-12 flex-shrink-0 rounded-md border border-slate-200 object-cover bg-white" />
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                          @if (getItemBrand(item); as brand) {
+                            <span class="rounded-md bg-slate-200 text-slate-600 text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5">{{ brand }}</span>
+                          }
+                          <p class="text-sm font-semibold text-slate-900 truncate">{{ getItemName(item) }}</p>
+                        </div>
+                        @if (getItemVariantSubtitle(item); as sub) {
+                          <p class="text-[11px] text-slate-500 truncate mt-0.5">{{ sub }}</p>
+                        }
+                        <p class="text-[11px] text-slate-500 font-mono mt-0.5">SKU: {{ getItemSku(item) }}</p>
+                        <p class="text-[11px] text-slate-500">
+                          {{ getItemAmount(item) }} × Bs {{ getItemPrice(item) | number:'1.2-2' }}
+                        </p>
+                      </div>
+                      <p class="text-sm font-semibold text-slate-900">
+                        Bs {{ getItemSubtotal(item) | number:'1.2-2' }}
                       </p>
                     </div>
-                    <p class="text-sm font-bold text-slate-900 flex-shrink-0">
-                      Bs {{ getItemSubtotal(item) | number:'1.2-2' }}
-                    </p>
                   </div>
+                } @else {
+                  <p class="text-xs text-slate-400 py-4 text-center">No se encontraron productos.</p>
+                }
+              </div>
+
+              <!-- Resumen + Total -->
+              <div class="px-6 py-4 bg-slate-50 border-b border-slate-200">
+                <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
+                  <span>Productos distintos</span>
+                  <span class="font-medium text-slate-700">{{ getOrderItems(selectedOrder).length }}</span>
                 </div>
-              } @else {
-                <p class="text-sm text-slate-500 italic py-4 text-center">No se encontraron productos.</p>
+                <div class="flex items-center justify-between text-xs text-slate-500 mb-2">
+                  <span>Unidades totales</span>
+                  <span class="font-medium text-slate-700">{{ getOrderItemsCount(selectedOrder) }}</span>
+                </div>
+                <div class="flex items-center justify-between border-t border-slate-200 pt-2 mt-2">
+                  <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Total del pedido</p>
+                  <p class="text-lg font-semibold text-emerald-700">Bs {{ getOrderTotal(selectedOrder) | number:'1.2-2' }}</p>
+                </div>
+              </div>
+
+              <!-- Historial de estados -->
+              @if (getStatusLogs(selectedOrder).length > 0) {
+                <div class="px-6 py-4">
+                  <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-3">Historial de estados</p>
+                  <ol class="space-y-2 border-l border-slate-200 pl-4 ml-1">
+                    @for (log of getStatusLogs(selectedOrder); track log.id) {
+                      <li class="flex items-start gap-3 text-xs relative">
+                        <div class="absolute -left-[1.35rem] flex-shrink-0 w-2 h-2 mt-1.5 rounded-full bg-slate-400"></div>
+                        <div class="flex-1 min-w-0">
+                          <p class="font-medium text-slate-700">
+                            @if (log.fromStatus) {
+                              <span class="text-slate-400">{{ log.fromStatus }}</span>
+                              <span class="mx-1 text-slate-300">→</span>
+                            }
+                            <span class="text-slate-900 font-semibold">{{ log.toStatus }}</span>
+                          </p>
+                          <p class="text-[11px] text-slate-400">
+                            {{ log.createdAt ? (log.createdAt | date:'dd MMM yyyy, HH:mm') : '' }}
+                            @if (log.admin?.email) {
+                              · {{ log.admin?.email }}
+                            }
+                          </p>
+                          @if (log.note) {
+                            <p class="text-[11px] text-slate-500 italic mt-0.5">"{{ log.note }}"</p>
+                          }
+                        </div>
+                      </li>
+                    }
+                  </ol>
+                </div>
               }
-            </div>
-
-            <!-- Total footer -->
-            <div class="bg-slate-900 px-6 py-4 flex items-center justify-between">
-              <p class="text-xs text-slate-400 uppercase tracking-wide font-semibold">Total del pedido</p>
-              <p class="text-xl font-extrabold text-white">Bs {{ getOrderTotal(selectedOrder) | number:'1.2-2' }}</p>
-            </div>
-
+            } @else {
+              <div class="px-6 py-20 text-center">
+                <p class="text-sm text-slate-400">Selecciona un pedido para ver el detalle</p>
+              </div>
+            }
           </div>
-        } @else {
-          <!-- No order selected -->
-          <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 py-20 text-center">
-            <svg class="mx-auto w-12 h-12 text-slate-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-            </svg>
-            <p class="text-sm font-semibold text-slate-500">Selecciona un pedido para ver el detalle</p>
-          </div>
-        }
-      </div>
+
+        </div>
+      }
 
     </div>
-  }
 
-</main>
+  </main>
+</div>

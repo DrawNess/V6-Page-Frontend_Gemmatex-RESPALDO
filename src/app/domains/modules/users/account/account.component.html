@@ -1,112 +1,85 @@
-<div class="min-h-screen bg-[#f2f2f7]">
-  <main class="mx-auto w-full max-w-6xl px-4 py-8">
+<div>
+  <!-- Header -->
+  <div class="flex items-baseline justify-between px-6 py-5 border-b border-slate-200">
+    <div>
+      <h1 class="text-lg font-semibold text-slate-900 tracking-tight">Mi cuenta</h1>
+      <p class="text-[11px] uppercase tracking-widest text-slate-400 mt-0.5">Resumen general</p>
+    </div>
+    <p class="text-[11px] text-slate-400 font-mono truncate">{{ user?.email || '—' }}</p>
+  </div>
 
-    <!-- Header -->
-    <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
-      <div>
-        <h1 class="text-2xl font-extrabold text-slate-900">Mi cuenta</h1>
-        <p class="mt-0.5 text-sm text-slate-500">Resumen rápido y accesos directos</p>
+  @if (loading) {
+    <div class="px-6 py-12 text-center text-sm text-slate-400">Cargando información…</div>
+  }
+
+  @if (errorMsg) {
+    <div class="border-b border-red-200 bg-red-50 px-6 py-3">
+      <p class="text-xs font-medium text-red-700">{{ errorMsg }}</p>
+    </div>
+  }
+
+  @if (!loading) {
+    <!-- Credenciales -->
+    <div class="border-b border-slate-200">
+      <div class="px-6 py-3 bg-slate-50 border-b border-slate-200">
+        <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Credenciales</p>
+      </div>
+      <dl class="divide-y divide-slate-100">
+        <div class="grid grid-cols-3 px-6 py-3">
+          <dt class="text-[12px] uppercase tracking-wider text-slate-400 col-span-1">Correo</dt>
+          <dd class="text-sm text-slate-900 col-span-2 font-medium">{{ user?.email || '—' }}</dd>
+        </div>
+        <div class="grid grid-cols-3 px-6 py-3">
+          <dt class="text-[12px] uppercase tracking-wider text-slate-400 col-span-1">Rol</dt>
+          <dd class="text-sm text-slate-900 col-span-2 font-medium">
+            {{ user?.role === 'admin' ? 'Administrador' : 'Cliente' }}
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <!-- Contacto -->
+    <div class="border-b border-slate-200">
+      <div class="px-6 py-3 bg-slate-50 border-b border-slate-200">
+        <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Contacto</p>
+      </div>
+      <dl class="divide-y divide-slate-100">
+        <div class="grid grid-cols-3 px-6 py-3">
+          <dt class="text-[12px] uppercase tracking-wider text-slate-400 col-span-1">Nombre</dt>
+          <dd class="text-sm text-slate-900 col-span-2 font-medium">{{ customer?.name || '—' }}</dd>
+        </div>
+        <div class="grid grid-cols-3 px-6 py-3">
+          <dt class="text-[12px] uppercase tracking-wider text-slate-400 col-span-1">Apellido</dt>
+          <dd class="text-sm text-slate-900 col-span-2 font-medium">{{ customer?.lastName || '—' }}</dd>
+        </div>
+        <div class="grid grid-cols-3 px-6 py-3">
+          <dt class="text-[12px] uppercase tracking-wider text-slate-400 col-span-1">Teléfono</dt>
+          <dd class="text-sm text-slate-900 col-span-2 font-medium">{{ customer?.phone || '—' }}</dd>
+        </div>
+      </dl>
+    </div>
+
+    <!-- Acciones -->
+    <div>
+      <div class="px-6 py-3 bg-slate-50 border-b border-slate-200">
+        <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Acciones</p>
+      </div>
+      <div class="px-6 py-5 flex flex-wrap gap-2">
+        <a [routerLink]="userInfoPath"
+           class="inline-flex items-center gap-2 rounded-md bg-slate-100 px-4 py-2 text-[13px] font-semibold text-slate-700 hover:bg-slate-200">
+          Editar información
+          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+        <a [routerLink]="userOrdersPath"
+           class="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-[13px] font-semibold text-white hover:bg-blue-700">
+          Mis pedidos
+          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
       </div>
     </div>
-
-    <div class="grid gap-5 lg:grid-cols-[320px_1fr]">
-
-      <app-user-sidebar />
-
-      <!-- Content -->
-      <section class="space-y-4">
-
-        @if (loading) {
-          <div class="rounded-2xl bg-white px-5 py-4 shadow-sm text-sm text-slate-500 animate-pulse">
-            Cargando información…
-          </div>
-        }
-
-        @if (errorMsg) {
-          <div class="rounded-2xl border border-red-100 bg-red-50 px-5 py-4 text-sm text-red-700">
-            {{ errorMsg }}
-          </div>
-        }
-
-        <div class="grid gap-4 md:grid-cols-2">
-
-          <article class="rounded-2xl bg-white p-5 shadow-sm">
-            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Credenciales</p>
-            <h2 class="mt-1 text-base font-extrabold text-slate-900">Datos de acceso</h2>
-            <dl class="mt-4 space-y-3 text-sm">
-              <div class="flex justify-between gap-3">
-                <dt class="text-slate-400">Correo</dt>
-                <dd class="font-semibold text-slate-900 text-right truncate max-w-[220px]">{{ user?.email || 'No disponible' }}</dd>
-              </div>
-              <div class="flex justify-between gap-3">
-                <dt class="text-slate-400">Rol</dt>
-                <dd>
-                  <span class="inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-2.5 py-0.5 text-[11px] font-bold text-blue-600">
-                    {{ user?.role === 'admin' ? 'Admin' : 'Cliente' }}
-                  </span>
-                </dd>
-              </div>
-            </dl>
-          </article>
-
-          <article class="rounded-2xl bg-white p-5 shadow-sm">
-            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Contacto</p>
-            <h2 class="mt-1 text-base font-extrabold text-slate-900">Información del cliente</h2>
-            <dl class="mt-4 space-y-3 text-sm">
-              <div class="flex justify-between gap-3">
-                <dt class="text-slate-400">Nombre</dt>
-                <dd class="font-semibold text-slate-900 text-right">{{ customer?.name || 'No disponible' }}</dd>
-              </div>
-              <div class="flex justify-between gap-3">
-                <dt class="text-slate-400">Apellido</dt>
-                <dd class="font-semibold text-slate-900 text-right">{{ customer?.lastName || 'No disponible' }}</dd>
-              </div>
-              <div class="flex justify-between gap-3">
-                <dt class="text-slate-400">Teléfono</dt>
-                <dd class="font-semibold text-slate-900 text-right">{{ customer?.phone || 'No disponible' }}</dd>
-              </div>
-            </dl>
-          </article>
-
-        </div>
-
-        <div class="grid gap-4 md:grid-cols-2">
-
-          <a [routerLink]="userInfoPath"
-             class="group rounded-2xl bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-            <div class="flex items-start justify-between gap-3">
-              <div>
-                <p class="text-[11px] font-bold uppercase tracking-wider text-blue-500">Editar</p>
-                <h3 class="mt-1 text-base font-extrabold text-slate-900">Información de cuenta</h3>
-                <p class="mt-1 text-sm text-slate-400">Actualiza correo, nombre y teléfono.</p>
-              </div>
-              <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-blue-50 group-hover:bg-blue-100 transition-colors mt-0.5">
-                <svg class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
-          </a>
-
-          <a [routerLink]="userOrdersPath"
-             class="group rounded-2xl bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-            <div class="flex items-start justify-between gap-3">
-              <div>
-                <p class="text-[11px] font-bold uppercase tracking-wider text-emerald-500">Seguimiento</p>
-                <h3 class="mt-1 text-base font-extrabold text-slate-900">Mis pedidos</h3>
-                <p class="mt-1 text-sm text-slate-400">Consulta el estado y detalle de tus compras.</p>
-              </div>
-              <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-emerald-50 group-hover:bg-emerald-100 transition-colors mt-0.5">
-                <svg class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
-          </a>
-
-        </div>
-
-      </section>
-    </div>
-  </main>
+  }
 </div>
