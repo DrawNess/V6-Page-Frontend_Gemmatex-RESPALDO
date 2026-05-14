@@ -1,1 +1,124 @@
-<p>mision-vision works!</p>
+<!-- HERO -->
+<!-- <section class="relative overflow-hidden bg-gradient-to-br from-blue-700 via-indigo-600 to-sky-500 text-white">
+  <div class="absolute inset-0 opacity-10 pointer-events-none"
+       style="background:
+        radial-gradient(30% 40% at 10% 20%, #ffffff 0, transparent 60%),
+        radial-gradient(25% 35% at 85% 30%, #ffffff 0, transparent 65%),
+        radial-gradient(30% 35% at 50% 80%, #ffffff 0, transparent 65%);"></div>
+
+  <div class="mx-auto max-w-7xl px-4 py-14 sm:py-20 relative text-center">
+    <span class="inline-block rounded-full bg-white/15 backdrop-blur px-3 py-1 text-xs font-semibold tracking-wide uppercase ring-1 ring-white/30">
+      Quiénes somos
+    </span>
+    <h1 class="mt-3 text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight">
+      Misión y visión
+    </h1>
+    <p class="mt-3 text-white/90 max-w-2xl mx-auto text-sm sm:text-base">
+      Los pilares estratégicos que orientan cada decisión y proyecto en GEMMATEX.
+    </p>
+  </div>
+</section> -->
+
+<!-- HEADER -->
+<section class="bg-white border-b border-slate-100">
+  <div class="mx-auto max-w-5xl px-4 py-14 sm:py-20">
+    <h1 class="mt-3 text-3xl sm:text-4xl md:text-5xl font-bold text-[#004ab1] leading-tight tracking-widest uppercase">
+      Misión y visión
+    </h1>
+  </div>
+</section>
+
+<!-- MISIÓN + VISIÓN -->
+<section class="bg-white">
+  <div class="mx-auto max-w-6xl px-4 py-14 sm:py-20">
+    <div class="grid md:grid-cols-2 md:grid-rows-[auto_auto] gap-x-8 md:gap-x-14 lg:gap-x-20 gap-y-10 items-stretch">
+
+      <!-- MISIÓN — card -->
+      <article class="group relative rounded-2xl border border-slate-200 bg-white p-7 sm:p-9 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-20px_rgba(15,23,42,0.18)]">
+        <svg class="mv-border-svg pointer-events-none absolute inset-0 w-full h-full" preserveAspectRatio="none">
+          <rect class="mv-border-rect" x="0" y="0" width="100%" height="100%" rx="16" ry="16" pathLength="1"/>
+        </svg>
+
+        <h2 class="text-2xl sm:text-3xl font-bold text-[#004ab1] tracking-widest uppercase">Misión</h2>
+
+        <p class="mt-5 text-base sm:text-lg text-slate-700 leading-relaxed font-light">
+          Desarrollar negocios rentables para nuestros clientes mediante soluciones tecnológicas integrales y
+          acompañamiento especializado, garantizando calidad, satisfacción y mejora continua a través de una gestión
+          eficiente y estructurada.
+        </p>
+      </article>
+
+      <!-- VISIÓN — card -->
+      <article class="group relative rounded-2xl border border-slate-200 bg-white p-7 sm:p-9 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-20px_rgba(15,23,42,0.18)]">
+        <svg class="mv-border-svg pointer-events-none absolute inset-0 w-full h-full" preserveAspectRatio="none">
+          <rect class="mv-border-rect" x="0" y="0" width="100%" height="100%" rx="16" ry="16" pathLength="1"/>
+        </svg>
+
+        <h2 class="text-2xl sm:text-3xl font-bold text-[#004ab1] tracking-widest uppercase">Visión</h2>
+
+        <p class="mt-5 text-base sm:text-lg text-slate-700 leading-relaxed font-light">
+          Ser el principal socio estratégico en Bolivia para la industria textil y gráfica, reconocido por liderar el
+          desarrollo de negocios rentables a través de soluciones tecnológicas innovadoras.
+        </p>
+      </article>
+
+      <!-- MISIÓN — principios -->
+      <div class="px-2">
+        <p class="text-xl uppercase tracking-widest text-slate-400">Principios</p>
+        <ul class="mt-3 divide-y divide-slate-100 border-y border-slate-100">
+          @for (p of principiosMision; track p) {
+            <li class="py-3 text-sm text-slate-700">{{ p }}</li>
+          }
+        </ul>
+      </div>
+
+      <!-- VISIÓN — principios -->
+      <div class="px-2">
+        <p class="text-xl uppercase tracking-widest text-slate-400">Principios</p>
+        <ul class="mt-3 divide-y divide-slate-100 border-y border-slate-100">
+          @for (p of principiosVision; track p) {
+            <li class="py-3 text-sm text-slate-700">{{ p }}</li>
+          }
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER LINKS -->
+<section class="bg-white">
+  <div class="mx-auto max-w-5xl px-4 py-12 sm:py-14">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <p class="text-sm text-slate-500">¿Quieres conocer más sobre GEMMATEX?</p>
+      <div class="flex flex-wrap gap-6 text-sm">
+        <a routerLink="/empresa/sobre-nosotros"
+           class="text-slate-900 underline-offset-4 hover:underline">
+          Sobre nosotros
+        </a>
+        <a routerLink="/empresa/valores"
+           class="text-slate-900 underline-offset-4 hover:underline">
+          Nuestros valores
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<!-- <section class="bg-slate-50">
+  <div class="mx-auto max-w-5xl px-4 py-12 sm:py-14 text-center">
+    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">¿Quieres conocer más?</h2>
+    <p class="mt-2 text-slate-600">Descubre los valores que sostienen nuestra forma de trabajar.</p>
+    <div class="mt-5 flex flex-wrap items-center justify-center gap-3">
+      <a routerLink="/empresa/valores"
+         class="rounded-xl bg-blue-700 text-white font-semibold px-5 py-2.5 hover:bg-blue-800 transition">
+        Ver nuestros valores
+      </a>
+      <a routerLink="/empresa/sobre-nosotros"
+         class="rounded-xl border border-slate-300 bg-white text-slate-800 font-semibold px-5 py-2.5 hover:bg-slate-50 transition">
+        Sobre nosotros
+      </a>
+    </div>
+  </div>
+</section> -->

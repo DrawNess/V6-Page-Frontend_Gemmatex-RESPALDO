@@ -315,13 +315,13 @@
                   </a>
                 </li>
                 <li>
-                  <a routerLink="/empresa/sobre-nosotros" (click)="closeDesktopMenu()"
+                  <a routerLink="/empresa/mision-vision" (click)="closeDesktopMenu()"
                     class="text-sm text-slate-600 hover:text-slate-900 transition-colors">
                     Misión y visión
                   </a>
                 </li>
                 <li>
-                  <a routerLink="/empresa/sobre-nosotros" (click)="closeDesktopMenu()"
+                  <a routerLink="/empresa/valores" (click)="closeDesktopMenu()"
                     class="text-sm text-slate-600 hover:text-slate-900 transition-colors">
                     Valores
                   </a>
@@ -531,14 +531,34 @@
           <span>Ofertas</span>
           <svg class="w-3.5 h-3.5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
         </a>
-        <a routerLink="/encuentranos" (click)="closeSheet()"
-           class="flex items-center justify-between min-h-[44px] px-4 text-[15px] text-slate-900 border-b border-black/[0.06] active:bg-slate-100 transition">
-          <span>Empresa y sucursales</span>
-          <svg class="w-3.5 h-3.5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-        </a>
         <a routerLink="/recursos/perfiles-de-color" (click)="closeSheet()"
            class="flex items-center justify-between min-h-[44px] px-4 text-[15px] text-slate-900 active:bg-slate-100 transition">
           <span>Recursos</span>
+          <svg class="w-3.5 h-3.5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+      <!-- Empresa -->
+      <p class="px-1 mb-1 text-[13px] text-slate-500 uppercase tracking-wide">Empresa</p>
+      <div class="bg-white rounded-2xl overflow-hidden mb-6">
+        <a routerLink="/empresa/sobre-nosotros" (click)="closeSheet()"
+           class="flex items-center justify-between min-h-[44px] px-4 text-[15px] text-slate-900 border-b border-black/[0.06] active:bg-slate-100 transition">
+          <span>Sobre nosotros</span>
+          <svg class="w-3.5 h-3.5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        </a>
+        <a routerLink="/empresa/mision-vision" (click)="closeSheet()"
+           class="flex items-center justify-between min-h-[44px] px-4 text-[15px] text-slate-900 border-b border-black/[0.06] active:bg-slate-100 transition">
+          <span>Misión y visión</span>
+          <svg class="w-3.5 h-3.5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        </a>
+        <a routerLink="/empresa/valores" (click)="closeSheet()"
+           class="flex items-center justify-between min-h-[44px] px-4 text-[15px] text-slate-900 border-b border-black/[0.06] active:bg-slate-100 transition">
+          <span>Valores</span>
+          <svg class="w-3.5 h-3.5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        </a>
+        <a routerLink="/encuentranos" (click)="closeSheet()"
+           class="flex items-center justify-between min-h-[44px] px-4 text-[15px] text-slate-900 active:bg-slate-100 transition">
+          <span>Sucursales</span>
           <svg class="w-3.5 h-3.5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
         </a>
       </div>

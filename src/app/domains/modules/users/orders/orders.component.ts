@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { catchError, of } from 'rxjs';
+import { catchError, forkJoin, of } from 'rxjs';
 import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
 import { ApiCustomer, ApiOrder, ApiOrderItem } from '@shared/models/user-portal.model';
 import { CustomerService } from '@shared/services/customer.service';
@@ -63,9 +63,17 @@ export class OrdersComponent implements OnInit {
     this.loading = true;
     this.errorMsg = '';
 
-    this.profileService.getMyOrders().subscribe({
-      next: (orders) => {
-        this.orders = [...(orders ?? [])].sort((a, b) => {
+    // Backend filtra cancelados por defecto: traemos lista general + cancelados aparte y mergeamos
+    forkJoin({
+      all: this.profileService.getMyOrders({ pageSize: 200 }),
+      cancelled: this.profileService.getMyOrders({ status: 'cancelado', pageSize: 200 }).pipe(catchError(() => of([]))),
+    }).subscribe({
+      next: ({ all, cancelled }) => {
+        const map = new Map<number, ApiOrder>();
+        for (const o of [...(all ?? []), ...(cancelled ?? [])]) {
+          if (o?.id != null) map.set(o.id, o);
+        }
+        this.orders = [...map.values()].sort((a, b) => {
           const aTime = new Date(a.createdAt ?? 0).getTime();
           const bTime = new Date(b.createdAt ?? 0).getTime();
           return bTime - aTime;
@@ -103,22 +111,13 @@ export class OrdersComponent implements OnInit {
   }
 
   private fetchDetailIfNeeded(order: ApiOrder): void {
+    // Backend ya devuelve items + statusLogs en /profile/my-orders (endpoint detalle no existe)
     const cached = this.detailCache.get(order.id);
-    // Si ya tenemos items en el objeto o ya los fetcheamos, no hacer nada
-    const embeddedItems = this.getOrderItems(order);
-    if ((cached?.fetched) || embeddedItems.length > 0) return;
-
-    this.detailCache.set(order.id, { loading: true, items: [], fetched: false });
-
-    this.profileService.getMyOrderById(order.id).pipe(
-      catchError(() => of(null))
-    ).subscribe(detail => {
-      const items = detail ? this.extractItems(detail) : [];
-      this.detailCache.set(order.id, { loading: false, items, fetched: true });
-      // Hidrata selectedOrder con full payload para mostrar más detalles
-      if (detail && this.selectedOrderId === order.id) {
-        this.selectedOrder = { ...order, ...detail };
-      }
+    if (cached?.fetched) return;
+    this.detailCache.set(order.id, {
+      loading: false,
+      items: this.extractItems(order),
+      fetched: true,
     });
   }
 
@@ -256,8 +255,18 @@ export class OrdersComponent implements OnInit {
   }
 
   getStatusLogs(order: ApiOrder | null): Array<{ id: number; toStatus: string; fromStatus: string | null; note?: string | null; createdAt?: string; admin?: { email: string } }> {
-    const raw = (order as any)?.statusLogs ?? [];
-    return Array.isArray(raw) ? raw : [];
+    const raw =
+      (order as any)?.statusLogs ??
+      (order as any)?.status_logs ??
+      (order as any)?.transitions ??
+      (order as any)?.history ??
+      [];
+    const list = Array.isArray(raw) ? raw : [];
+    return [...list].sort((a, b) => {
+      const at = new Date(a?.createdAt ?? 0).getTime();
+      const bt = new Date(b?.createdAt ?? 0).getTime();
+      return at - bt;
+    });
   }
 
   getDeliveryWhatsapp(order: ApiOrder | null): string | null {

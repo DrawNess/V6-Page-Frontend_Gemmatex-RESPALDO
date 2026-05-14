@@ -112,24 +112,65 @@
                 Volver
               </button>
 
-              <!-- Cabecera detalle -->
-              <div class="flex items-baseline justify-between px-6 py-4 border-b border-slate-200">
-                <div>
-                  <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Pedido</p>
-                  <h2 class="text-lg font-semibold text-slate-900">#{{ selectedOrder.id }}</h2>
+              <!-- Cabecera detalle: una fila densa -->
+              <div class="flex flex-col lg:flex-row lg:items-center lg:divide-x divide-slate-200 border-b border-slate-200">
+
+                <!-- Pedido + fecha -->
+                <div class="flex flex-col justify-center px-5 py-2 border-b lg:border-b-0 border-slate-200 flex-1 min-w-0">
+                  <div class="flex items-baseline gap-1.5">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500 whitespace-nowrap">Pedido:</span>
+                    <h2 class="text-sm font-semibold text-slate-900 tracking-tight">#{{ selectedOrder.id }}</h2>
+                  </div>
+                  <span class="text-[11px] text-slate-500 whitespace-nowrap mt-0.5">
+                    {{ selectedOrder.createdAt ? (selectedOrder.createdAt | date:'dd MMM, HH:mm') : '' }}
+                  </span>
                 </div>
-                <span class="rounded-md border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide"
-                      [ngClass]="statusMeta(selectedOrder.status).color">
-                  {{ statusMeta(selectedOrder.status).label }}
-                </span>
+
+                <!-- Contacto inline -->
+               <!--  <div class="flex items-center gap-2 px-5 py-3 border-b lg:border-b-0 border-slate-200 min-w-0 flex-1">
+                  <span class="text-xs font-medium text-slate-900 truncate">{{ getOrderContactName(selectedOrder) }}</span>
+                  @if (getOrderContactWhatsapp(selectedOrder); as wsp) {
+                    <a [href]="'https://wa.me/591' + wsp" target="_blank" rel="noopener"
+                       class="text-[11px] text-emerald-600 hover:underline whitespace-nowrap">
+                      +591 {{ wsp }}
+                    </a>
+                  }
+                </div> -->
+
+                <!-- Entrega -->
+                <div class="flex flex-col justify-center px-5 py-2 min-w-0 flex-1 border-b lg:border-b-0 border-slate-200">
+                  <div class="flex items-baseline gap-1.5 min-w-0">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500 whitespace-nowrap">Envío:</span>
+                    <span class="text-sm font-semibold text-slate-900 truncate">{{ getDeliveryLabel(selectedOrder) }}</span>
+                  </div>
+                  @if (getOrderBranch(selectedOrder); as br) {
+                    <span class="text-[11px] text-slate-500 truncate mt-0.5">{{ br.name }} · {{ br.city }}</span>
+                  }
+                </div>
+
+                <!-- WhatsApp coordinar (cliente) -->
+                <div class="flex flex-col justify-center px-5 py-2 flex-1 min-w-0">
+                  <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500 whitespace-nowrap">Coordinar entrega</span>
+                  @if (getDeliveryWhatsapp(selectedOrder) ?? getOrderContactWhatsapp(selectedOrder); as wsp) {
+                    <a [href]="'https://wa.me/591' + wsp" target="_blank" rel="noopener"
+                       class="text-sm font-semibold text-emerald-600 hover:underline whitespace-nowrap mt-0.5">
+                      +591 {{ wsp }}
+                    </a>
+                  } @else {
+                    <span class="text-[11px] text-slate-300 italic mt-0.5">Sin WhatsApp</span>
+                  }
+                </div>
+
               </div>
 
-              <!-- Fecha -->
-              <div class="px-6 py-3 border-b border-slate-200 bg-slate-50">
-                <p class="text-[11px] uppercase tracking-wider text-slate-500">
-                  {{ selectedOrder.createdAt ? (selectedOrder.createdAt | date:'dd MMMM yyyy, HH:mm') : '' }}
-                </p>
-              </div>
+              <!-- Direccion sucursal abajo -->
+              @if (getOrderBranch(selectedOrder); as br) {
+                @if (br.address) {
+                  <div class="px-5 py-2 bg-slate-50 border-b border-slate-200 text-[11px] text-slate-500">
+                    {{ br.address }}
+                  </div>
+                }
+              }
 
               <!-- Progreso -->
               <div class="px-6 py-5 border-b border-slate-200">
@@ -174,43 +215,6 @@
                 }
               </div>
 
-              <!-- Contacto + Entrega -->
-              <div class="grid grid-cols-2 border-b border-slate-200 divide-x divide-slate-200">
-                <div class="px-6 py-4">
-                  <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1.5">Contacto</p>
-                  <p class="text-sm font-medium text-slate-900">{{ getOrderContactName(selectedOrder) }}</p>
-                  @if (getOrderContactWhatsapp(selectedOrder); as wsp) {
-                    <a [href]="'https://wa.me/591' + wsp"
-                       target="_blank" rel="noopener"
-                       class="inline-flex items-center gap-1 text-xs text-emerald-600 hover:underline mt-0.5">
-                      +591 {{ wsp }}
-                    </a>
-                  }
-                </div>
-                <div class="px-6 py-4">
-                  <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1.5">Entrega</p>
-                  <p class="text-sm font-medium text-slate-900">{{ getDeliveryLabel(selectedOrder) }}</p>
-                  @if (getOrderBranch(selectedOrder); as br) {
-                    <p class="text-xs font-medium text-slate-700 mt-0.5">{{ br.name }} · {{ br.city }}</p>
-                    @if (br.address) {
-                      <p class="text-[11px] text-slate-500">{{ br.address }}</p>
-                    }
-                    @if (br.phone) {
-                      <a [href]="'https://wa.me/591' + br.phone"
-                         target="_blank" rel="noopener"
-                         class="inline-flex items-center gap-1 text-[11px] text-emerald-600 hover:underline mt-0.5">
-                        +591 {{ br.phone }} · WhatsApp sucursal
-                      </a>
-                    }
-                  } @else {
-                    <p class="text-[11px] text-slate-300 italic mt-0.5">Sin sucursal asignada</p>
-                  }
-                  @if (getDeliveryWhatsapp(selectedOrder); as wsp) {
-                    <p class="text-xs text-slate-500 mt-0.5">WhatsApp envío: +591 {{ wsp }}</p>
-                  }
-                </div>
-              </div>
-
               <!-- Nota -->
               @if (getOrderDetail(selectedOrder)) {
                 <div class="px-6 py-4 border-b border-slate-200">
@@ -221,34 +225,68 @@
 
               <!-- Items -->
               <div class="px-6 py-4 border-b border-slate-200">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-3">Productos</p>
+                <div class="flex items-center justify-between mb-3">
+                  <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Productos</p>
+                  @if (!isDetailLoading(selectedOrder.id) && getOrderItems(selectedOrder).length > 0) {
+                    <span class="text-[10px] font-semibold text-slate-400">
+                      {{ getOrderItems(selectedOrder).length }} {{ getOrderItems(selectedOrder).length === 1 ? 'ítem' : 'ítems' }}
+                    </span>
+                  }
+                </div>
 
                 @if (isDetailLoading(selectedOrder.id)) {
                   <p class="text-xs text-slate-400 py-4 text-center">Cargando…</p>
                 } @else if (getOrderItems(selectedOrder).length > 0) {
-                  <div class="space-y-2">
+                  <!-- Encabezado columnas (desktop) -->
+                  <div class="hidden sm:grid grid-cols-12 gap-3 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-200">
+                    <div class="col-span-6">Producto</div>
+                    <div class="col-span-2 text-center">SKU</div>
+                    <div class="col-span-2 text-center">Cant. × Precio</div>
+                    <div class="col-span-2 text-right">Subtotal</div>
+                  </div>
+
+                  <div class="divide-y divide-slate-100">
                     <div *ngFor="let item of getOrderItems(selectedOrder)"
-                         class="flex items-center gap-3 rounded-md bg-slate-50 p-3 hover:bg-slate-100 transition-colors">
-                      <img [src]="getItemImage(item)" [alt]="getItemName(item)"
-                           class="h-12 w-12 flex-shrink-0 rounded-md border border-slate-200 object-cover bg-white" />
-                      <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-1.5 flex-wrap">
-                          @if (getItemBrand(item); as brand) {
-                            <span class="rounded-md bg-slate-200 text-slate-600 text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5">{{ brand }}</span>
+                         class="grid grid-cols-12 gap-3 items-center px-3 py-3 hover:bg-slate-50 transition-colors">
+
+                      <!-- Producto -->
+                      <div class="col-span-12 sm:col-span-6 flex items-center gap-3 min-w-0">
+                        <img [src]="getItemImage(item)" [alt]="getItemName(item)"
+                             class="h-12 w-12 flex-shrink-0 rounded-md border border-slate-200 object-cover bg-white" />
+                        <div class="min-w-0 flex-1">
+                          <div class="flex items-center gap-1.5 flex-wrap">
+                            @if (getItemBrand(item); as brand) {
+                              <span class="rounded-md bg-slate-200 text-slate-600 text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5">{{ brand }}</span>
+                            }
+                            <p class="text-sm font-semibold text-slate-900 truncate">{{ getItemName(item) }}</p>
+                          </div>
+                          @if (getItemVariantSubtitle(item); as sub) {
+                            <p class="text-[11px] text-slate-500 truncate mt-0.5">{{ sub }}</p>
                           }
-                          <p class="text-sm font-semibold text-slate-900 truncate">{{ getItemName(item) }}</p>
                         </div>
-                        @if (getItemVariantSubtitle(item); as sub) {
-                          <p class="text-[11px] text-slate-500 truncate mt-0.5">{{ sub }}</p>
-                        }
-                        <p class="text-[11px] text-slate-500 font-mono mt-0.5">SKU: {{ getItemSku(item) }}</p>
-                        <p class="text-[11px] text-slate-500">
+                      </div>
+
+                      <!-- SKU -->
+                      <div class="col-span-4 sm:col-span-2 sm:text-center">
+                        <p class="sm:hidden text-[10px] uppercase text-slate-400 font-bold">SKU</p>
+                        <p class="text-[11px] text-slate-600 font-mono">{{ getItemSku(item) }}</p>
+                      </div>
+
+                      <!-- Cant × Precio -->
+                      <div class="col-span-4 sm:col-span-2 sm:text-center">
+                        <p class="sm:hidden text-[10px] uppercase text-slate-400 font-bold">Cant × Precio</p>
+                        <p class="text-[11px] text-slate-600">
                           {{ getItemAmount(item) }} × Bs {{ getItemPrice(item) | number:'1.2-2' }}
                         </p>
                       </div>
-                      <p class="text-sm font-semibold text-slate-900">
-                        Bs {{ getItemSubtotal(item) | number:'1.2-2' }}
-                      </p>
+
+                      <!-- Subtotal -->
+                      <div class="col-span-4 sm:col-span-2 text-right">
+                        <p class="sm:hidden text-[10px] uppercase text-slate-400 font-bold">Subtotal</p>
+                        <p class="text-sm font-semibold text-slate-900">
+                          Bs {{ getItemSubtotal(item) | number:'1.2-2' }}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 } @else {
@@ -272,30 +310,36 @@
                 </div>
               </div>
 
-              <!-- Historial de estados -->
+              <!-- Historial de estados (monocromo: ya es historia) -->
               @if (getStatusLogs(selectedOrder).length > 0) {
-                <div class="px-6 py-4">
-                  <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-3">Historial de estados</p>
-                  <ol class="space-y-2 border-l border-slate-200 pl-4 ml-1">
-                    @for (log of getStatusLogs(selectedOrder); track log.id) {
+                <div class="px-6 py-5 bg-neutral-50 border-t border-neutral-200">
+                  <div class="flex items-baseline justify-between mb-4">
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-neutral-700">Historial de estados</p>
+                    <span class="text-[10px] font-semibold text-neutral-400">
+                      {{ getStatusLogs(selectedOrder).length }} {{ getStatusLogs(selectedOrder).length === 1 ? 'evento' : 'eventos' }}
+                    </span>
+                  </div>
+                  <ol class="space-y-3 border-l border-neutral-300 pl-4 ml-1">
+                    @for (log of getStatusLogs(selectedOrder); track log.id; let last = $last) {
                       <li class="flex items-start gap-3 text-xs relative">
-                        <div class="absolute -left-[1.35rem] flex-shrink-0 w-2 h-2 mt-1.5 rounded-full bg-slate-400"></div>
+                        <div class="absolute -left-[1.4rem] flex-shrink-0 w-2.5 h-2.5 mt-1 rounded-full bg-neutral-900 ring-2 ring-neutral-50"
+                             [class.bg-neutral-400]="!last"></div>
                         <div class="flex-1 min-w-0">
-                          <p class="font-medium text-slate-700">
+                          <p class="font-medium text-neutral-900">
                             @if (log.fromStatus) {
-                              <span class="text-slate-400">{{ log.fromStatus }}</span>
-                              <span class="mx-1 text-slate-300">→</span>
+                              <span class="text-neutral-400">{{ log.fromStatus }}</span>
+                              <span class="mx-1 text-neutral-300">→</span>
                             }
-                            <span class="text-slate-900 font-semibold">{{ log.toStatus }}</span>
+                            <span class="text-neutral-900 font-bold uppercase tracking-wide text-[11px]">{{ log.toStatus }}</span>
                           </p>
-                          <p class="text-[11px] text-slate-400">
+                          <p class="text-[11px] text-neutral-500 mt-0.5">
                             {{ log.createdAt ? (log.createdAt | date:'dd MMM yyyy, HH:mm') : '' }}
                             @if (log.admin?.email) {
                               · {{ log.admin?.email }}
                             }
                           </p>
                           @if (log.note) {
-                            <p class="text-[11px] text-slate-500 italic mt-0.5">"{{ log.note }}"</p>
+                            <p class="text-[11px] text-neutral-600 italic mt-1 border-l-2 border-neutral-300 pl-2">"{{ log.note }}"</p>
                           }
                         </div>
                       </li>

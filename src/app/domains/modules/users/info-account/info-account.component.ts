@@ -34,7 +34,7 @@ export class InfoAccountComponent implements OnInit {
   modalType: 'success' | 'error' = 'success';
 
   form = this.fb.nonNullable.group({
-    email: ['', [Validators.required, Validators.email]],
+    email: [{ value: '', disabled: true }, [Validators.required, Validators.email]],
     name: ['', [Validators.required, Validators.minLength(2)]],
     lastName: ['', [Validators.required, Validators.minLength(2)]],
     phone: ['', [Validators.required, Validators.minLength(7)]],

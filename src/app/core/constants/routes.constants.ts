@@ -28,7 +28,9 @@ export const ROUTE_CONSTANTS = {
       PDFS: 'recursos/pdfs'
     },
     EMPRESA: {
-      SOBRE_NOSOTROS: 'empresa/sobre-nosotros'
+      SOBRE_NOSOTROS: 'empresa/sobre-nosotros',
+      MISION_VISION: 'empresa/mision-vision',
+      VALORES: 'empresa/valores'
     }
   },
 

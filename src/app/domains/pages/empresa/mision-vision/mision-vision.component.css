@@ -1,0 +1,16 @@
+.mv-border-svg {
+  overflow: visible;
+}
+
+.mv-border-rect {
+  fill: none;
+  stroke: rgb(15 23 42);
+  stroke-width: 2;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 900ms ease-in-out;
+}
+
+.group:hover .mv-border-rect {
+  stroke-dashoffset: 0;
+}

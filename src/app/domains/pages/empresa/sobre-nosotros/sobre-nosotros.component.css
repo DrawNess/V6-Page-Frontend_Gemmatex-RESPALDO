@@ -1,0 +1,20 @@
+.timeline-viewport {
+  width: 100%;
+  mask-image: linear-gradient(to right, transparent 0, #000 8%, #000 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 8%, #000 92%, transparent 100%);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overscroll-behavior-x: contain;
+}
+
+.timeline-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.timeline-viewport:active {
+  cursor: pointer;
+}
+
+.timeline-track {
+  will-change: scroll-position;
+}

@@ -76,5 +76,15 @@ export const publicRoutes: Routes = [
     path: ROUTE_CONSTANTS.PUBLIC.EMPRESA.SOBRE_NOSOTROS,
     loadComponent: () =>
       import('./domains/pages/empresa/sobre-nosotros/sobre-nosotros.component').then((m) => m.SobreNosotrosComponent)
+  },
+  {
+    path: ROUTE_CONSTANTS.PUBLIC.EMPRESA.MISION_VISION,
+    loadComponent: () =>
+      import('./domains/pages/empresa/mision-vision/mision-vision.component').then((m) => m.MisionVisionComponent)
+  },
+  {
+    path: ROUTE_CONSTANTS.PUBLIC.EMPRESA.VALORES,
+    loadComponent: () =>
+      import('./domains/pages/empresa/valores/valores.component').then((m) => m.ValoresComponent)
   }
 ];

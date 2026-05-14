@@ -25,7 +25,7 @@
            class="grid grid-flow-col gap-4 sm:gap-5 lg:gap-6
                   auto-cols-[88%] sm:auto-cols-[50%] lg:auto-cols-[33.333%]
                   overflow-x-auto snap-x snap-mandatory scroll-smooth
-                  touch-pan-x [-ms-overflow-style:none] [scrollbar-width:none]"
+                  touch-auto [-ms-overflow-style:none] [scrollbar-width:none]"
            (mouseenter)="pause()" (mouseleave)="resume()">
         @for (p of products(); track p.id) {
           <div class="snap-start">
