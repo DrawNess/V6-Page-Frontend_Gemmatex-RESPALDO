@@ -133,7 +133,6 @@ export class OrdersAdminComponent implements OnDestroy {
   readonly dangerAlertCount = computed(() => this.alerts().filter(a => a.pulse).length);
 
   constructor() {
-    this.refreshAll();
     this.refresh();
     this.tickInterval = setInterval(() => this.now.set(Date.now()), 60_000);
   }

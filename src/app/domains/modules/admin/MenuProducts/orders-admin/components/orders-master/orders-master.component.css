@@ -147,3 +147,19 @@
   transition: filter 0.1s;
 }
 .row-status:hover { filter: brightness(0.94); }
+
+.row-branch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.125rem;
+  font-size: 0.6875rem;
+  color: #64748b;
+  font-weight: 500;
+}
+.row-branch-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+  flex-shrink: 0;
+  color: #94a3b8;
+}

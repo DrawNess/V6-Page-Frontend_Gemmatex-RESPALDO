@@ -3,8 +3,13 @@ import { ORDER_STATUSES, STATUS_PRIORITY, THRESHOLDS } from './orders-admin.cons
 
 export function getTotal(order: ApiOrder | null): number {
   if (!order) return 0;
-  if (typeof order.total === 'number') return order.total;
-  return getItems(order).reduce((s, item) => s + getItemAmount(item) * getItemPrice(item), 0);
+  const t = order.total as unknown;
+  if (typeof t === 'number') return t;
+  if (typeof t === 'string') {
+    const parsed = Number(t);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  return 0;
 }
 
 export function getItems(order: ApiOrder | null): ApiOrderItem[] {

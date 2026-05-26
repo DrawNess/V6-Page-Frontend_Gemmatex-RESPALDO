@@ -27,10 +27,25 @@ export class OrderService {
 
   constructor(private readonly http: HttpClient) {}
 
+  /** Flatten `delivery.*` fields a top-level (compat con código que lee branch/branchId/deliveryMode). */
+  private normalizeOrder(o: ApiOrder): ApiOrder {
+    if (!o || typeof o !== 'object') return o;
+    const d = o.delivery;
+    if (d) {
+      if (o.deliveryMode == null && d.mode != null) o.deliveryMode = d.mode;
+      if (o.deliveryWhatsapp == null && d.whatsapp != null) o.deliveryWhatsapp = d.whatsapp;
+      if (o.branch == null && d.branch != null) o.branch = d.branch;
+      if ((o.branchId == null) && d.branch?.id != null) o.branchId = d.branch.id;
+    }
+    return o;
+  }
+
   // ── Pedidos ────────────────────────────────────────────
 
   createOrder(dto: CreateOrderDTO): Observable<ApiOrder> {
-    return this.http.post<ApiOrder>(`${this.apiUrl}/orders`, dto);
+    return this.http.post<ApiOrder>(`${this.apiUrl}/orders`, dto).pipe(
+      map(o => this.normalizeOrder(o))
+    );
   }
 
   getBranches(): Observable<ApiBranch[]> {
@@ -48,7 +63,8 @@ export class OrderService {
         return (response as { data?: ApiOrder; order?: ApiOrder }).data
           ?? (response as { data?: ApiOrder; order?: ApiOrder }).order
           ?? ({} as ApiOrder);
-      })
+      }),
+      map(o => this.normalizeOrder(o))
     );
   }
 
@@ -66,7 +82,8 @@ export class OrderService {
         if (Array.isArray(response)) return response;
         if ('data' in response && Array.isArray(response.data)) return response.data;
         return (response as any).orders ?? [];
-      })
+      }),
+      map((list: ApiOrder[]) => list.map(o => this.normalizeOrder(o)))
     );
   }
 
@@ -116,7 +133,8 @@ export class OrderService {
       map(response => {
         if (Array.isArray(response)) return response;
         return response?.data ?? [];
-      })
+      }),
+      map((list: ApiOrder[]) => list.map(o => this.normalizeOrder(o)))
     );
   }
 }
