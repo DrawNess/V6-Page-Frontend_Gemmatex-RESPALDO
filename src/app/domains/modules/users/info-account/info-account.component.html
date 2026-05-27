@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="flex items-baseline justify-between px-6 py-5 border-b border-slate-200">
     <div>
-      <h1 class="text-lg font-semibold text-slate-900 tracking-tight">Información de cuenta</h1>
+      <h1 class="text-xl font-bold text-blue-700 tracking-tight">Información de cuenta</h1>
       <p class="text-[11px] uppercase tracking-widest text-slate-400 mt-0.5">Datos editables</p>
     </div>
   </div>
@@ -26,49 +26,91 @@
   @if (!loading) {
     <form class="px-6 py-6 grid gap-4 md:grid-cols-2" [formGroup]="form" (ngSubmit)="saveChanges()">
 
+      <!-- Correo (no editable) -->
       <label class="block text-sm font-medium text-slate-600 md:col-span-2">
         Correo
         <input type="email" formControlName="email"
                class="mt-1.5 w-full rounded-md border border-slate-200 px-3.5 py-2.5 bg-slate-50 text-slate-500 cursor-not-allowed text-sm" />
         <p class="mt-2 text-xs text-slate-400 leading-relaxed">
-          Para cambiar el correo escríbenos a
-          <a href="mailto:sistemas@gemmatex.com.bo" class="font-semibold text-blue-600 hover:underline">sistemas@gemmatex.com.bo</a>.
+          Para cambiar de correo y administrar tu perfil con más detalle ingresá a
+          <a href="https://account.gemmatex.com.bo" target="_blank" rel="noopener"
+             class="font-semibold text-blue-600 hover:underline">
+            account.gemmatex.com.bo
+          </a>.
         </p>
       </label>
 
+      <!-- Nombre -->
       <label class="block text-sm font-medium text-slate-600">
         Nombre
-        <input type="text" formControlName="name"
+        <input type="text" formControlName="first_name"
                class="mt-1.5 w-full rounded-md border px-3.5 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
-               [class.border-red-300]="form.controls.name.invalid && form.controls.name.touched"
-               [class.border-slate-200]="!(form.controls.name.invalid && form.controls.name.touched)" />
-        @if (form.controls.name.invalid && form.controls.name.touched) {
+               [class.border-red-300]="form.controls.first_name.invalid && form.controls.first_name.touched"
+               [class.border-slate-200]="!(form.controls.first_name.invalid && form.controls.first_name.touched)" />
+        @if (form.controls.first_name.invalid && form.controls.first_name.touched) {
           <p class="mt-1 text-xs text-red-600">Escribe tu nombre (mín. 2 caracteres).</p>
         }
       </label>
 
+      <!-- Apellido -->
       <label class="block text-sm font-medium text-slate-600">
         Apellido
-        <input type="text" formControlName="lastName"
+        <input type="text" formControlName="last_name"
                class="mt-1.5 w-full rounded-md border px-3.5 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
-               [class.border-red-300]="form.controls.lastName.invalid && form.controls.lastName.touched"
-               [class.border-slate-200]="!(form.controls.lastName.invalid && form.controls.lastName.touched)" />
-        @if (form.controls.lastName.invalid && form.controls.lastName.touched) {
+               [class.border-red-300]="form.controls.last_name.invalid && form.controls.last_name.touched"
+               [class.border-slate-200]="!(form.controls.last_name.invalid && form.controls.last_name.touched)" />
+        @if (form.controls.last_name.invalid && form.controls.last_name.touched) {
           <p class="mt-1 text-xs text-red-600">Escribe tu apellido (mín. 2 caracteres).</p>
         }
       </label>
 
+      <!-- Teléfono -->
       <label class="block text-sm font-medium text-slate-600 md:col-span-2">
         Teléfono
-        <input type="tel" formControlName="phone"
+        <input type="tel" formControlName="phone" placeholder="+59171234567"
                class="mt-1.5 w-full rounded-md border px-3.5 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
                [class.border-red-300]="form.controls.phone.invalid && form.controls.phone.touched"
                [class.border-slate-200]="!(form.controls.phone.invalid && form.controls.phone.touched)" />
         @if (form.controls.phone.invalid && form.controls.phone.touched) {
-          <p class="mt-1 text-xs text-red-600">Incluye un teléfono válido (mín. 7 dígitos).</p>
+          <p class="mt-1 text-xs text-red-600">Formato esperado: +591 + 8 dígitos (ej. +59171234567).</p>
         }
       </label>
 
+      <!-- Documento -->
+      <label class="block text-sm font-medium text-slate-600">
+        Tipo de documento
+        <select formControlName="document_type"
+                class="mt-1.5 w-full rounded-md border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100">
+          <option value="">Sin documento</option>
+          <option value="CI">CI</option>
+          <option value="NIT">NIT</option>
+        </select>
+      </label>
+
+      <label class="block text-sm font-medium text-slate-600">
+        Número de documento
+        <input type="text" formControlName="document_number"
+               class="mt-1.5 w-full rounded-md border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
+      </label>
+
+      <!-- Razón social (solo NIT) -->
+      @if (form.controls.document_type.value === 'NIT') {
+        <label class="block text-sm font-medium text-slate-600 md:col-span-2">
+          Razón social
+          <input type="text" formControlName="razon_social"
+                 class="mt-1.5 w-full rounded-md border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
+          <p class="mt-1 text-xs text-slate-400">Obligatorio cuando el documento es NIT.</p>
+        </label>
+      }
+
+      <!-- Fecha de nacimiento -->
+      <label class="block text-sm font-medium text-slate-600 md:col-span-2">
+        Fecha de nacimiento
+        <input type="date" formControlName="birth_date"
+               class="mt-1.5 w-full rounded-md border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
+      </label>
+
+      <!-- Acciones -->
       <div class="md:col-span-2 flex flex-wrap gap-2 pt-2 border-t border-slate-100 mt-2">
         <button type="submit" [disabled]="saving || loading"
                 class="inline-flex items-center gap-2 rounded-md bg-blue-600 px-5 py-2.5 text-[13px] font-semibold text-white hover:bg-blue-700 disabled:opacity-50">

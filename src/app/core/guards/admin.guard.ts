@@ -9,7 +9,10 @@ export const adminGuard: CanActivateFn = (_route, state) => {
 
   const isAuthenticated = tokenService.isAuthenticated();
 
-  if (isAuthenticated && tokenService.hasRole('admin')) {
+  if (
+    isAuthenticated &&
+    (tokenService.hasRole('admin') || tokenService.hasRole('super_admin'))
+  ) {
     return true;
   }
 

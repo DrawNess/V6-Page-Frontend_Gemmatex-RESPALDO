@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '@environments/environment';
 import { map, Observable } from 'rxjs';
 import { ApiBranch, ApiOrder, ApiPaginatedResponse } from '@shared/models/user-portal.model';
+import { normalizeOrder } from '@shared/utils/order-normalizer';
 
 export interface CreateOrderDTO {
   contactName: string;
@@ -27,17 +28,14 @@ export class OrderService {
 
   constructor(private readonly http: HttpClient) {}
 
-  /** Flatten `delivery.*` fields a top-level (compat con código que lee branch/branchId/deliveryMode). */
+  /**
+   * Wrapper local al helper compartido `normalizeOrder` (ver
+   * `@shared/utils/order-normalizer`). Aplana `delivery.*` y sintetiza un
+   * objeto `customer` desde los snapshots de la orden, para que los
+   * templates antiguos sigan funcionando sin tocarlos uno a uno.
+   */
   private normalizeOrder(o: ApiOrder): ApiOrder {
-    if (!o || typeof o !== 'object') return o;
-    const d = o.delivery;
-    if (d) {
-      if (o.deliveryMode == null && d.mode != null) o.deliveryMode = d.mode;
-      if (o.deliveryWhatsapp == null && d.whatsapp != null) o.deliveryWhatsapp = d.whatsapp;
-      if (o.branch == null && d.branch != null) o.branch = d.branch;
-      if ((o.branchId == null) && d.branch?.id != null) o.branchId = d.branch.id;
-    }
-    return o;
+    return normalizeOrder(o);
   }
 
   // ── Pedidos ────────────────────────────────────────────

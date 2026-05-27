@@ -1,114 +1,209 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '@environments/environment';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, catchError, of, tap, throwError } from 'rxjs';
 
-import { Observable, catchError, map, of, switchMap, tap } from 'rxjs';
-import { TokenService } from '@services/token.service';
-import { ResponseLogin, RegisterCustomerDTO } from '@shared/models/auth.model';
+import { environment } from '@environments/environment';
+import {
+  AuthUser,
+  SsoLoginResponse,
+  SsoRegisterPayload,
+} from '@shared/models/auth.model';
+import { TokenService } from './token.service';
 import { SessionService } from './session.service';
-import { ProfileService } from './profile.service';
 import { CartService } from './cart.service';
 import { BranchCacheService } from './branch-cache.service';
 
-
-
-/* export interface RegisterCustomerDTO {
-  name: string;
-  lastName: string;
-  phone: string;
-  user: {
-    email: string;
-    password: string;
-  };
-} */
-
+/**
+ * Cliente del SSO GEMMATEX para el flujo de identidad.
+ *
+ * Endpoints contra `SSO_URL` (puerto 2106 en dev). Todos enviados con
+ * `withCredentials: true` para que la cookie `refresh_token` httpOnly
+ * fluya entre frontend y SSO.
+ */
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
+  private readonly http = inject(HttpClient);
+  private readonly tokenService = inject(TokenService);
+  private readonly sessionService = inject(SessionService);
+  private readonly cartService = inject(CartService);
+  private readonly branchCache = inject(BranchCacheService);
 
-  private apiUrl = environment.API_URL;
+  private readonly ssoUrl = environment.SSO_URL;
+  private readonly clientId = environment.SSO_CLIENT_ID;
 
-  constructor(
-    private http: HttpClient,
-    private tokenService: TokenService,
-    private sessionService: SessionService,
-    private profileService: ProfileService,
-    private cartService: CartService,
-    private branchCache: BranchCacheService
-  ){}
-
-  login( email: string, password: string ) {
-    return this.http.post<ResponseLogin>(`${this.apiUrl}/auth/login`, {
-      email,
-      password
-    })
-    .pipe(
-      tap(response => {
-        const token = response.token ?? response.access_token;
-        if (token) {
-          this.tokenService.saveToken(token);
-        }
-        this.sessionService.saveLogin(response.user);
-        this.cartService.syncWithCurrentSession();
-        this.branchCache.load();
-      }),
-      switchMap((response) => {
-        // Panel users don't have a customer profile — skip getMe() to avoid 401 wiping the token
-        const PANEL_ROLES = ['admin', 'branch_admin', 'seller', 'staff'];
-        const roles = this.tokenService.getRolesFromToken().map(r => r.toLowerCase());
-        if (roles.some(r => PANEL_ROLES.includes(r))) {
-          return of(response);
-        }
-
-        return this.profileService.getMe().pipe(
-          tap((me) => {
-            if (Number(me?.userId) > 0 && Number(me?.customerId) > 0) {
-              this.sessionService.saveIdentity(me.userId, me.customerId);
-              this.cartService.syncWithCurrentSession();
-            }
-          }),
-          map(() => response),
-          catchError(() => of(response))
-        );
-      })
-    )
+  /** Header común para llamadas al SSO. */
+  private headers(): HttpHeaders {
+    return new HttpHeaders({ 'X-Client-Id': this.clientId });
   }
 
-/*   register( name: string, lastName: string, phone: string, email: string, password: string ): Observable<any> {
-    return this.http.post(`${this.apiUrl}/auth/customer`, {
-      name,
-      lastName,
-      phone,
-      email,
-      password,
-    });
-  } */
-
-  register(payload: RegisterCustomerDTO): Observable<any> {
-    return this.http.post(`${this.apiUrl}/customers`, payload);
+  /** Petición autenticada por cookie httpOnly. */
+  private cookieOptions() {
+    return { headers: this.headers(), withCredentials: true };
   }
 
-  sendVerifyEmail(email: string) {
-    return this.http.post(`${this.apiUrl}/auth/send-verify-email`, { email });
+  // ─── Auth flow ────────────────────────────────────────────
+
+  login(email: string, password: string): Observable<SsoLoginResponse> {
+    return this.http
+      .post<SsoLoginResponse>(
+        `${this.ssoUrl}/auth/login`,
+        { email, password },
+        this.cookieOptions()
+      )
+      .pipe(
+        tap((response) => this.persistSession(response)),
+        catchError((err) => throwError(() => err))
+      );
   }
 
-  verifyEmail(token: string) {
-    return this.http.post<{ message: string }>(`${this.apiUrl}/auth/verify-email`, { token });
+  register(payload: SsoRegisterPayload): Observable<{ message: string; user: AuthUser }> {
+    return this.http.post<{ message: string; user: AuthUser }>(
+      `${this.ssoUrl}/auth/register`,
+      payload,
+      this.cookieOptions()
+    );
   }
 
-  recoverPassword(email: string) {
-    return this.http.post<{ message: string }>(`${this.apiUrl}/auth/recover-password`, { email });
-  }
+  /**
+   * Cierra la sesión actual.
+   *
+   * Comportamiento:
+   *  - Limpia el estado local INMEDIATAMENTE (token + session + branchCache + cart),
+   *    así los callers (header, sidebar) que NO subscriben siguen viendo el
+   *    cambio en UI sin necesidad de await.
+   *  - Dispara `/auth/logout` al SSO en background (auto-subscrito) para que
+   *    invalide la cookie httpOnly del refresh. Si falla, ya teardown corrió.
+   */
+  logout(allDevices = false): void {
+    // 1) Capturamos el token actual antes de limpiar — lo necesitamos como
+    //    Authorization en la llamada al SSO porque el interceptor no podrá
+    //    sacarlo del store tras el teardown sync.
+    const token = this.tokenService.getToken();
 
-  changePassword(token: string, newPassword: string) {
-    return this.http.post<{ message: string }>(`${this.apiUrl}/auth/change-password`, { token, newPassword });
-  }
-  logout() {
-    this.cartService.syncWithCurrentSession();
+    // 2) Teardown SÍNCRONO. La UI debe reflejar "sin sesión" YA, sin esperar
+    //    a que vuelva la respuesta del SSO. Así el `router.navigate` que
+    //    típicamente sigue al `logout()` puede ir al `/auth/login` con el
+    //    estado limpio y los guards no quedan en una sesión zombi.
     this.tokenService.removeToken();
     this.sessionService.clearSession();
     this.branchCache.clear();
     this.cartService.syncWithCurrentSession();
+
+    // 3) Fire-and-forget al SSO con `x-skip-auth` para que el interceptor
+    //    no intente adjuntar/refrescar nada — adjuntamos manualmente el
+    //    token capturado (todavía válido). Si el SSO falla, no importa:
+    //    el estado local ya está limpio.
+    const headers = new HttpHeaders({
+      'X-Client-Id': this.clientId,
+      'x-skip-auth': '1',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    });
+
+    this.http
+      .post<void>(
+        `${this.ssoUrl}/auth/logout`,
+        { all_devices: allDevices },
+        { headers, withCredentials: true }
+      )
+      .pipe(catchError(() => of(void 0)))
+      .subscribe();
+  }
+
+  /**
+   * Solicita un nuevo access token usando la cookie `refresh_token` httpOnly.
+   * Si la cookie es inválida/expiró el SSO responde 401 y limpiamos sesión.
+   */
+  refresh(): Observable<SsoLoginResponse> {
+    return this.http
+      .post<SsoLoginResponse>(
+        `${this.ssoUrl}/auth/refresh`,
+        {},
+        this.cookieOptions()
+      )
+      .pipe(
+        tap((response) => this.persistSession(response)),
+        catchError((err) => {
+          this.tokenService.removeToken();
+          this.sessionService.clearSession();
+          return throwError(() => err);
+        })
+      );
+  }
+
+  /** Intento silencioso de refresh al arrancar la app. Nunca lanza. */
+  trySilentRefresh(): Observable<boolean> {
+    return this.refresh().pipe(
+      tap(() => true),
+      catchError(() => of(false)),
+      tap(() => true),
+      // mapa a booleano simple
+      catchError(() => of(false))
+    ) as unknown as Observable<boolean>;
+  }
+
+  // ─── Email verification ───────────────────────────────────
+
+  sendVerifyEmail(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.ssoUrl}/auth/resend-verification`,
+      { email },
+      this.cookieOptions()
+    );
+  }
+
+  verifyEmail(token: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.ssoUrl}/auth/verify-email`,
+      { token },
+      this.cookieOptions()
+    );
+  }
+
+  // ─── Password reset ───────────────────────────────────────
+
+  recoverPassword(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.ssoUrl}/auth/forgot-password`,
+      { email },
+      this.cookieOptions()
+    );
+  }
+
+  /**
+   * Reset usando el token recibido por email (link `?token=...`).
+   */
+  changePassword(token: string, newPassword: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.ssoUrl}/auth/reset-password`,
+      { token, new_password: newPassword },
+      this.cookieOptions()
+    );
+  }
+
+  /**
+   * Cambio de password autenticado (usuario logueado).
+   * El SSO aplica `password_history` (no reusar últimas N) y revoca refresh.
+   */
+  changePasswordAuthenticated(
+    currentPassword: string,
+    newPassword: string
+  ): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.ssoUrl}/auth/change-password`,
+      { current_password: currentPassword, new_password: newPassword },
+      this.cookieOptions()
+    );
+  }
+
+  // ─── Helpers internos ─────────────────────────────────────
+
+  private persistSession(response: SsoLoginResponse): void {
+    const token = response.access_token;
+    if (token) this.tokenService.saveToken(token);
+    if (response.user) this.sessionService.saveLogin(response.user);
+    this.cartService.syncWithCurrentSession();
+    this.branchCache.load();
   }
 }

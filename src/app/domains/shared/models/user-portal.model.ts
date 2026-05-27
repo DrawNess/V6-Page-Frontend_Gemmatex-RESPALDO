@@ -1,25 +1,39 @@
+/**
+ * Después de la integración con SSO los identificadores son UUID v7 (string).
+ * Los antiguos números (INT) ya no existen en el backend.
+ */
+
 export interface ApiRole {
-  id: number;
-  slug: string;
+  id: string;
+  slug?: string;
   name: string;
+  description?: string;
+  is_system?: boolean;
 }
 
+/** @deprecated Tras la integración SSO, los roles globales viajan en `AuthUser.roles`
+ *  y los roles fine-grained de sucursal en `user_branches` (API-V6). No hay
+ *  `user_roles` por usuario. */
 export interface ApiUserRole {
-  id: number;
-  userId: number;
-  roleId: number;
+  id: number | string;
+  userId: string;
+  roleId: string;
   branchId: number | null;
   role: ApiRole;
   branch?: ApiBranch | null;
 }
 
 export interface ApiUser {
-  id: number;
+  id: string;
   email: string;
-  /** @deprecated — use userRoles[] after API-V6 */
-  role?: string;
+  status?: 'pending' | 'active' | 'suspended' | 'deleted';
+  email_verified_at?: string | null;
   roles?: string[];
+  /** @deprecated */
+  role?: string;
+  /** @deprecated SSO ya no expone user_roles[]; usar roles[] globales y user_branches en API-V6. */
   userRoles?: ApiUserRole[];
+  /** @deprecated Reemplazado por `email_verified_at != null`. */
   isEmailVerified?: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -109,16 +123,38 @@ export interface ApiOrderContact {
   whatsapp?: string | null;
 }
 
+export interface ApiOrderDeliveryAddress {
+  departamento?: string | null;
+  provincia?: string | null;
+  ciudad?: string | null;
+  calleAvenida?: string | null;
+  numero?: string | null;
+  casaDpto?: string | null;
+  linkGoogleMaps?: string | null;
+}
+
 export interface ApiOrderDelivery {
   mode?: 'recojo_tienda' | 'envio_domicilio';
   whatsapp?: string | null;
   branch?: ApiBranch | null;
+  /** Snapshot inmutable de la dirección al crear la orden. */
+  address?: ApiOrderDeliveryAddress;
 }
 
 export interface ApiOrder {
   id: number;
+  /** UUID del cliente en el SSO (snapshot al crear la orden). */
+  customerUuid?: string;
+  /** @deprecated Reemplazado por `customerUuid` tras integración SSO. */
   customerId?: number;
   customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  customerDocument?: {
+    type?: string | null;
+    number?: string | null;
+    razonSocial?: string | null;
+  } | null;
   status?: string;
   detail?: string | null;
   total?: number;

@@ -37,7 +37,8 @@ export class OrdersListComponent {
   readonly statuses      = ORDER_STATUSES;
   readonly searchText    = signal('');
   readonly expandedId    = signal<number | null>(null);
-  readonly showCityCol   = this.tokenService.hasRole('admin');
+  readonly showCityCol =
+    this.tokenService.hasRole('admin') || this.tokenService.hasRole('super_admin');
 
   getBranchCity(order: ApiOrder): string {
     return order.branch?.city ?? this.branchCache.getCityById(order.branchId as number) ?? '—';

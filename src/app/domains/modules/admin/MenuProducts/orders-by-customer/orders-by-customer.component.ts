@@ -6,8 +6,13 @@ import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
 import { ApiOrder, ApiOrderItem } from '@shared/models/user-portal.model';
 import { OrderService } from '@shared/services/order.service';
 
+/**
+ * Tras la integración con SSO el cliente se identifica por `customerUuid` (UUID v7).
+ * Mantengo el nombre del campo `customerId` en el summary por compatibilidad con el
+ * template, pero su tipo cambia a `string` y se rellena desde `order.customerUuid`.
+ */
 type CustomerOrdersSummary = {
-  customerId: number;
+  customerId: string;
   customerName: string;
   customerEmail: string;
   customerPhone: string;
@@ -44,7 +49,7 @@ export class OrdersByCustomerComponent {
   readonly successMsg = signal('');
 
   readonly orders = signal<ApiOrder[]>([]);
-  readonly selectedCustomerId = signal<number | null>(null);
+  readonly selectedCustomerId = signal<string | null>(null);
   readonly selectedOrderId    = signal<number | null>(null);
   readonly searchText         = signal('');
 
@@ -63,10 +68,10 @@ export class OrdersByCustomerComponent {
   });
 
   readonly summaries = computed<CustomerOrdersSummary[]>(() => {
-    const grouped = new Map<number, ApiOrder[]>();
+    const grouped = new Map<string, ApiOrder[]>();
 
     for (const order of this.orders()) {
-      const customerId = this.toPositiveNumber(order.customerId);
+      const customerId = this.getOrderCustomerId(order);
       if (!customerId) continue;
       const list = grouped.get(customerId) ?? [];
       list.push(order);
@@ -75,15 +80,25 @@ export class OrdersByCustomerComponent {
 
     const summaries: CustomerOrdersSummary[] = [];
     for (const [customerId, orders] of grouped.entries()) {
-      // Use customer embedded in any order of this customer
-      const embedded = orders.find(o => !!o.customer)?.customer ?? null;
-      const name  = embedded ? `${embedded.name ?? ''} ${embedded.lastName ?? ''}`.trim() : '';
-      const email = embedded?.user?.email ?? '-';
-      const phone = embedded?.phone ?? '-';
+      // Snapshot del cliente vive en cualquier orden del grupo (campos planos
+      // tras la integración SSO). Fallback al `order.customer` legacy si aún
+      // queda alguna respuesta vieja.
+      const ref = orders.find((o) => (o as any).customerName) ?? orders[0];
+      const snapshotName = (ref as { customerName?: string }).customerName;
+      const snapshotEmail = (ref as { customerEmail?: string }).customerEmail;
+      const snapshotPhone = (ref as { customerPhone?: string }).customerPhone;
+      const embedded = ref.customer;
+
+      const name =
+        (snapshotName?.trim() ||
+          (embedded ? `${embedded.name ?? ''} ${embedded.lastName ?? ''}`.trim() : '')) ||
+        'Cliente sin nombre';
+      const email = snapshotEmail ?? embedded?.user?.email ?? '-';
+      const phone = snapshotPhone ?? embedded?.phone ?? '-';
 
       summaries.push({
         customerId,
-        customerName:  name  || `Cliente #${customerId}`,
+        customerName: name,
         customerEmail: email,
         customerPhone: phone,
         ordersCount: orders.length,
@@ -102,7 +117,7 @@ export class OrdersByCustomerComponent {
     const term = this.searchText().trim().toLowerCase();
     if (!term) return this.summaries();
     return this.summaries().filter(s =>
-      String(s.customerId).includes(term) ||
+      s.customerId.toLowerCase().includes(term) ||
       s.customerName.toLowerCase().includes(term) ||
       s.customerEmail.toLowerCase().includes(term) ||
       s.customerPhone.toLowerCase().includes(term)
@@ -118,7 +133,7 @@ export class OrdersByCustomerComponent {
     const id = this.selectedCustomerId();
     if (!id) return [];
     return this.orders()
-      .filter(o => this.toPositiveNumber(o.customerId) === id)
+      .filter(o => this.getOrderCustomerId(o) === id)
       .sort((a, b) => {
         const pa = STATUS_PRIORITY[a.status ?? ''] ?? 99;
         const pb = STATUS_PRIORITY[b.status ?? ''] ?? 99;
@@ -158,7 +173,7 @@ export class OrdersByCustomerComponent {
     });
   }
 
-  selectCustomer(customerId: number): void {
+  selectCustomer(customerId: string): void {
     this.selectedCustomerId.set(customerId);
     this.selectedOrderId.set(this.selectedCustomerOrders()[0]?.id ?? null);
   }
@@ -205,8 +220,17 @@ export class OrdersByCustomerComponent {
     return this.STATUS_META[status ?? ''] ?? { label: status ?? '—', color: 'bg-slate-100 text-slate-700 border-slate-300' };
   }
 
-  private toPositiveNumber(value: unknown): number | null {
-    const parsed = Number(value);
-    return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+  /**
+   * Devuelve el identificador del cliente para agrupación de órdenes.
+   * Tras la integración con SSO la fuente es `customerUuid` (UUID v7).
+   * Fallback al `customerId` legacy convertido a string sólo si no hay UUID.
+   */
+  private getOrderCustomerId(order: ApiOrder): string | null {
+    const uuid = (order as { customerUuid?: string }).customerUuid;
+    if (uuid && uuid.trim()) return uuid;
+    if (order.customerId !== undefined && order.customerId !== null) {
+      return String(order.customerId);
+    }
+    return null;
   }
 }

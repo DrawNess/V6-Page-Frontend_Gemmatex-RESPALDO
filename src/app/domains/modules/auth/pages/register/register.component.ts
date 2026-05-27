@@ -162,44 +162,37 @@ export class RegisterComponent implements OnDestroy {
     this.status = 'loading';
 
     const { name, lastName, phone, email, password } = this.form.getRawValue();
+    const normalizedEmail = email.trim().toLowerCase();
+    // El SSO espera teléfono en formato +591########.
+    const rawPhone = phone.trim().replace(/\s+/g, '');
+    const normalizedPhone = rawPhone.startsWith('+591')
+      ? rawPhone
+      : rawPhone.startsWith('591')
+      ? `+${rawPhone}`
+      : `+591${rawPhone}`;
 
+    // Payload SSO: campos planos snake_case. Email, password, first_name,
+    // last_name y phone son obligatorios; el resto opcional.
     const payload = {
-      name: name.trim(),
-      lastName: lastName.trim(),
-      phone: phone.trim(),
-      user: {
-        email: email.trim().toLowerCase(),
-        password,
-      },
+      email: normalizedEmail,
+      password,
+      first_name: name.trim(),
+      last_name: lastName.trim(),
+      phone: normalizedPhone,
     };
 
-    // 1) POST /customers
-    // 2) POST /auth/send-verify-email (con email devuelto por backend)
-    // 3) Modal + esperar 2s + redirect
     this.authService
-      .register(payload as any)
-      .pipe(
-        switchMap((res: any) => {
-          const newCustomerId = Number(res?.newCustomer?.id);
-          const newUserId = Number(res?.newCustomer?.userId ?? res?.newCustomer?.user?.id);
-          if (!Number.isNaN(newCustomerId) && !Number.isNaN(newUserId)) {
-            this.sessionService.rememberCustomerForUser(newUserId, newCustomerId);
-          }
-          const createdEmail = res?.newCustomer?.user?.email || payload.user.email;
-          return this.authService.sendVerifyEmail(createdEmail);
-        }),
-        finalize(() => (this.status = 'init'))
-      )
+      .register(payload)
+      .pipe(finalize(() => (this.status = 'init')))
       .subscribe({
         next: () => {
+          // El SSO ya dispara el email de verificación al registrarse,
+          // no hace falta llamar `sendVerifyEmail` manualmente.
           this.status = 'success';
-          this.openSuccessModal(payload.user.email);
+          this.openSuccessModal(normalizedEmail);
           this.redirectTimeoutId = window.setTimeout(() => {
             this.goToLogin();
           }, 4000);
-          /* timer(2000).subscribe(() => {
-            this.router.navigate(['/email-verified']); // o '/verify-success'
-          }); */
         },
         error: (err) => {
           this.status = 'failed';

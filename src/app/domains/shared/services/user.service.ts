@@ -1,12 +1,30 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, map, throwError } from 'rxjs';
+
 import { environment } from '@environments/environment';
-import { Observable, of, switchMap, throwError } from 'rxjs';
-import { ApiUser, ApiRole, ApiUserRole } from '@shared/models/user-portal.model';
+import { ApiRole, ApiUser, ApiUserRole } from '@shared/models/user-portal.model';
+import { AuthUser } from '@shared/models/auth.model';
 import { TokenService } from './token.service';
 import { SessionService } from './session.service';
 import { ProfileService } from './profile.service';
-import { catchError, map } from 'rxjs/operators';
+
+/**
+ * Servicio admin de usuarios. Tras la integración con SSO, todas las
+ * operaciones CRUD apuntan a `/admin/users` del SSO. Los IDs son UUID v7
+ * (string).
+ *
+ * Notas:
+ *  - "Crear usuario" no existe como POST directo. El flujo del SSO es
+ *    invitación → email → aceptación. `createUser` lanza un error
+ *    explícito para que la UI redirija al endpoint correcto.
+ *  - "Roles globales" en el SSO son un catálogo fijo (`client`, `staff`,
+ *    `admin`, `super_admin`). No hay endpoint `/roles` — se devuelven
+ *    hardcoded.
+ *  - Roles fine-grained por sucursal (`seller`, `branch_admin`, …) viven
+ *    en `user_branches` del API-V6, NO en el SSO. Para asignarlos usar
+ *    `POST /api/v1/admin/user-branches` del API-V6.
+ */
 
 interface CreateUserPayload {
   email: string;
@@ -18,104 +36,165 @@ interface AssignRolePayload {
   branchId: number | null;
 }
 
+interface SsoUserResponse {
+  user: AuthUser;
+}
+
+interface SsoUserListResponse {
+  data?: AuthUser[];
+  meta?: unknown;
+}
+
+const GLOBAL_ROLES_CATALOG: ApiRole[] = [
+  { id: 'client', name: 'Cliente', slug: 'client', is_system: true },
+  { id: 'staff', name: 'Staff (empleado)', slug: 'staff', is_system: true },
+  { id: 'admin', name: 'Admin global', slug: 'admin', is_system: true },
+  { id: 'super_admin', name: 'Super Admin', slug: 'super_admin', is_system: true },
+];
+
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
+  private readonly http = inject(HttpClient);
+  private readonly tokenService = inject(TokenService);
+  private readonly sessionService = inject(SessionService);
+  private readonly profileService = inject(ProfileService);
 
-  private readonly apiUrl = environment.API_URL;
+  private readonly ssoUrl = environment.SSO_URL;
+  private readonly clientId = environment.SSO_CLIENT_ID;
 
-  constructor(
-    private readonly http: HttpClient,
-    private readonly tokenService: TokenService,
-    private readonly sessionService: SessionService,
-    private readonly profileService: ProfileService
-  ) {}
+  private ssoHeaders(): HttpHeaders {
+    return new HttpHeaders({ 'X-Client-Id': this.clientId });
+  }
+
+  private ssoOptions() {
+    return { headers: this.ssoHeaders(), withCredentials: true };
+  }
+
+  // ─── Admin CRUD ───────────────────────────────────────────
 
   getUsers(): Observable<ApiUser[]> {
-    return this.http.get<ApiUser[] | { data?: ApiUser[]; users?: ApiUser[] }>(`${this.apiUrl}/users`).pipe(
-      map((response) => {
-        if (Array.isArray(response)) {
-          return response;
-        }
-        return response.data ?? response.users ?? [];
-      })
-    );
+    return this.http
+      .get<SsoUserListResponse>(`${this.ssoUrl}/admin/users`, this.ssoOptions())
+      .pipe(map((res) => (res.data ?? []) as ApiUser[]));
   }
 
-  getUserById(userId: number): Observable<ApiUser> {
-    return this.http.get<ApiUser>(`${this.apiUrl}/users/${userId}`);
+  getUserById(userId: string | number): Observable<ApiUser> {
+    const id = String(userId);
+    return this.http
+      .get<SsoUserResponse>(`${this.ssoUrl}/admin/users/${id}`, this.ssoOptions())
+      .pipe(map((res) => res.user as ApiUser));
   }
 
-  createUser(payload: CreateUserPayload): Observable<ApiUser> {
-    return this.http.post<ApiUser>(`${this.apiUrl}/users`, payload);
+  /**
+   * No se permite crear usuarios directamente. Para crear staff/admin se
+   * usa el flujo de invitaciones del SSO: `POST /admin/invitations`. Para
+   * crear clientes finales lo hace el propio cliente vía `/auth/register`.
+   */
+  createUser(_payload: CreateUserPayload): Observable<ApiUser> {
+    return throwError(() => ({
+      status: 501,
+      error: {
+        message:
+          'Crear usuarios directamente ya no está soportado. Usa el flujo de invitaciones: POST /admin/invitations',
+      },
+    }));
   }
 
   updateUser(
-    userId: number,
-    payload: Partial<Pick<ApiUser, 'email' | 'isEmailVerified'>>
+    userId: string | number,
+    payload: Partial<Pick<ApiUser, 'email' | 'roles' | 'status'>>
   ): Observable<ApiUser> {
-    return this.http.patch<ApiUser>(`${this.apiUrl}/users/${userId}`, payload);
+    const id = String(userId);
+    return this.http
+      .patch<SsoUserResponse>(
+        `${this.ssoUrl}/admin/users/${id}`,
+        payload,
+        this.ssoOptions()
+      )
+      .pipe(map((res) => res.user as ApiUser));
   }
 
-  getRoles(): Observable<ApiRole[]> {
-    return this.http.get<ApiRole[]>(`${this.apiUrl}/roles`);
-  }
-
-  getUserRoles(userId: number): Observable<ApiUserRole[]> {
-    return this.http.get<ApiUserRole[]>(`${this.apiUrl}/users/${userId}/roles`);
-  }
-
-  assignRole(userId: number, payload: AssignRolePayload): Observable<ApiUserRole> {
-    return this.http.post<ApiUserRole>(`${this.apiUrl}/users/${userId}/roles`, payload);
-  }
-
-  revokeRole(userId: number, userRoleId: number): Observable<{ id: number; message: string }> {
-    return this.http.delete<{ id: number; message: string }>(`${this.apiUrl}/users/${userId}/roles/${userRoleId}`);
-  }
-
-  deleteUser(userId: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/users/${userId}`);
-  }
-
-  getCurrentUserId(): number | null {
-    const fromToken = this.tokenService.getUserIdFromToken();
-    if (fromToken) {
-      return fromToken;
-    }
-    return this.sessionService.getCurrentUserIdFromSession();
-  }
-
-  private resolveCurrentUserId(): Observable<number> {
-    const fromSessionOrToken = this.getCurrentUserId();
-
-    return this.profileService.getMe().pipe(
-      map((me) => {
-        const userId = Number(me?.userId);
-        const customerId = Number(me?.customerId);
-        if (userId > 0) {
-          if (customerId > 0) {
-            this.sessionService.saveIdentity(userId, customerId);
-          }
-          return userId;
-        }
-        if (fromSessionOrToken) {
-          return fromSessionOrToken;
-        }
-        throw new Error('USER_ID_NOT_FOUND');
-      }),
-      catchError(() => {
-        if (fromSessionOrToken) {
-          return of(fromSessionOrToken);
-        }
-        return throwError(() => new Error('USER_ID_NOT_FOUND'));
-      })
+  deleteUser(userId: string | number): Observable<void> {
+    const id = String(userId);
+    return this.http.delete<void>(
+      `${this.ssoUrl}/admin/users/${id}`,
+      this.ssoOptions()
     );
   }
 
+  // ─── Catálogo de roles (hardcoded) ────────────────────────
+
+  getRoles(): Observable<ApiRole[]> {
+    // El SSO no expone /roles. El catálogo es fijo a nivel sistema.
+    return new Observable<ApiRole[]>((subscriber) => {
+      subscriber.next(GLOBAL_ROLES_CATALOG);
+      subscriber.complete();
+    });
+  }
+
+  getUserRoles(userId: string | number): Observable<ApiUserRole[]> {
+    // Los roles vienen ya en getUserById(). Devolvemos shape vacío
+    // mientras los componentes admin se migran al patrón nuevo.
+    return this.getUserById(userId).pipe(map(() => [] as ApiUserRole[]));
+  }
+
+  /**
+   * @deprecated En el SSO no se asignan roles uno a uno; se patchea el array
+   * completo via `updateUser(uuid, { roles: [...] })`. Para roles
+   * fine-grained por sucursal usar `POST /api/v1/admin/user-branches` del
+   * API-V6.
+   */
+  assignRole(
+    _userId: string | number,
+    _payload: AssignRolePayload
+  ): Observable<ApiUserRole> {
+    return throwError(() => ({
+      status: 501,
+      error: {
+        message:
+          'Usar updateUser(uuid, { roles: [...] }) para roles globales, o POST /admin/user-branches (API-V6) para roles por sucursal.',
+      },
+    }));
+  }
+
+  /** @deprecated Igual que assignRole. */
+  revokeRole(
+    _userId: string | number,
+    _userRoleId: number
+  ): Observable<{ id: number; message: string }> {
+    return throwError(() => ({
+      status: 501,
+      error: {
+        message:
+          'Usar updateUser(uuid, { roles: [...] }) excluyendo el rol a remover, o DELETE /admin/user-branches/:id (API-V6).',
+      },
+    }));
+  }
+
+  // ─── Helpers del usuario actual ───────────────────────────
+
+  /**
+   * UUID v7 del usuario actual. Antes devolvía `number` (INT del API-V6 viejo);
+   * tras la integración devuelve `string | null`. Componentes legacy que
+   * comparan con `> 0` siguen funcionando porque un UUID válido es truthy.
+   */
+  getCurrentUserId(): string | null {
+    return (
+      this.tokenService.getUserIdFromToken() ??
+      this.sessionService.getCurrentUserIdFromSession()
+    );
+  }
+
+  /**
+   * Devuelve el usuario actual. Usa `/auth/me` del SSO (self-service, no
+   * requiere rol admin). Esto evita 403 en clientes que invoquen este
+   * método para poblar el perfil.
+   */
   getCurrentUser(): Observable<ApiUser> {
-    return this.resolveCurrentUserId().pipe(
-      switchMap((userId) => this.getUserById(userId))
+    return this.profileService.getMeDetails().pipe(
+      map((details) => details.user as ApiUser)
     );
   }
 }

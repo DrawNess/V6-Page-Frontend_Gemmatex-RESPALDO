@@ -1,11 +1,10 @@
 <div>
   <!-- Header -->
-  <div class="flex items-baseline justify-between px-6 py-5 border-b border-slate-200">
-    <div>
-      <h1 class="text-lg font-semibold text-slate-900 tracking-tight">Mi cuenta</h1>
-      <p class="text-[11px] uppercase tracking-widest text-slate-400 mt-0.5">Resumen general</p>
-    </div>
-    <p class="text-[11px] text-slate-400 font-mono truncate">{{ user?.email || '—' }}</p>
+  <div class="px-6 py-5 border-b border-slate-200">
+    <h1 class="text-xl font-bold text-blue-700 tracking-tight">
+      {{ fullName || 'Mi cuenta' }}
+    </h1>
+    <p class="text-[12px] text-slate-500 mt-0.5">{{ user?.email || '—' }}</p>
   </div>
 
   @if (loading) {
@@ -19,67 +18,78 @@
   }
 
   @if (!loading) {
-    <!-- Credenciales -->
-    <div class="border-b border-slate-200">
-      <div class="px-6 py-3 bg-slate-50 border-b border-slate-200">
-        <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Credenciales</p>
+    <!-- Datos personales -->
+    <dl class="divide-y divide-slate-200">
+      <div class="grid grid-cols-3 px-6 py-3">
+        <dt class="text-[12px] font-semibold uppercase tracking-wider text-blue-700 col-span-1">Nombre</dt>
+        <dd class="text-sm text-slate-900 col-span-2 font-medium">{{ profile?.first_name || '—' }}</dd>
       </div>
-      <dl class="divide-y divide-slate-100">
+      <div class="grid grid-cols-3 px-6 py-3">
+        <dt class="text-[12px] font-semibold uppercase tracking-wider text-blue-700 col-span-1">Apellido</dt>
+        <dd class="text-sm text-slate-900 col-span-2 font-medium">{{ profile?.last_name || '—' }}</dd>
+      </div>
+      <div class="grid grid-cols-3 px-6 py-3">
+        <dt class="text-[12px] font-semibold uppercase tracking-wider text-blue-700 col-span-1">Email</dt>
+        <dd class="text-sm text-slate-900 col-span-2 font-medium flex items-center gap-2">
+          <span>{{ user?.email || '—' }}</span>
+          <span class="text-[11px] px-2 py-0.5 rounded-full"
+                [class.bg-emerald-100]="user?.email_verified_at"
+                [class.text-emerald-800]="user?.email_verified_at"
+                [class.bg-amber-100]="!user?.email_verified_at"
+                [class.text-amber-800]="!user?.email_verified_at">
+            {{ verifiedLabel }}
+          </span>
+        </dd>
+      </div>
+      <div class="grid grid-cols-3 px-6 py-3">
+        <dt class="text-[12px] font-semibold uppercase tracking-wider text-blue-700 col-span-1">Teléfono</dt>
+        <dd class="text-sm text-slate-900 col-span-2 font-medium">{{ profile?.phone || '—' }}</dd>
+      </div>
+      <div class="grid grid-cols-3 px-6 py-3">
+        <dt class="text-[12px] font-semibold uppercase tracking-wider text-blue-700 col-span-1">Documento</dt>
+        <dd class="text-sm text-slate-900 col-span-2 font-medium">{{ documentLabel }}</dd>
+      </div>
+      @if (profile?.document_type === 'NIT') {
         <div class="grid grid-cols-3 px-6 py-3">
-          <dt class="text-[12px] uppercase tracking-wider text-slate-400 col-span-1">Correo</dt>
-          <dd class="text-sm text-slate-900 col-span-2 font-medium">{{ user?.email || '—' }}</dd>
+          <dt class="text-[12px] font-semibold uppercase tracking-wider text-blue-700 col-span-1">Razón Social</dt>
+          <dd class="text-sm text-slate-900 col-span-2 font-medium">{{ profile?.razon_social || '—' }}</dd>
         </div>
+      }
+      <div class="grid grid-cols-3 px-6 py-3">
+        <dt class="text-[12px] font-semibold uppercase tracking-wider text-blue-700 col-span-1">Nacimiento</dt>
+        <dd class="text-sm text-slate-900 col-span-2 font-medium">{{ birthLabel }}</dd>
+      </div>
+      <div class="grid grid-cols-3 px-6 py-3">
+        <dt class="text-[12px] font-semibold uppercase tracking-wider text-blue-700 col-span-1">Dirección</dt>
+        <dd class="text-sm text-slate-900 col-span-2 font-medium">{{ addressLine }}</dd>
+      </div>
+      @if (profile?.link_google_maps) {
         <div class="grid grid-cols-3 px-6 py-3">
-          <dt class="text-[12px] uppercase tracking-wider text-slate-400 col-span-1">Rol</dt>
-          <dd class="text-sm text-slate-900 col-span-2 font-medium">
-            {{ user?.role === 'admin' ? 'Administrador' : 'Cliente' }}
+          <dt class="text-[12px] font-semibold uppercase tracking-wider text-blue-700 col-span-1">Mapa</dt>
+          <dd class="text-sm col-span-2">
+            <a [href]="profile!.link_google_maps!" target="_blank" rel="noopener"
+               class="font-medium text-blue-600 hover:underline">
+              Ver en Google Maps
+            </a>
           </dd>
         </div>
-      </dl>
-    </div>
-
-    <!-- Contacto -->
-    <div class="border-b border-slate-200">
-      <div class="px-6 py-3 bg-slate-50 border-b border-slate-200">
-        <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Contacto</p>
+      }
+      <div class="grid grid-cols-3 px-6 py-3">
+        <dt class="text-[12px] font-semibold uppercase tracking-wider text-blue-700 col-span-1">Rol</dt>
+        <dd class="text-sm text-slate-900 col-span-2 font-medium">{{ roleLabel }}</dd>
       </div>
-      <dl class="divide-y divide-slate-100">
-        <div class="grid grid-cols-3 px-6 py-3">
-          <dt class="text-[12px] uppercase tracking-wider text-slate-400 col-span-1">Nombre</dt>
-          <dd class="text-sm text-slate-900 col-span-2 font-medium">{{ customer?.name || '—' }}</dd>
-        </div>
-        <div class="grid grid-cols-3 px-6 py-3">
-          <dt class="text-[12px] uppercase tracking-wider text-slate-400 col-span-1">Apellido</dt>
-          <dd class="text-sm text-slate-900 col-span-2 font-medium">{{ customer?.lastName || '—' }}</dd>
-        </div>
-        <div class="grid grid-cols-3 px-6 py-3">
-          <dt class="text-[12px] uppercase tracking-wider text-slate-400 col-span-1">Teléfono</dt>
-          <dd class="text-sm text-slate-900 col-span-2 font-medium">{{ customer?.phone || '—' }}</dd>
-        </div>
-      </dl>
-    </div>
+    </dl>
 
     <!-- Acciones -->
-    <div>
-      <div class="px-6 py-3 bg-slate-50 border-b border-slate-200">
-        <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Acciones</p>
-      </div>
-      <div class="px-6 py-5 flex flex-wrap gap-2">
-        <a [routerLink]="userInfoPath"
-           class="inline-flex items-center gap-2 rounded-md bg-slate-100 px-4 py-2 text-[13px] font-semibold text-slate-700 hover:bg-slate-200">
-          Editar información
-          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-          </svg>
-        </a>
-        <a [routerLink]="userOrdersPath"
-           class="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-[13px] font-semibold text-white hover:bg-blue-700">
-          Mis pedidos
-          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-          </svg>
-        </a>
-      </div>
+    <div class="px-6 py-5 flex flex-wrap gap-2 border-t border-slate-100">
+      <a [routerLink]="userInfoPath"
+         class="inline-flex items-center gap-2 rounded-md bg-slate-100 px-4 py-2 text-[13px] font-semibold text-slate-700 hover:bg-slate-200">
+        Editar información
+      </a>
+      <a [routerLink]="userOrdersPath"
+         class="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-[13px] font-semibold text-white hover:bg-blue-700">
+        Mis pedidos
+      </a>
     </div>
   }
 </div>

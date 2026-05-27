@@ -3,8 +3,21 @@ import { CanActivateFn, Router } from '@angular/router';
 import { TokenService } from '@services/token.service';
 import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
 
-const CUSTOMER_ROLES = new Set(['customer', 'user', 'cliente']);
-const PANEL_ROLES = new Set(['admin', 'branch_admin', 'seller', 'staff']);
+// Tras la integración con SSO el rol del cliente final pasó de `customer`
+// (legacy API-V6) a `client` (SSO). Aceptamos los antiguos por compatibilidad.
+const CUSTOMER_ROLES = new Set(['client', 'customer', 'user', 'cliente']);
+// Roles que indican panel (staff o admin). Se mantienen para que el guard
+// del frontend del cliente NO mate la sesión cuando entra un staff.
+const PANEL_ROLES = new Set([
+  'admin',
+  'super_admin',
+  'staff',
+  'branch_admin',
+  'seller',
+  'manager',
+  'cashier',
+  'viewer',
+]);
 
 export const customerGuard: CanActivateFn = (_route, _state) => {
   const router = inject(Router);

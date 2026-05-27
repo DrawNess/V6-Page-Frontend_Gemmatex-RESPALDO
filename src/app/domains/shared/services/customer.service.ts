@@ -1,160 +1,189 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, map, of, switchMap } from 'rxjs';
+
 import { environment } from '@environments/environment';
-import { Observable, of, switchMap, throwError } from 'rxjs';
 import { ApiCustomer } from '@shared/models/user-portal.model';
-import { UserService } from './user.service';
-import { SessionService } from './session.service';
-import { catchError } from 'rxjs/operators';
+import { AuthUser, ClientProfile } from '@shared/models/auth.model';
 import { ProfileService } from './profile.service';
-import { map } from 'rxjs/operators';
+
+/**
+ * Servicio "Customer" tras la integración con SSO.
+ *
+ * La tabla `customers` del API-V6 ya no existe. Lo que antes consultábamos
+ * como `customer` ahora vive como `client_profile` en el SSO. Este servicio
+ * conserva la API pública vieja (`getMyCustomer`, `updateMyCustomer`, etc.)
+ * mapeando a/desde el shape de `clientProfile` para que los componentes
+ * legacy de checkout/perfil sigan funcionando sin reescribirlos todos.
+ *
+ * Operaciones admin (`getCustomers`, `getCustomerById`, …) apuntan al
+ * endpoint `/admin/users?role=client` del SSO.
+ */
 
 type CustomerUpdatePayload = Partial<
-  Pick<ApiCustomer, 'name' | 'lastName' | 'phone' | 'company' | 'region' | 'city' | 'street' | 'streetNumber' | 'apartment'>
+  Pick<
+    ApiCustomer,
+    | 'name'
+    | 'lastName'
+    | 'phone'
+    | 'company'
+    | 'region'
+    | 'city'
+    | 'street'
+    | 'streetNumber'
+    | 'apartment'
+  >
 >;
+
+interface SsoUserResponse {
+  user: AuthUser & { clientProfile?: ClientProfile | null };
+}
+
+interface SsoUserListResponse {
+  data?: Array<AuthUser & { clientProfile?: ClientProfile | null }>;
+  meta?: unknown;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class CustomerService {
-  private readonly apiUrl = environment.API_URL;
+  private readonly http = inject(HttpClient);
+  private readonly profileService = inject(ProfileService);
 
-  constructor(
-    private readonly http: HttpClient,
-    private readonly userService: UserService,
-    private readonly sessionService: SessionService,
-    private readonly profileService: ProfileService
-  ) {}
+  private readonly ssoUrl = environment.SSO_URL;
+  private readonly clientId = environment.SSO_CLIENT_ID;
+
+  private ssoHeaders(): HttpHeaders {
+    return new HttpHeaders({ 'X-Client-Id': this.clientId });
+  }
+
+  private ssoOptions() {
+    return { headers: this.ssoHeaders(), withCredentials: true };
+  }
+
+  // ─── Self-service (cliente actual) ────────────────────────
 
   getMyCustomer(): Observable<ApiCustomer> {
-    return this.http
-      .get<ApiCustomer | { data?: ApiCustomer }>(`${this.apiUrl}/customers/me`)
-      .pipe(
-        map((response) => (response as { data?: ApiCustomer }).data ?? (response as ApiCustomer))
-      );
-  }
-
-  getCustomers(): Observable<ApiCustomer[]> {
-    return this.http
-      .get<ApiCustomer[] | { data?: ApiCustomer[]; customers?: ApiCustomer[] }>(`${this.apiUrl}/customers`)
-      .pipe(
-        map((response) => {
-          if (Array.isArray(response)) {
-            return response;
-          }
-          return response.data ?? response.customers ?? [];
-        })
-      );
-  }
-
-  getCustomerById(customerId: number): Observable<ApiCustomer> {
-    return this.http.get<ApiCustomer>(`${this.apiUrl}/customers/${customerId}`);
-  }
-
-  updateCustomer(
-    customerId: number,
-    payload: CustomerUpdatePayload
-  ): Observable<ApiCustomer> {
-    return this.http.patch<ApiCustomer>(`${this.apiUrl}/customers/${customerId}`, payload);
+    return this.profileService
+      .getMeDetails()
+      .pipe(map((details) => details.customer ?? ({} as ApiCustomer)));
   }
 
   updateMyCustomer(payload: CustomerUpdatePayload): Observable<ApiCustomer> {
-    return this.http.patch<ApiCustomer>(`${this.apiUrl}/customers/me`, payload);
+    return this.profileService
+      .updateMe({
+        name: payload.name,
+        lastName: payload.lastName,
+        phone: payload.phone,
+        // Map address legacy → snake_case SSO
+        departamento: payload.region ?? undefined,
+        ciudad: payload.city ?? undefined,
+        calle_avenida: payload.street ?? undefined,
+        numero: payload.streetNumber ?? undefined,
+        casa_dpto: payload.apartment ?? undefined,
+      })
+      .pipe(map((details) => details.customer ?? ({} as ApiCustomer)));
   }
 
   getMyAddress(): Observable<CustomerUpdatePayload> {
-    return this.http
-      .get<CustomerUpdatePayload | { data?: CustomerUpdatePayload }>(`${this.apiUrl}/customers/me/address`)
-      .pipe(map((response) => (response as { data?: CustomerUpdatePayload }).data ?? (response as CustomerUpdatePayload)));
+    return this.getMyCustomer().pipe(
+      map((c) => ({
+        region: c.region ?? undefined,
+        city: c.city ?? undefined,
+        street: c.street ?? undefined,
+        streetNumber: c.streetNumber ?? undefined,
+        apartment: c.apartment ?? undefined,
+      }))
+    );
   }
 
   updateMyAddress(payload: CustomerUpdatePayload): Observable<CustomerUpdatePayload> {
-    return this.http
-      .patch<CustomerUpdatePayload | { data?: CustomerUpdatePayload }>(`${this.apiUrl}/customers/me/address`, payload)
-      .pipe(map((response) => (response as { data?: CustomerUpdatePayload }).data ?? (response as CustomerUpdatePayload)));
-  }
-
-  deleteCustomer(customerId: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/customers/${customerId}`);
-  }
-
-  private buildCandidateIds(userId: number): number[] {
-    const candidateIds = new Set<number>();
-    const fromSession = this.sessionService.getCurrentCustomerIdFromSession();
-    const fromMap = this.sessionService.getCustomerIdForUser(userId);
-
-    if (fromSession) {
-      candidateIds.add(fromSession);
-    }
-    if (fromMap) {
-      candidateIds.add(fromMap);
-    }
-
-    // fallback para backends donde coinciden customer.id y user.id
-    candidateIds.add(userId);
-
-    return [...candidateIds];
-  }
-
-  private resolveByCandidates(userId: number, candidateIds: number[]): Observable<ApiCustomer> {
-    const [candidate, ...rest] = candidateIds;
-    if (!candidate) {
-      return throwError(() => new Error('CUSTOMER_NOT_FOUND'));
-    }
-
-    return this.getCustomerById(candidate).pipe(
-      switchMap((customer) => {
-        this.sessionService.rememberCustomerForUser(userId, customer.id);
-        return of(customer);
-      }),
-      catchError(() => this.resolveByCandidates(userId, rest))
+    return this.updateMyCustomer(payload).pipe(
+      map((c) => ({
+        region: c.region ?? undefined,
+        city: c.city ?? undefined,
+        street: c.street ?? undefined,
+        streetNumber: c.streetNumber ?? undefined,
+        apartment: c.apartment ?? undefined,
+      }))
     );
   }
 
-  private resolveFromProfileMe(userId: number): Observable<number | null> {
-    return this.profileService.getMe().pipe(
-      switchMap((me) => {
-        const meUserId = Number(me?.userId);
-        const customerId = Number(me?.customerId);
-        if (meUserId > 0 && customerId > 0) {
-          this.sessionService.saveIdentity(meUserId, customerId);
-          return of(customerId);
-        }
-        return of(null);
-      }),
-      catchError(() => of(null))
-    );
-  }
-
+  /**
+   * Carga el cliente actual. Antes mapeaba userId → customerId vía cache.
+   * Tras la integración, basta con `getMyCustomer()` (sólo cliente final).
+   */
   getCurrentCustomer(): Observable<ApiCustomer> {
-    return this.getMyCustomer().pipe(
-      catchError(() =>
-        this.userService.getCurrentUser().pipe(
-          switchMap((user) => {
-            if (!user.id) {
-              return throwError(() => new Error('CUSTOMER_USER_ID_NOT_FOUND'));
-            }
+    return this.getMyCustomer();
+  }
 
-            // Fuente principal: /profile/me para mapear userId -> customerId
-            return this.resolveFromProfileMe(user.id).pipe(
-              switchMap((customerIdFromProfile) => {
-                if (customerIdFromProfile) {
-                  return this.getCustomerById(customerIdFromProfile).pipe(
-                    switchMap((customer) => {
-                      this.sessionService.rememberCustomerForUser(user.id, customer.id);
-                      return of(customer);
-                    })
-                  );
-                }
+  // ─── Admin (panel) — consume SSO ──────────────────────────
 
-                // Fallback para sesiones antiguas o backends con ids sincronizados.
-                const candidateIds = this.buildCandidateIds(user.id);
-                return this.resolveByCandidates(user.id, candidateIds);
-              })
-            );
-          })
-        )
+  /**
+   * Lista clientes (rol `client` en el SSO).
+   * NOTA: estos endpoints requieren JWT con rol `admin` o `super_admin`.
+   */
+  getCustomers(): Observable<ApiCustomer[]> {
+    return this.http
+      .get<SsoUserListResponse>(
+        `${this.ssoUrl}/admin/users?role=client`,
+        this.ssoOptions()
       )
+      .pipe(map((res) => (res.data ?? []).map((u) => this.userToCustomer(u))));
+  }
+
+  /**
+   * Detalle de un cliente por UUID. El parámetro acepta string (UUID v7)
+   * o number por compatibilidad con código que aún pasa el viejo `id`
+   * numérico — se coerce a string.
+   */
+  getCustomerById(customerId: string | number): Observable<ApiCustomer> {
+    const id = String(customerId);
+    return this.http
+      .get<SsoUserResponse>(`${this.ssoUrl}/admin/users/${id}`, this.ssoOptions())
+      .pipe(map((res) => this.userToCustomer(res.user)));
+  }
+
+  updateCustomer(
+    customerId: string | number,
+    _payload: CustomerUpdatePayload
+  ): Observable<ApiCustomer> {
+    // El SSO no permite que un admin edite los datos personales del perfil
+    // ajeno (el cliente debe modificar su propio perfil). Sólo se permiten
+    // cambios de `status` y `roles` vía PATCH /admin/users/:id. Devuelve el
+    // detalle actual para no romper UI; ver `endpoints-migration.md`.
+    return this.getCustomerById(customerId);
+  }
+
+  deleteCustomer(customerId: string | number): Observable<void> {
+    const id = String(customerId);
+    return this.http.delete<void>(
+      `${this.ssoUrl}/admin/users/${id}`,
+      this.ssoOptions()
     );
+  }
+
+  // ─── Mapeos ───────────────────────────────────────────────
+
+  private userToCustomer(
+    user: (AuthUser & { clientProfile?: ClientProfile | null }) | undefined
+  ): ApiCustomer {
+    if (!user) return {} as ApiCustomer;
+    const profile = user.clientProfile;
+    return {
+      id: 0, // deprecated — antes INT; ahora el UUID vive en `userId`
+      name: profile?.first_name ?? '',
+      lastName: profile?.last_name ?? '',
+      phone: profile?.phone ?? '',
+      company: profile?.razon_social ?? null,
+      region: profile?.departamento ?? null,
+      city: profile?.ciudad ?? null,
+      street: profile?.calle_avenida ?? null,
+      streetNumber: profile?.numero ?? null,
+      apartment: profile?.casa_dpto ?? null,
+      email: user.email,
+      userId: user.id as unknown as number, // string UUID coerced for compat
+    } as ApiCustomer;
   }
 }

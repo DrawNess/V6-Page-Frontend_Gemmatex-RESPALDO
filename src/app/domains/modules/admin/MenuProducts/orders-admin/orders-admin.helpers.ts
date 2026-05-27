@@ -36,26 +36,55 @@ export function getItemPrice(item: ApiOrderItem): number {
   return Number(item.OrderProduct?.unitPrice ?? item.price ?? 0);
 }
 
+/**
+ * Tras la integración con SSO el cliente vive en el snapshot inmutable de la
+ * orden (`customerName`, `customerEmail`, `customerPhone`, etc.) y la
+ * dirección en `delivery.address`. El objeto `order.customer` legacy ya no
+ * llega del backend; los fallback se mantienen sólo por compatibilidad.
+ */
 export function getCustomerName(order: ApiOrder): string {
+  const snapshot = (order as { customerName?: string }).customerName;
+  if (snapshot && snapshot.trim()) return snapshot.trim();
+
   if (order.customer) {
     const { name = '', lastName = '' } = order.customer;
     const full = `${name} ${lastName}`.trim();
     if (full) return full;
   }
   if (order.contactName) return order.contactName;
-  return `Cliente #${order.customerId ?? '?'}`;
+  return 'Cliente sin nombre';
 }
 
 export function getCustomerPhone(order: ApiOrder): string | null {
+  const snapshot = (order as { customerPhone?: string }).customerPhone;
+  if (snapshot) return snapshot;
   return order.customer?.phone ?? order.contactWhatsapp ?? null;
 }
 
+export function getCustomerEmail(order: ApiOrder): string | null {
+  return (order as { customerEmail?: string | null }).customerEmail ?? null;
+}
+
 export function getDeliveryModeLabel(order: ApiOrder): string | null {
-  if (!order.deliveryMode) return null;
-  return order.deliveryMode === 'recojo_tienda' ? 'Recojo en tienda' : 'Envío a domicilio';
+  const mode = order.delivery?.mode ?? order.deliveryMode;
+  if (!mode) return null;
+  return mode === 'recojo_tienda' ? 'Recojo en tienda' : 'Envío a domicilio';
 }
 
 export function getCustomerLocation(order: ApiOrder): string | null {
+  // 1) Snapshot inmutable de delivery (formato nuevo).
+  const address = order.delivery?.address;
+  if (address) {
+    const parts = [
+      address.ciudad,
+      address.departamento,
+      address.calleAvenida,
+      address.numero,
+    ].filter(Boolean);
+    if (parts.length > 0) return parts.join(', ');
+  }
+
+  // 2) Fallback al shape legacy.
   const c = order.customer;
   if (!c) return null;
   const parts = [c.city, c.region, c.street, c.streetNumber].filter(Boolean);

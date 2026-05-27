@@ -63,10 +63,11 @@ export class OrdersComponent implements OnInit {
     this.loading = true;
     this.errorMsg = '';
 
-    // Backend filtra cancelados por defecto: traemos lista general + cancelados aparte y mergeamos
+    // Backend filtra cancelados por defecto: traemos lista general + cancelados aparte y mergeamos.
+    // Cap en 100 (max permitido por listOrdersSchema del API-V6).
     forkJoin({
-      all: this.profileService.getMyOrders({ pageSize: 200 }),
-      cancelled: this.profileService.getMyOrders({ status: 'cancelado', pageSize: 200 }).pipe(catchError(() => of([]))),
+      all: this.profileService.getMyOrders({ pageSize: 100 }),
+      cancelled: this.profileService.getMyOrders({ status: 'cancelado', pageSize: 100 }).pipe(catchError(() => of([]))),
     }).subscribe({
       next: ({ all, cancelled }) => {
         const map = new Map<number, ApiOrder>();

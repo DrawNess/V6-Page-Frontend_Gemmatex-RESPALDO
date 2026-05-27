@@ -25,7 +25,8 @@ export class AdminsListComponent {
   private readonly basePath = `/${ROUTE_CONSTANTS.SECRET_BASE}/${ROUTE_CONSTANTS.ADMIN.USERS}/admins`;
 
   readonly users = signal<ApiUser[]>([]);
-  readonly customerUserIds = signal<Set<number>>(new Set());
+  // UUID v7 (string) tras la integración SSO. Antes era INT.
+  readonly customerUserIds = signal<Set<string>>(new Set());
   readonly loading = signal(false);
   readonly creating = signal(false);
   readonly errorMsg = signal('');
@@ -46,13 +47,15 @@ export class AdminsListComponent {
     this.errorMsg.set('');
     forkJoin({
       users: this.userService.getUsers().pipe(catchError(() => of([] as ApiUser[]))),
-      customers: this.customerService.getCustomers().pipe(catchError(() => of([] as { userId?: number }[]))),
+      customers: this.customerService.getCustomers().pipe(catchError(() => of([] as { userId?: string | number }[]))),
     }).subscribe({
       next: ({ users, customers }) => {
-        const ids = new Set<number>();
+        const ids = new Set<string>();
         for (const c of customers) {
-          const uid = Number((c as any)?.userId);
-          if (Number.isInteger(uid) && uid > 0) ids.add(uid);
+          const uid = (c as any)?.userId;
+          if (uid !== undefined && uid !== null && String(uid).length > 0) {
+            ids.add(String(uid));
+          }
         }
         this.customerUserIds.set(ids);
         this.users.set(users);
@@ -85,16 +88,16 @@ export class AdminsListComponent {
   }
 
   goById(): void {
-    const id = Number(this.queryUserId);
-    if (!Number.isInteger(id) || id <= 0) {
+    const id = (this.queryUserId ?? '').toString().trim();
+    if (!id) {
       this.errorMsg.set('ID inválido.');
       return;
     }
     this.openProfile(id);
   }
 
-  openProfile(userId: number): void {
-    this.router.navigate([this.basePath, userId]);
+  openProfile(userId: string | number): void {
+    this.router.navigate([this.basePath, String(userId)]);
   }
 
   rolesOf(user: ApiUser): string[] {
@@ -110,7 +113,7 @@ export class AdminsListComponent {
     const roles = this.rolesOf(user);
     if (roles.some(r => ADMIN_ROLE_SLUGS.has(r))) return true;
     // Fallback when /users payload omits roles: any user not linked to a customer record is treated as panel-side
-    if (roles.length === 0) return !this.customerUserIds().has(user.id);
+    if (roles.length === 0) return !this.customerUserIds().has(String(user.id));
     return false;
   }
 

@@ -2,7 +2,10 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { TokenService } from '@services/token.service';
 
-const PANEL_ROLES = new Set(['admin', 'branch_admin', 'seller', 'staff']);
+// Roles globales del SSO que dan acceso al panel administrativo.
+// `staff` ya es suficiente — la sucursal específica se resuelve después
+// vía la tabla `user_branches` del API-V6 (no llega en el JWT).
+const PANEL_ROLES = new Set(['admin', 'super_admin', 'staff']);
 
 export const panelGuard: CanActivateFn = (_route, state) => {
   const router = inject(Router);

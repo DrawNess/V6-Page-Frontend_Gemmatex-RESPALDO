@@ -46,7 +46,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   readonly userMenuOpen = signal(false);
   readonly isLoggedIn = signal(this.tokenService.isAuthenticated());
-  readonly isAdmin = computed(() => this.tokenService.hasRole('admin'));
+  readonly isAdmin = computed(
+    () => this.tokenService.hasRole('admin') || this.tokenService.hasRole('super_admin')
+  );
 
   toggleUserMenu() { this.userMenuOpen.update(v => !v); }
   closeUserMenu() { this.userMenuOpen.set(false); }

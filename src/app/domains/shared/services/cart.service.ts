@@ -41,13 +41,15 @@ export class CartService {
     });
   }
 
-  private storageKeyForUser(userId: number): string {
+  private storageKeyForUser(userId: string): string {
     return `${this.userPrefix}${userId}`;
   }
 
   private resolveStorageKey(): string {
-    const userId = this.tokenService.getUserIdFromToken() ?? this.sessionService.getCurrentUserIdFromSession();
-    if (userId && userId > 0) {
+    const userId =
+      this.tokenService.getUserIdFromToken() ??
+      this.sessionService.getCurrentUserIdFromSession();
+    if (typeof userId === 'string' && userId.length > 0) {
       return this.storageKeyForUser(userId);
     }
     return this.guestKey;
