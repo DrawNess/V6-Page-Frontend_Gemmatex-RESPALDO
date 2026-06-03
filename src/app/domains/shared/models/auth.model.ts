@@ -117,3 +117,27 @@ export interface LoginResponse {
   token: string;
   user: AuthUser;
 }
+
+export interface SsoSession {
+  id: string;
+  user_id: string;
+  application_id: string;
+  family_id: string;
+  expires_at: string;
+  revoked_at: string | null;
+  ip: string | null;
+  user_agent: string | null;
+  created_at: string;
+  is_current: boolean;
+  application?: {
+    id: string;
+    name: string;
+    display_name: string;
+    type: string;
+  };
+}
+
+export interface SsoSessionsResponse {
+  items: SsoSession[];
+  total: number;
+}

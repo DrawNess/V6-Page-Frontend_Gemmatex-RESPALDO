@@ -1,10 +1,11 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
 import { Title, Meta } from '@angular/platform-browser';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { AuthService } from '@shared/services/auth.service';
+import { parseApiError } from '@core/utils/parse-api-error';
 @Component({
   selector: 'app-forgot-password',
   imports: [ReactiveFormsModule, RouterModule],
@@ -12,6 +13,7 @@ import { AuthService } from '@shared/services/auth.service';
   styleUrl: './forgot-password.component.css',
 })
 export class ForgotPasswordComponent implements OnInit, OnDestroy {
+  private readonly destroyRef = inject(DestroyRef);
   private redirectTimeoutId?: number;
 
   loading = false;
@@ -68,7 +70,7 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     return this.form.controls;
   }
 
-  matchPasswordsValidator(group: any) {
+  matchPasswordsValidator(group: AbstractControl): ValidationErrors | null {
     const pass = group.get('password')?.value;
     const confirm = group.get('confirmPassword')?.value;
     return pass === confirm ? null : { mismatch: true };
@@ -79,23 +81,12 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   }
 
   private parseError(err: unknown): string {
-    if (err instanceof HttpErrorResponse) {
-      const data: any = err.error;
-
-      if (typeof data === 'string') return data;
-
-      if (data?.message) {
-        if (Array.isArray(data.message)) return data.message.join(', ');
-        return data.message;
-      }
-
-      // Tu AuthService lanza boom.unauthorized() si token expira o no coincide
-      if (err.status === 401) return 'El enlace expiró o no es válido. Solicita uno nuevo.';
-      if (err.status === 400) return 'Solicitud inválida. Revisa los datos.';
-      if (err.status === 0) return 'No se pudo conectar con el servidor.';
-      return `Error (${err.status}). Intenta nuevamente.`;
-    }
-    return 'Ocurrió un error inesperado.';
+    return parseApiError(err, {
+      statusMessages: {
+        401: 'El enlace expiró o no es válido. Solicita uno nuevo.',
+        400: 'Solicitud inválida. Revisa los datos.',
+      },
+    });
   }
 
   submitNewPassword() {
@@ -116,7 +107,9 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     this.loading = true;
 
     const { password } = this.form.getRawValue();
-    this.authService.changePassword(this.token, password).subscribe({
+    this.authService.changePassword(this.token, password)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (rta) => {
         this.successMsg = rta?.message || 'Contraseña actualizada correctamente.';
         this.loading = false;

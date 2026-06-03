@@ -27,6 +27,7 @@ export class UserSidebarComponent implements OnInit {
     { label: 'Información', path: `${this.base}/${ROUTE_CONSTANTS.USER.INFO}`,                            description: 'Datos y contacto' },
     { label: 'Dirección',   path: `${this.base}/${ROUTE_CONSTANTS.USER.ADDRESS}`,                         description: 'Dirección de entrega' },
     { label: 'Pedidos',     path: `${this.base}/${ROUTE_CONSTANTS.USER.ORDERS}`,                          description: 'Historial y seguimiento' },
+    { label: 'Seguridad',   path: `${this.base}/${ROUTE_CONSTANTS.USER.SECURITY}`,                        description: 'Contraseña y sesiones' },
   ];
 
   constructor(

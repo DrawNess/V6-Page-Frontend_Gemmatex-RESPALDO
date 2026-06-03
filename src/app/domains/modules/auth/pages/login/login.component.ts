@@ -1,7 +1,8 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs/operators';
 import { ROUTE_CONSTANTS } from '@core/constants/routes.constants';
 
@@ -17,6 +18,7 @@ type RequestStatus = 'init' | 'loading' | 'success' | 'failed';
   styleUrl: './login.component.css',
 })
 export class LoginComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
 
   @Output() switchToRegister = new EventEmitter<void>();
 
@@ -78,7 +80,10 @@ export class LoginComponent implements OnInit {
 
     this.authService
       .login(email.trim().toLowerCase(), password)
-      .pipe(finalize(() => (this.status = 'init')))
+      .pipe(
+        finalize(() => (this.status = 'init')),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe({
         next: () => {
           this.status = 'success';

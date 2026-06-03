@@ -1,4 +1,3 @@
-// register.component.ts
 import { Component, DestroyRef, EventEmitter, inject, OnDestroy, Output } from '@angular/core';
 import {
   AbstractControl,
@@ -13,6 +12,7 @@ import { finalize, switchMap } from 'rxjs/operators';
 
 import { AuthService } from '@shared/services/auth.service';
 import { SessionService } from '@shared/services/session.service';
+import { parseApiError } from '@core/utils/parse-api-error';
 
 type RequestStatus = 'init' | 'loading' | 'success' | 'failed';
 
@@ -21,6 +21,18 @@ function matchPasswords(a: string, b: string): ValidatorFn {
     const p1 = control.get(a)?.value;
     const p2 = control.get(b)?.value;
     return p1 === p2 ? null : { mismatch: true };
+  };
+}
+
+function passwordStrength(minScore: number): ValidatorFn {
+  return (ctrl: AbstractControl): ValidationErrors | null => {
+    const val = (ctrl.value as string) ?? '';
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/\d/.test(val)) score++;
+    if (/[^A-Za-z0-9\s]/.test(val)) score++;
+    return score >= minScore ? null : { weakPassword: { score, required: minScore } };
   };
 }
 
@@ -60,7 +72,7 @@ export class RegisterComponent implements OnDestroy {
       lastName: ['', [Validators.required, Validators.minLength(2)]],
       phone: ['', [Validators.required, Validators.minLength(8)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
+      password: ['', [Validators.required, Validators.minLength(8), passwordStrength(2)]],
       confirmPassword: ['', [Validators.required, Validators.minLength(8)]],
       terms: [false, [Validators.requiredTrue]],
     },
@@ -125,6 +137,7 @@ export class RegisterComponent implements OnDestroy {
     if (this.f.terms.invalid) return 'Debes aceptar los términos y políticas para continuar.';
     if (this.form.hasError('mismatch')) return 'Las contraseñas no coinciden.';
     if (this.f.email.invalid) return 'Revisa el correo.';
+    if (this.f.password.hasError('weakPassword')) return 'La contraseña debe incluir mayúscula, número o símbolo.';
     if (this.f.password.invalid) return 'Revisa la contraseña.';
     if (this.f.name.invalid) return 'Revisa el nombre.';
     if (this.f.lastName.invalid) return 'Revisa el apellido.';
@@ -132,22 +145,13 @@ export class RegisterComponent implements OnDestroy {
     return null;
   }
 
-  private parseApiError(err: any): string {
-    // Sequelize unique constraint típico
-    const msg = err?.error?.message || err?.error?.errors?.message;
-    if (typeof msg === 'string' && msg.trim()) return msg;
-
-    const arr = err?.error?.errors?.message || err?.error?.errors || err?.error?.details;
-    if (Array.isArray(arr) && arr.length) {
-      return arr
-        .map((e: any) => (typeof e === 'string' ? e : e?.message))
-        .filter(Boolean)
-        .join(' | ');
-    }
-
-    // fallback
-    if (err?.status === 409) return 'Este correo ya está registrado.';
-    return 'No se pudo registrar. Verifica los datos.';
+  private parseApiError(err: unknown): string {
+    return parseApiError(err, {
+      fallback: 'No se pudo registrar. Verifica los datos.',
+      statusMessages: {
+        409: 'Este correo ya está registrado.',
+      },
+    });
   }
 
   register() {

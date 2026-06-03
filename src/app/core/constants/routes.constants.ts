@@ -76,6 +76,7 @@ export const ROUTE_CONSTANTS = {
     BASE: 'mi-cuenta',
     INFO: 'informacion',
     ORDERS: 'pedidos',
-    ADDRESS: 'direccion'
+    ADDRESS: 'direccion',
+    SECURITY: 'seguridad'
   }
 } as const;

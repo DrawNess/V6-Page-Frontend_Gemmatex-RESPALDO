@@ -132,4 +132,8 @@ export class CartService {
     this.syncWithCurrentSession();
     this.cart.set([]);
   }
+
+  clearUserStorageKey(userId: string): void {
+    localStorage.removeItem(this.storageKeyForUser(userId));
+  }
 }

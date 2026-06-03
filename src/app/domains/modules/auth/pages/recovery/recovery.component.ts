@@ -1,9 +1,10 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { AuthService } from '@shared/services/auth.service';
+import { parseApiError } from '@core/utils/parse-api-error';
 
 @Component({
   selector: 'app-recovery',
@@ -12,6 +13,7 @@ import { AuthService } from '@shared/services/auth.service';
   styleUrl: './recovery.component.css',
 })
 export class RecoveryComponent implements OnInit, OnDestroy {
+  private readonly destroyRef = inject(DestroyRef);
   private redirectTimeoutId?: number;
 
   loading = false;
@@ -51,27 +53,13 @@ export class RecoveryComponent implements OnInit, OnDestroy {
   }
 
   private parseError(err: unknown): string {
-    // Boom + middleware de errores suele devolver:
-    // { statusCode, error, message } o { message: '...' } o array
-    if (err instanceof HttpErrorResponse) {
-      const data: any = err.error;
-
-      if (typeof data === 'string') return data;
-
-      if (data?.message) {
-        // message puede ser string o array
-        if (Array.isArray(data.message)) return data.message.join(', ');
-        return data.message;
-      }
-
-      if (data?.error) return data.error;
-
-      if (err.status === 0) return 'No se pudo conectar con el servidor.';
-      if (err.status === 401) return 'Correo no encontrado o no autorizado.';
-      if (err.status === 400) return 'Solicitud inválida. Revisa el correo.';
-      return `Error (${err.status}). Intenta nuevamente.`;
-    }
-    return 'Ocurrió un error inesperado. Intenta nuevamente.';
+    return parseApiError(err, {
+      fallback: 'Ocurrió un error inesperado. Intenta nuevamente.',
+      statusMessages: {
+        401: 'Correo no encontrado o no autorizado.',
+        400: 'Solicitud inválida. Revisa el correo.',
+      },
+    });
   }
 
   sendRecovery() {
@@ -87,7 +75,9 @@ export class RecoveryComponent implements OnInit, OnDestroy {
     this.loading = true;
     const { email } = this.form.getRawValue();
 
-    this.authService.recoverPassword(email).subscribe({
+    this.authService.recoverPassword(email)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (rta) => {
         // tu API devuelve { message: 'Mail sent' }
         this.successMsg = rta?.message || 'Revisa tu correo para continuar.';

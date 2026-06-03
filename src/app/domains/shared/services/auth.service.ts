@@ -7,6 +7,8 @@ import {
   AuthUser,
   SsoLoginResponse,
   SsoRegisterPayload,
+  SsoSession,
+  SsoSessionsResponse,
 } from '@shared/models/auth.model';
 import { TokenService } from './token.service';
 import { SessionService } from './session.service';
@@ -77,10 +79,12 @@ export class AuthService {
    *    invalide la cookie httpOnly del refresh. Si falla, ya teardown corrió.
    */
   logout(allDevices = false): void {
-    // 1) Capturamos el token actual antes de limpiar — lo necesitamos como
-    //    Authorization en la llamada al SSO porque el interceptor no podrá
-    //    sacarlo del store tras el teardown sync.
+    // 1) Capturamos el token y userId antes de limpiar — el token lo necesitamos
+    //    como Authorization en la llamada al SSO; el userId para limpiar su clave
+    //    de carrito en localStorage después del teardown.
     const token = this.tokenService.getToken();
+    const userId = this.tokenService.getUserIdFromToken()
+      ?? this.sessionService.getCurrentUserIdFromSession();
 
     // 2) Teardown SÍNCRONO. La UI debe reflejar "sin sesión" YA, sin esperar
     //    a que vuelva la respuesta del SSO. Así el `router.navigate` que
@@ -90,6 +94,7 @@ export class AuthService {
     this.sessionService.clearSession();
     this.branchCache.clear();
     this.cartService.syncWithCurrentSession();
+    if (userId) this.cartService.clearUserStorageKey(userId);
 
     // 3) Fire-and-forget al SSO con `x-skip-auth` para que el interceptor
     //    no intente adjuntar/refrescar nada — adjuntamos manualmente el
@@ -193,6 +198,30 @@ export class AuthService {
     return this.http.post<{ message: string }>(
       `${this.ssoUrl}/auth/change-password`,
       { current_password: currentPassword, new_password: newPassword },
+      this.cookieOptions()
+    );
+  }
+
+  // ─── Sessions ─────────────────────────────────────────────
+
+  getSessions(): Observable<SsoSessionsResponse> {
+    return this.http.get<SsoSessionsResponse>(
+      `${this.ssoUrl}/auth/sessions`,
+      this.cookieOptions()
+    );
+  }
+
+  revokeSession(sessionId: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(
+      `${this.ssoUrl}/auth/sessions/${sessionId}`,
+      this.cookieOptions()
+    );
+  }
+
+  logoutOtherSessions(): Observable<{ message: string; revoked: number }> {
+    return this.http.post<{ message: string; revoked: number }>(
+      `${this.ssoUrl}/auth/sessions/logout-others`,
+      {},
       this.cookieOptions()
     );
   }
